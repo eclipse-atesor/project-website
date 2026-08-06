@@ -1,0 +1,80 @@
+---
+import Section from './Section.astro';
+import { failureModes } from '../data/content';
+---
+
+<Section
+  id="problem"
+  eyebrow="The problem"
+  title="The same handful of things break, every single time."
+  lede="Porting to RISC-V is repetitive rather than hard. Clone, detect the build system, install the right packages, hit one of a familiar set of failures, patch, retry. Every failure below is one Atesor already knows how to recognise and repair."
+>
+  <ul class="fail-grid">
+    {
+      failureModes.map((f, i) => (
+        <li class="card card-lit fail" data-reveal data-reveal-delay={(i % 3) * 80}>
+          <h3 class="h3">{f.title}</h3>
+          <code class="fail-err">{f.error}</code>
+          <p>{f.body}</p>
+        </li>
+      ))
+    }
+  </ul>
+
+</Section>
+
+<style>
+  .fail-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .fail {
+    padding: 1.4rem 1.5rem 1.5rem;
+  }
+
+  .fail h3 {
+    margin: 0 0 0.7rem;
+    color: var(--color-text);
+  }
+
+  .fail-err {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--color-danger);
+    background: color-mix(in srgb, var(--color-danger) 9%, transparent);
+    border-left: 2px solid color-mix(in srgb, var(--color-danger) 55%, transparent);
+    padding: 0.45rem 0.65rem;
+    border-radius: 0 5px 5px 0;
+    margin-bottom: 0.9rem;
+    /* Wrap rather than scroll — these strings are short, and a scrollbar
+       per card reads as breakage. */
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .fail p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.62;
+    color: var(--color-text-dim);
+  }
+
+  @media (min-width: 680px) {
+    .fail-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .fail-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

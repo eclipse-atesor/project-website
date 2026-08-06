@@ -1,0 +1,61 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 512 512"
+  width="512"
+  height="512"
+  fill="none"
+  role="img"
+  aria-labelledby="core-title core-desc"
+>
+  <title id="core-title">Eclipse Atesor — Verified Core</title>
+  <desc id="core-desc">
+    Icon mark. A chip package with twelve pins, its die carrying a check —
+    the project's core promise, that every binary is confirmed genuine
+    riscv64 rather than a silent x86 fallthrough.
+  </desc>
+
+  <!--
+    Construction: 288px body on a 512 canvas leaves a 99px optical margin
+    once pins are counted, so the mark holds its shape as a favicon and as an
+    app tile. Pins are on a 80px pitch, centred per edge.
+  -->
+
+  <defs>
+    <linearGradient id="core-body" x1="112" y1="112" x2="400" y2="400" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F9A840" />
+      <stop offset="1" stop-color="#F06C00" />
+    </linearGradient>
+  </defs>
+
+  <!-- Pins -->
+  <g stroke="url(#core-body)" stroke-width="22" stroke-linecap="round">
+    <!-- top -->
+    <path d="M176 104V58M256 104V58M336 104V58" />
+    <!-- bottom -->
+    <path d="M176 408v46M256 408v46M336 408v46" />
+    <!-- left -->
+    <path d="M104 176H58M104 256H58M104 336H58" />
+    <!-- right -->
+    <path d="M408 176h46M408 256h46M408 336h46" />
+  </g>
+
+  <!-- Package body -->
+  <rect
+    x="112"
+    y="112"
+    width="288"
+    height="288"
+    rx="54"
+    stroke="url(#core-body)"
+    stroke-width="26"
+  />
+
+  <!-- The die: verified -->
+  <path
+    d="M186 258 238 310 330 206"
+    stroke="#2DD4BF"
+    stroke-width="34"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

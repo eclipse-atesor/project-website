@@ -1,0 +1,65 @@
+---
+interface Props {
+  id?: string;
+  eyebrow?: string;
+  title?: string;
+  lede?: string;
+  raised?: boolean;
+  bordered?: boolean;
+  class?: string;
+}
+const {
+  id,
+  eyebrow,
+  title,
+  lede,
+  raised = false,
+  bordered = true,
+  class: klass = '',
+} = Astro.props;
+---
+
+<section
+  id={id}
+  class:list={['section-y', klass, { raised, bordered }]}
+>
+  <div class="container-x">
+    {
+      (eyebrow || title || lede) && (
+        <header class="sec-head" data-reveal>
+          {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+          {title && <h2 class="h2">{title}</h2>}
+          {lede && <p class="lede prose-width sec-lede">{lede}</p>}
+        </header>
+      )
+    }
+    <slot />
+  </div>
+</section>
+
+<style>
+  .raised {
+    background: var(--color-bg-raised);
+  }
+
+  .bordered {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .sec-head {
+    margin-bottom: clamp(2rem, 4vw, 3.25rem);
+  }
+
+  .sec-head .eyebrow {
+    margin-bottom: 0.9rem;
+  }
+
+  .sec-head .h2 {
+    margin: 0;
+    max-width: 22ch;
+  }
+
+  .sec-lede {
+    margin-top: 1.1rem;
+  }
+</style>

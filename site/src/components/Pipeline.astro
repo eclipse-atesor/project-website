@@ -1,0 +1,16 @@
+---
+import Section from './Section.astro';
+import PipelineDiagram from './PipelineDiagram.astro';
+---
+
+<Section
+  id="pipeline"
+  raised
+  eyebrow="How it works"
+  title="A state machine that only pays for judgement."
+  lede="Atesor is a compiled LangGraph state graph: eleven node registrations, seven routing functions, and one shared state object mutated in place. Most of it never calls a model at all. The language models are reserved for the two places where judgement is genuinely required."
+>
+  <div data-reveal>
+    <PipelineDiagram />
+  </div>
+</Section>

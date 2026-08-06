@@ -1,0 +1,610 @@
+---
+import Base from '../layouts/Base.astro';
+import Section from '../components/Section.astro';
+import Icon from '../components/Icon.astro';
+import { project } from '../data/content';
+import { url } from '../lib/url';
+import manifest from '../../public/assets/packages.json';
+
+/**
+ * Downloads.
+ *
+ * Two things ship: the Atesor CLI (a Debian package), and every riscv64
+ * artifact it has produced, each zip carrying the replayable porting recipe.
+ *
+ * The table renders client-side from /atesor/assets/packages.json, generated
+ * at build time by scripts/build-manifest.mjs. Server-rendering 3,991 rows
+ * would produce a multi-megabyte document; paging in the browser keeps the
+ * page small and search instant. Summary counts ARE server-rendered so the
+ * page states something true without JavaScript.
+ *
+ * No third-party requests: the manifest, and the recipe blob fetched on first
+ * use, are both same-origin.
+ */
+const { artifacts, unique, bothLibc, withRecipe, months, distros, langs } = manifest;
+// `unique` is still used in the meta description, just not shown in the band.
+const truncated = months.filter((m) => m.truncated);
+---
+
+<Base
+  title="Downloads"
+  description={`Every riscv64 artifact Eclipse Atesor has published: ${unique} unique packages across ${artifacts} builds, each with a replayable porting recipe.`}
+  ogPath="/downloads"
+>
+  <Section
+    eyebrow="Downloads"
+    title="Every artifact Atesor has published."
+    lede="Two things ship here: the Atesor command-line tool itself, and the riscv64 builds it has produced. Every package archive carries the replayable porting recipe next to the binaries."
+  >
+    <!-- ---------------------------------------------------------- CLI -->
+    <div class="cli-card card">
+      <div class="cli-main">
+        <h3 class="h3">Atesor CLI</h3>
+        <p>
+          A self-contained Debian package. Bundles its own Python virtualenv,
+          installs an <code>atesor-ai</code> launcher, and pulls the Docker and
+          QEMU dependencies through apt.
+        </p>
+        <ul class="cli-meta">
+          <li>Ubuntu 22.04 / Debian-based</li>
+          <li>amd64 · arm64</li>
+          <li>MIT licensed</li>
+        </ul>
+      </div>
+      <div class="cli-actions">
+        <a href={project.urls.latestRelease} class="btn btn-primary" rel="noopener" target="_blank">
+          <Icon name="box" size={16} />
+          Get the release
+        </a>
+        <a href={url('/#quickstart')} class="btn btn-secondary">Install guide</a>
+      </div>
+    </div>
+
+    <!-- ----------------------------------------------------- packages -->
+    <div class="pkg-head">
+      <h2 class="h2 pkg-title">Ported packages</h2>
+      <ul class="pkg-stats">
+        <li><strong>{artifacts.toLocaleString()}</strong><span>build artifacts</span></li>
+        <li><strong>{bothLibc.toLocaleString()}</strong><span>on musl and glibc</span></li>
+        <li><strong>{withRecipe.toLocaleString()}</strong><span>with a cached recipe</span></li>
+      </ul>
+    </div>
+
+    <div class="controls">
+      <div class="search">
+        <input type="search" id="q" placeholder="Search packages…" autocomplete="off" aria-label="Search packages" />
+      </div>
+
+      <label class="sel">
+        <span>Release</span>
+        <select id="f-release">
+          <option value="">All</option>
+          {months.map((m) => <option value={m.m}>{m.m} ({m.count.toLocaleString()})</option>)}
+        </select>
+      </label>
+
+      <label class="sel">
+        <span>libc</span>
+        <select id="f-distro">
+          <option value="">All</option>
+          {distros.map((d) => <option value={d}>{d === 'alpine' ? 'musl (alpine)' : `glibc (${d})`}</option>)}
+        </select>
+      </label>
+
+      <label class="sel">
+        <span>Language</span>
+        <select id="f-lang">
+          <option value="">All</option>
+          {langs.map((l) => <option value={l}>{l}</option>)}
+        </select>
+      </label>
+
+      <label class="sel">
+        <span>Recipe</span>
+        <select id="f-recipe">
+          <option value="1" selected>With recipe</option>
+          <option value="">All artifacts</option>
+        </select>
+      </label>
+
+      <label class="sel">
+        <span>Rows</span>
+        <select id="f-size">
+          <option value="50">50</option>
+          <option value="100">100</option>
+          <option value="200">200</option>
+        </select>
+      </label>
+
+      <button id="reset" class="chip-btn">Reset</button>
+    </div>
+
+    <p class="result-line" id="result-line" aria-live="polite">Loading packages…</p>
+
+    <div class="table-wrap scroll-x">
+      <table class="pkg-table">
+        <colgroup>
+          <col class="c-pkg" /><col class="c-src" /><col class="c-lang" /><col class="c-libc" />
+          <col class="c-size" /><col class="c-pulls" /><col class="c-rel" />
+          <col class="c-built" /><col class="c-recipe" /><col class="c-dl" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col" data-sort="n" aria-sort="ascending">Package</th>
+            <th scope="col">Source</th>
+            <th scope="col" data-sort="l">Lang</th>
+            <th scope="col" data-sort="d">libc</th>
+            <th scope="col" data-sort="s">Size</th>
+            <th scope="col" data-sort="c">Pulls</th>
+            <th scope="col" data-sort="m">Release</th>
+            <th scope="col" data-sort="v">Built</th>
+            <th scope="col">Recipe</th>
+            <th scope="col"><span class="sr-only">Download</span></th>
+          </tr>
+        </thead>
+        <tbody id="rows">
+          <tr class="empty-row">
+            <td colspan="10">
+              This table needs JavaScript. Every artifact is also browsable on
+              <a href={project.urls.releases} rel="noopener" target="_blank">GitHub Releases</a>.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pager" id="pager" hidden>
+      <button id="prev" class="btn btn-secondary btn-sm">Previous</button>
+      <span id="page-label"></span>
+      <button id="next" class="btn btn-secondary btn-sm">Next</button>
+    </div>
+
+    <p class="note">
+      Package archives are hosted on GitHub Releases; each monthly sweep is
+      tagged <code>builds-YYYY-MM</code>. Every archive contains the porting
+      recipe, the build and agent logs, and the ported source tree.
+      {
+        truncated.length > 0 && (
+          <>
+            {' '}GitHub caps asset listings at 1,000 per release, so{' '}
+            {truncated.map((r) => r.m).join(' and ')}{' '}
+            may list fewer entries here than the release actually holds.
+          </>
+        )
+      }
+    </p>
+  </Section>
+
+  <!-- ------------------------------------------------------ recipe modal -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <header>
+        <h2 id="modal-title">Recipe</h2>
+        <button class="modal-x" data-close aria-label="Close">✕</button>
+      </header>
+      <pre id="modal-body">Loading…</pre>
+    </div>
+  </div>
+</Base>
+
+<script>
+  type Pkg = {
+    n: string; v: string; d: string; s: number; t: string;
+    e?: string; c?: number; u?: string; l?: string; r?: number;
+  };
+
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const rowsEl = $('rows');
+  const qEl = $<HTMLInputElement>('q');
+  const resultEl = $('result-line');
+  const pagerEl = $('pager');
+  const prevEl = $<HTMLButtonElement>('prev');
+  const nextEl = $<HTMLButtonElement>('next');
+  const pageLabel = $('page-label');
+  const fRelease = $<HTMLSelectElement>('f-release');
+  const fDistro = $<HTMLSelectElement>('f-distro');
+  const fLang = $<HTMLSelectElement>('f-lang');
+  const fRecipe = $<HTMLSelectElement>('f-recipe');
+  const fSize = $<HTMLSelectElement>('f-size');
+  const modal = $('modal');
+  const modalTitle = $('modal-title');
+  const modalBody = $('modal-body');
+
+  let all: Pkg[] = [];
+  let view: Pkg[] = [];
+  let page = 0;
+  let perPage = 50;
+  let sortKey: keyof Pkg = 'n';
+  let sortDir: 1 | -1 = 1;
+  let repo = 'eclipse-atesor/atesor';
+  let recipes: Record<string, Record<string, string>> | null = null;
+
+  const esc = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  const fmtSize = (b: number) =>
+    b > 1048576 ? `${(b / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`;
+  const fmtDate = (v: string) => `${v.slice(0, 4)}-${v.slice(4, 6)}-${v.slice(6, 8)}`;
+  const filename = (p: Pkg) => `${p.n}-${p.v}-${p.d}.${p.e ?? 'zip'}`;
+  const href = (p: Pkg) =>
+    `https://github.com/${repo}/releases/download/${p.t}/${encodeURIComponent(filename(p))}`;
+  const shortSrc = (u: string) => u.replace(/^https?:\/\/(www\.)?/, '').replace(/^github\.com\//, '');
+
+  function render() {
+    const start = page * perPage;
+    const slice = view.slice(start, start + perPage);
+
+    rowsEl.innerHTML = !slice.length
+      ? '<tr class="empty-row"><td colspan="10">No packages match those filters.</td></tr>'
+      : slice
+          .map(
+            (p) => `<tr>
+        <th scope="row" title="${esc(p.n)}">${esc(p.n)}</th>
+        <td>${p.u ? `<a class="src" href="${esc(p.u)}" rel="noopener" target="_blank" title="${esc(p.u)}">${esc(shortSrc(p.u))}</a>` : '<span class="dim">—</span>'}</td>
+        <td>${p.l ? `<span class="tag-l">${esc(p.l)}</span>` : '<span class="dim">·</span>'}</td>
+        <td><span class="libc libc-${esc(p.d)}">${p.d === 'alpine' ? 'musl' : 'glibc'}</span></td>
+        <td class="mono dim">${fmtSize(p.s)}</td>
+        <td class="mono dim">${p.c ?? 0}</td>
+        <td class="mono dim">${esc(p.m)}</td>
+        <td class="mono dim">${fmtDate(p.v)}</td>
+        <td>${p.r ? `<button class="recipe-btn" data-recipe="${esc(p.n)}">view</button>` : '<span class="dim">·</span>'}</td>
+        <td class="dl-cell"><a class="dl" href="${href(p)}" rel="noopener">Download</a></td>
+      </tr>`
+          )
+          .join('');
+
+    const pages = Math.max(1, Math.ceil(view.length / perPage));
+    pagerEl.hidden = view.length <= perPage;
+    pageLabel.textContent = `Page ${page + 1} of ${pages}`;
+    prevEl.disabled = page === 0;
+    nextEl.disabled = page >= pages - 1;
+    resultEl.textContent =
+      view.length === all.length
+        ? `Showing all ${all.length.toLocaleString()} artifacts.`
+        : `${view.length.toLocaleString()} of ${all.length.toLocaleString()} artifacts.` +
+          (fRecipe.value === '1' ? ' Showing only builds with a cached recipe.' : '');
+  }
+
+  function apply() {
+    const q = qEl.value.trim().toLowerCase();
+    const rel = fRelease.value, dis = fDistro.value, lang = fLang.value;
+    const onlyRecipe = fRecipe.value === '1';
+    view = all.filter(
+      (p) =>
+        (!rel || p.m === rel) &&
+        (!dis || p.d === dis) &&
+        (!lang || p.l === lang) &&
+        (!onlyRecipe || p.r === 1) &&
+        (!q || p.n.toLowerCase().includes(q))
+    );
+    view.sort((a, b) => {
+      const av = a[sortKey], bv = b[sortKey];
+      if (av === bv) return a.n.localeCompare(b.n);
+      if (av === undefined) return 1;
+      if (bv === undefined) return -1;
+      return (typeof av === 'number' && typeof bv === 'number'
+        ? av - bv
+        : String(av).localeCompare(String(bv))) * sortDir;
+    });
+    page = 0;
+    render();
+  }
+
+  // ---- sorting -----------------------------------------------------------
+  document.querySelectorAll<HTMLElement>('th[data-sort]').forEach((th) => {
+    th.addEventListener('click', () => {
+      const k = th.dataset.sort as keyof Pkg;
+      if (k === sortKey) sortDir = sortDir === 1 ? -1 : 1;
+      else { sortKey = k; sortDir = 1; }
+      document.querySelectorAll('th[data-sort]').forEach((o) => o.removeAttribute('aria-sort'));
+      th.setAttribute('aria-sort', sortDir === 1 ? 'ascending' : 'descending');
+      apply();
+    });
+  });
+
+  // ---- filters -----------------------------------------------------------
+  let t: number;
+  qEl.addEventListener('input', () => { clearTimeout(t); t = window.setTimeout(apply, 120); });
+  [fRelease, fDistro, fLang, fRecipe].forEach((s) => s.addEventListener('change', apply));
+  fSize.addEventListener('change', () => { perPage = Number(fSize.value); page = 0; render(); });
+  $('reset').addEventListener('click', () => {
+    qEl.value = ''; fRelease.value = ''; fDistro.value = ''; fLang.value = ''; fRecipe.value = '1';
+    sortKey = 'n'; sortDir = 1;
+    apply();
+  });
+
+  const toTable = () => {
+    const w = document.querySelector('.table-wrap');
+    if (w) window.scrollTo({ top: w.getBoundingClientRect().top + window.scrollY - 90 });
+  };
+  prevEl.addEventListener('click', () => { if (page > 0) { page--; render(); toTable(); } });
+  nextEl.addEventListener('click', () => { page++; render(); toTable(); });
+
+  // ---- recipe modal ------------------------------------------------------
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+  const closeModal = () => { modal.hidden = true; document.body.style.overflow = ''; };
+  modal.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', closeModal));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
+
+  rowsEl.addEventListener('click', async (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLElement>('[data-recipe]');
+    if (!btn) return;
+    const name = btn.dataset.recipe!;
+    modalTitle.textContent = `${name} — porting recipe`;
+    modalBody.textContent = 'Loading…';
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+
+    if (!recipes) {
+      try {
+        recipes = await fetch(`${base}/assets/recipes.json`).then((r) => r.json());
+      } catch {
+        modalBody.textContent = 'Could not load recipes.';
+        return;
+      }
+    }
+    const entry = recipes?.[name];
+    modalBody.textContent = entry
+      ? Object.entries(entry).map(([sandbox, md]) => `# sandbox: ${sandbox}\n\n${md}`).join('\n\n')
+      : 'No cached recipe for this package. The recipe is inside the downloadable archive.';
+  });
+
+  // ---- load --------------------------------------------------------------
+  fetch(`${base}/assets/packages.json`)
+    .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+    .then((m) => {
+      repo = m.repo ?? repo;
+      all = m.packages;
+      apply();
+    })
+    .catch((err) => {
+      resultEl.textContent = 'Could not load the package index.';
+      rowsEl.innerHTML = `<tr class="empty-row"><td colspan="10">The package index failed to load (${esc(
+        String(err.message)
+      )}). Browse the artifacts on <a href="https://github.com/${repo}/releases" rel="noopener">GitHub Releases</a>.</td></tr>`;
+    });
+</script>
+
+<style>
+  .cli-card {
+    display: grid;
+    gap: 1.5rem;
+    padding: 1.6rem 1.75rem;
+    margin-bottom: clamp(3rem, 6vw, 4.5rem);
+  }
+  .cli-main h3 { margin: 0 0 0.5rem; }
+  .cli-main p {
+    margin: 0 0 1rem;
+    max-width: 60ch;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--color-text-dim);
+  }
+  .cli-main code { font-family: var(--font-mono); font-size: 0.9em; color: var(--color-verified); }
+  .cli-meta {
+    display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem;
+    list-style: none; padding: 0; margin: 0;
+    font-family: var(--font-mono); font-size: 0.73rem; color: var(--color-text-muted);
+  }
+  .cli-actions { display: flex; flex-wrap: wrap; gap: 0.65rem; align-content: start; }
+
+  .pkg-head { display: grid; gap: 1.25rem; margin-bottom: 1.75rem; }
+  .pkg-title { margin: 0; }
+  .pkg-stats { display: flex; flex-wrap: wrap; gap: 1.75rem; list-style: none; padding: 0; margin: 0; }
+  .pkg-stats li { display: flex; flex-direction: column; }
+  .pkg-stats strong {
+    font-family: var(--font-mono); font-size: 1.4rem; font-weight: 700; color: var(--color-text);
+  }
+  .pkg-stats span { font-size: 0.78rem; color: var(--color-text-muted); }
+
+  /* ---- controls ---- */
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-bottom: 0.9rem;
+  }
+  .search {
+    display: flex; align-items: center; flex: 1 1 14rem;
+    padding: 0.5rem 0.9rem;
+    border: 1px solid var(--color-border); border-radius: 999px;
+    background: var(--color-bg-inset);
+  }
+  .search:focus-within { border-color: color-mix(in srgb, var(--color-accent) 55%, transparent); }
+  .search input {
+    flex: 1; min-width: 0; border: 0; background: transparent;
+    color: var(--color-text); font-family: var(--font-sans); font-size: 0.9rem;
+  }
+  .search input:focus { outline: none; }
+
+  .sel {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-text-muted);
+  }
+  .sel select {
+    padding: 0.42rem 0.6rem;
+    border: 1px solid var(--color-border); border-radius: 8px;
+    background: var(--color-bg-inset); color: var(--color-text);
+    font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer;
+  }
+  .sel select:focus-visible { border-color: var(--color-accent); }
+
+  .chip-btn {
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--color-border); border-radius: 999px;
+    background: transparent; color: var(--color-text-muted);
+    font-family: var(--font-mono); font-size: 0.72rem; cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .chip-btn:hover { color: var(--color-text-dim); border-color: var(--color-border-bright); }
+
+  .result-line {
+    margin: 0 0 0.75rem;
+    font-family: var(--font-mono); font-size: 0.74rem; color: var(--color-text-muted);
+  }
+
+  /* ---- table ---- */
+  .table-wrap { border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-bg-card); }
+  /* Fixed layout + an explicit colgroup: with `auto`, column widths are
+     recomputed from whatever happens to be on the current page, so they jump
+     around while paging and the last column drifts out of view. */
+  .pkg-table {
+    width: 100%;
+    min-width: 66rem;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+  }
+
+  .c-pkg    { width: 11.5rem; }
+  .c-src    { width: 11rem; }
+  .c-lang   { width: 4.5rem; }
+  .c-libc   { width: 5rem; }
+  .c-size   { width: 5.5rem; }
+  .c-pulls  { width: 4.5rem; }
+  .c-rel    { width: 6rem; }
+  .c-built  { width: 7.5rem; }
+  .c-recipe { width: 5rem; }
+  .c-dl     { width: 7rem; }
+
+  /* Package and Download pin to the edges so the row stays identifiable and
+     actionable no matter how far the table is scrolled sideways. */
+  .pkg-table thead th:first-child,
+  .pkg-table tbody :global(th) {
+    position: sticky;
+    left: 0;
+    background: var(--color-bg-card);
+    z-index: 2;
+  }
+  .pkg-table thead th:first-child { z-index: 3; }
+
+  .pkg-table thead th:last-child,
+  .pkg-table tbody :global(.dl-cell) {
+    position: sticky;
+    right: 0;
+    background: var(--color-bg-card);
+    z-index: 2;
+  }
+  .pkg-table thead th:last-child { z-index: 3; }
+
+  /* Hairline marking the pinned edges. */
+  .pkg-table thead th:first-child::after,
+  .pkg-table tbody :global(th)::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0; right: 0;
+    border-right: 1px solid var(--color-border);
+  }
+  .pkg-table thead th:last-child::before,
+  .pkg-table tbody :global(.dl-cell)::before {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    border-left: 1px solid var(--color-border);
+  }
+
+  /* Long names must not force a column wider than its colgroup slot. */
+  .pkg-table tbody :global(th),
+  .pkg-table tbody :global(td) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .pkg-table thead th {
+    text-align: left; padding: 0.75rem 1rem; white-space: nowrap;
+    font-family: var(--font-mono); font-size: 0.64rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-muted);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .pkg-table thead th[data-sort] { cursor: pointer; user-select: none; }
+  .pkg-table thead th[data-sort]:hover { color: var(--color-text-dim); }
+  .pkg-table thead th[aria-sort]::after { content: ' ▲'; color: var(--color-accent); }
+  .pkg-table thead th[aria-sort='descending']::after { content: ' ▼'; }
+
+  .pkg-table tbody :global(th) {
+    text-align: left; padding: 0.6rem 1rem;
+    font-size: 0.85rem; font-weight: 600; color: var(--color-text); white-space: nowrap;
+  }
+  .pkg-table tbody :global(td) {
+    padding: 0.6rem 1rem; font-size: 0.82rem; color: var(--color-text-dim); white-space: nowrap;
+  }
+  .pkg-table tbody :global(tr + tr th),
+  .pkg-table tbody :global(tr + tr td) {
+    border-top: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+  }
+  .pkg-table thead th { position: sticky; top: 0; background: var(--color-bg-card); }
+
+  .pkg-table :global(.mono) { font-family: var(--font-mono); font-size: 0.75rem; }
+  .pkg-table :global(.dim) { color: var(--color-text-muted); }
+  .pkg-table :global(.src) {
+    font-family: var(--font-mono); font-size: 0.73rem; color: var(--color-text-dim);
+  }
+  .pkg-table :global(.src:hover) { color: var(--color-accent); text-decoration: underline; }
+  .pkg-table :global(.tag-l) {
+    font-family: var(--font-mono); font-size: 0.66rem; padding: 0.1rem 0.4rem;
+    border-radius: 4px; color: var(--color-text-dim);
+    background: color-mix(in srgb, var(--color-text-muted) 16%, transparent);
+  }
+  .pkg-table :global(.libc) { font-family: var(--font-mono); font-size: 0.66rem; padding: 0.12rem 0.45rem; border-radius: 4px; }
+  .pkg-table :global(.libc-alpine) { color: var(--color-verified); background: color-mix(in srgb, var(--color-verified) 12%, transparent); }
+  .pkg-table :global(.libc-debian),
+  .pkg-table :global(.libc-ubuntu) { color: var(--color-accent); background: color-mix(in srgb, var(--color-accent) 12%, transparent); }
+
+  .pkg-table :global(.recipe-btn) {
+    border: 1px solid var(--color-border-bright); border-radius: 6px;
+    background: transparent; color: var(--color-text-dim);
+    font-family: var(--font-mono); font-size: 0.7rem; padding: 0.15rem 0.5rem; cursor: pointer;
+  }
+  .pkg-table :global(.recipe-btn:hover) { color: var(--color-accent); border-color: var(--color-accent); }
+
+  .pkg-table :global(.dl-cell) { text-align: right; }
+  .pkg-table :global(.dl) {
+    font-family: var(--font-mono); font-size: 0.73rem; font-weight: 600; color: var(--color-accent);
+  }
+  .pkg-table :global(.dl:hover) { text-decoration: underline; text-underline-offset: 3px; }
+  .pkg-table :global(.empty-row td) { padding: 1.6rem 1rem; color: var(--color-text-muted); white-space: normal; }
+  .pkg-table :global(.empty-row a) { color: var(--color-accent); text-decoration: underline; }
+
+  .pager { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.25rem; }
+  .btn-sm { padding: 0.45rem 1rem; font-size: 0.82rem; }
+  .btn-sm:disabled { opacity: 0.4; cursor: not-allowed; }
+  #page-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text-muted); }
+
+  .note {
+    margin: 1.5rem 0 0; max-width: 80ch;
+    font-size: 0.8rem; line-height: 1.6; color: var(--color-text-muted);
+  }
+  .note code { font-family: var(--font-mono); color: var(--color-text-dim); }
+
+  /* ---- modal ---- */
+  .modal { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 1.5rem; }
+  .modal-backdrop { position: absolute; inset: 0; background: rgb(0 0 0 / 0.7); backdrop-filter: blur(3px); }
+  .modal-panel {
+    position: relative; width: min(72rem, 100%); max-height: 82vh;
+    display: flex; flex-direction: column;
+    background: var(--color-bg-card); border: 1px solid var(--color-border-bright); border-radius: 12px;
+  }
+  .modal-panel header {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--color-border);
+  }
+  .modal-panel h2 { margin: 0; font-family: var(--font-mono); font-size: 0.82rem; color: var(--color-text); }
+  .modal-x {
+    border: 0; background: transparent; color: var(--color-text-muted);
+    font-size: 0.9rem; cursor: pointer; padding: 0.25rem 0.4rem;
+  }
+  .modal-x:hover { color: var(--color-text); }
+  #modal-body {
+    margin: 0; padding: 1.2rem; overflow: auto;
+    font-family: var(--font-mono); font-size: 0.76rem; line-height: 1.7;
+    color: var(--color-text-dim); white-space: pre-wrap; word-break: break-word;
+  }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+
+  @media (min-width: 780px) {
+    .cli-card { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+  }
+</style>

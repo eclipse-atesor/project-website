@@ -1,0 +1,134 @@
+---
+import Icon from './Icon.astro';
+
+/**
+ * Code block with a copy button.
+ *
+ * `lines` carries pre-tokenised segments so we get syntax colour without
+ * shipping a highlighter. `raw` is what the copy button puts on the clipboard.
+ */
+interface Seg {
+  t: string;
+  c?: string;
+}
+interface Props {
+  lines: Seg[][];
+  raw: string;
+  label?: string;
+}
+const { lines, raw, label } = Astro.props;
+---
+
+<div class="cb">
+  {
+    label && (
+      <div class="cb-head">
+        <span class="cb-label">{label}</span>
+      </div>
+    )
+  }
+  <button class="cb-copy" data-copy={raw} aria-label="Copy to clipboard">
+    <Icon name="copy" size={14} />
+    <span class="cb-copy-text">Copy</span>
+  </button>
+  <div class="code-surface">
+    <pre><code>{lines.map((segs) => (
+      <span class="cb-line">{segs.map((s) => (
+        <span class={s.c ? `tok-${s.c}` : undefined}>{s.t}</span>
+      ))}
+</span>
+    ))}</code></pre>
+  </div>
+</div>
+
+<style>
+  .cb {
+    position: relative;
+  }
+
+  .cb-head {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .cb-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+  }
+
+  .cb-copy {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.32rem 0.6rem;
+    border: 1px solid var(--color-border-bright);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--color-bg-card) 92%, transparent);
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+  }
+
+  .cb:hover .cb-copy,
+  .cb-copy:focus-visible {
+    opacity: 1;
+  }
+
+  .cb-copy:hover {
+    color: var(--color-text);
+    border-color: #3d5170;
+  }
+
+  .cb-copy.copied {
+    color: var(--color-verified);
+    border-color: color-mix(in srgb, var(--color-verified) 50%, transparent);
+    opacity: 1;
+  }
+
+  .cb-line {
+    display: block;
+    white-space: pre;
+  }
+
+  @media (max-width: 640px) {
+    .cb-copy { opacity: 1; }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.cb-copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const text = btn.dataset.copy ?? '';
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        // Clipboard API needs a secure context; fall back to a temp textarea.
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+      }
+      const label = btn.querySelector('.cb-copy-text');
+      const prev = label?.textContent ?? 'Copy';
+      if (label) label.textContent = 'Copied';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        if (label) label.textContent = prev;
+        btn.classList.remove('copied');
+      }, 1600);
+    });
+  });
+</script>

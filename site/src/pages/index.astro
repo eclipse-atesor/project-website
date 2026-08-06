@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import StatBand from '../components/StatBand.astro';
+import Problem from '../components/Problem.astro';
+import Pipeline from '../components/Pipeline.astro';
+import Pillars from '../components/Pillars.astro';
+import Features from '../components/Features.astro';
+import Quickstart from '../components/Quickstart.astro';
+import Outputs from '../components/Outputs.astro';
+import Community from '../components/Community.astro';
+import { project } from '../data/content';
+---
+
+<Base
+  title="Agentic framework for RISC-V software porting"
+  description={project.summary}
+  ogPath="/"
+>
+  <Hero />
+  <StatBand />
+  <Problem />
+  <Pipeline />
+  <Pillars />
+  <Features />
+  <Quickstart />
+  <Outputs />
+  <Community />
+</Base>

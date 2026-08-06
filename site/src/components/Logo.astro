@@ -1,0 +1,33 @@
+---
+import { url } from '../lib/url';
+
+/**
+ * The Eclipse Atesor project mark.
+ *
+ * Renders the canonical file at `assets/atesor-logo.svg` rather than
+ * inlining a copy, so there is exactly one source of truth for the mark. If
+ * the logo is revised, that one file changes and every usage follows.
+ *
+ * The mark is a chip package whose die carries a check — the project's core
+ * promise, that every binary is confirmed genuine riscv64 rather than a
+ * silent x86 fallthrough.
+ */
+interface Props {
+  size?: number;
+  class?: string;
+  /** Decorative when the mark sits beside the wordmark, which is the usual
+   *  case in the header — the adjacent text already names the project. */
+  decorative?: boolean;
+}
+const { size = 32, class: klass = '', decorative = false } = Astro.props;
+---
+
+<img
+  src={url('/assets/atesor-logo.svg')}
+  width={size}
+  height={size}
+  class={klass}
+  alt={decorative ? '' : 'Eclipse Atesor'}
+  aria-hidden={decorative ? 'true' : undefined}
+  decoding="async"
+/>

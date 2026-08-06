@@ -1,0 +1,22 @@
+{
+  "name": "eclipse-atesor-website",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Source for the Eclipse Atesor project website (https://eclipse.dev/atesor)",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "deploy": "bash scripts/deploy.sh",
+    "deploy:dry": "bash scripts/deploy.sh --dry-run",
+    "check_spacing": "for f in dist/**/*.html dist/*.html; do node scripts/check-spacing.mjs \"$f\" || exit 1; done",
+    "manifest": "node scripts/build-manifest.mjs"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.1.6",
+    "tailwindcss": "^4.3.3"
+  }
+}

@@ -1,0 +1,375 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { project } from '../data/content';
+import { url } from '../lib/url';
+
+/**
+ * Eclipse Foundation compliant footer.
+ *
+ * The handbook (§Footers) requires that every project page footer carry an
+ * approved Eclipse logo, a copyright notice, and AT MINIMUM links to:
+ * eclipse.org, Privacy Policy, Terms of Use, Compliance, and Legal Resources.
+ * Copyright Agent and Report a Vulnerability are included too, because the
+ * live Solstice footer renders them and the handbook text and theme differ.
+ *
+ * Logos are self-hosted (public/) rather than hotlinked so the page makes
+ * zero third-party requests.
+ */
+const columns = [
+  {
+    heading: 'Eclipse Atesor',
+    links: [
+      { label: 'Downloads', href: url('/downloads') },
+      { label: 'Project page (PMI)', href: project.urls.pmi },
+      { label: 'Developer resources', href: project.urls.developer },
+      { label: 'Who’s involved', href: project.urls.who },
+      { label: 'Governance', href: project.urls.governance },
+      { label: 'Contact', href: project.urls.contact },
+    ],
+  },
+  {
+    heading: 'Eclipse Foundation',
+    links: [
+      { label: 'About us', href: 'https://www.eclipse.org/org/' },
+      { label: 'Contact us', href: 'https://www.eclipse.org/org/foundation/contact.php' },
+      { label: 'Donate', href: 'https://www.eclipse.org/donate/' },
+      { label: 'Members', href: 'https://www.eclipse.org/membership/' },
+      { label: 'Logo and artwork', href: 'https://www.eclipse.org/org/artwork/' },
+    ],
+  },
+  {
+    heading: 'Legal',
+    links: [
+      { label: 'Privacy policy', href: 'https://www.eclipse.org/legal/privacy/' },
+      { label: 'Terms of use', href: 'https://www.eclipse.org/legal/terms-of-use/' },
+      { label: 'Compliance', href: 'https://www.eclipse.org/legal/compliance/' },
+      { label: 'Copyright agent', href: 'https://www.eclipse.org/legal/copyright/' },
+      { label: 'Legal resources', href: 'https://www.eclipse.org/legal/' },
+    ],
+  },
+  {
+    heading: 'Community',
+    links: [
+      { label: 'Report a vulnerability', href: 'https://www.eclipse.org/security/' },
+      { label: 'Mailing list', href: project.urls.mailingList },
+      { label: 'How to contribute', href: 'https://www.eclipse.org/contribute/' },
+      { label: 'Eclipse projects', href: 'https://www.eclipse.org/projects/' },
+      { label: 'Service status', href: 'https://www.eclipsestatus.io/' },
+    ],
+  },
+];
+---
+
+<footer class="site-footer">
+  <div class="container-x">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-mark">
+          <Logo size={34} decorative />
+          <span class="footer-wordmark">
+            <span class="fw-eclipse">Eclipse</span><span class="fw-name">Atesor</span><span class="fw-tm">™</span>
+          </span>
+        </div>
+
+        <a href="https://www.eclipse.org" rel="noopener" target="_blank" class="ef-logo-link">
+          <img
+            src={url('/assets/eclipse-foundation-logo.svg')}
+            alt="Eclipse Foundation"
+            width="188"
+            height="61"
+            loading="lazy"
+          />
+        </a>
+        <p class="footer-blurb">
+          {project.formalName}™ is an open source project of the{' '}
+          <a href={project.urls.parent} rel="noopener" target="_blank">OpenHW Group</a>{' '}
+          top-level project, hosted by the Eclipse Foundation.
+        </p>
+
+        <div class="incubation">
+          <img
+            src={url('/assets/incubation.png')}
+            alt="Eclipse Foundation incubation phase"
+            width="49"
+            height="64"
+            loading="lazy"
+          />
+          <p>
+            This project is in the <strong>Incubation Phase</strong>.{' '}
+            <a
+              href="https://www.eclipse.org/projects/handbook/#incubation"
+              rel="noopener"
+              target="_blank">Learn more</a
+            >.
+          </p>
+        </div>
+
+        <div class="dev">
+          <h2>Meet the developer</h2>
+          <a href={project.urls.developerSite} rel="noopener" target="_blank">
+            {project.developer}
+            <Icon name="arrowRight" size={13} />
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-cols">
+        {
+          columns.map((col) => (
+            <div class="footer-col">
+              <h2>{col.heading}</h2>
+              <ul>
+                {col.links.map((l) => {
+                  // Internal links stay in the tab; only outbound ones open new.
+                  const external = l.href.startsWith('http');
+                  return (
+                    <li>
+                      <a
+                        href={l.href}
+                        rel={external ? 'noopener' : undefined}
+                        target={external ? '_blank' : undefined}
+                      >
+                        {l.label}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <hr class="rule-fade" />
+
+    <div class="footer-legal">
+      <p>Copyright © Eclipse Foundation AISBL. All Rights Reserved.</p>
+      <p class="trademark">
+        Eclipse Atesor, Atesor, Eclipse, and the Eclipse logo are trademarks of
+        Eclipse Foundation AISBL. Eclipse Atesor source code is licensed under the{' '}
+        <a href={project.urls.licenseFile} rel="noopener" target="_blank">MIT License</a>.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: 2rem;
+    padding-block: clamp(3rem, 6vw, 4.5rem) 2.5rem;
+    background: var(--color-bg-raised);
+    border-top: 1px solid var(--color-border);
+    font-size: 0.875rem;
+  }
+
+  .footer-top {
+    display: grid;
+    gap: clamp(2.5rem, 5vw, 4rem);
+    grid-template-columns: 1fr;
+    margin-bottom: 2.5rem;
+  }
+
+  .footer-brand {
+    max-width: 34ch;
+  }
+
+  /* Project mark sits above the Foundation logo: the site is Atesor's, hosted
+     by the EF — the hierarchy should say so. */
+  .footer-mark {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .footer-wordmark {
+    font-size: 1.05rem;
+    letter-spacing: -0.015em;
+    white-space: nowrap;
+  }
+
+  .fw-eclipse {
+    color: var(--color-text-muted);
+    font-weight: 500;
+  }
+
+  .fw-name {
+    color: var(--color-text);
+    font-weight: 700;
+    margin-left: 0.28em;
+  }
+
+  .fw-tm {
+    font-size: 0.62em;
+    vertical-align: super;
+    color: var(--color-text-muted);
+    margin-left: 0.1em;
+  }
+
+  .dev {
+    margin-top: 1rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--color-bg-card) 60%, transparent);
+  }
+
+  .dev h2 {
+    margin: 0 0 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .dev a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+
+  .dev a:hover :global(svg) {
+    transform: translateX(2px);
+  }
+
+  .dev a :global(svg) {
+    transition: transform 0.18s var(--ease-out-expo);
+  }
+
+  .ef-logo-link img {
+    height: auto;
+    width: 172px;
+    opacity: 0.95;
+  }
+
+  .footer-blurb {
+    margin-top: 1rem;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+  }
+
+  .footer-blurb a {
+    color: var(--color-text-dim);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .footer-blurb a:hover {
+    color: var(--color-accent);
+  }
+
+  .incubation {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-top: 1.5rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--color-bg-card) 60%, transparent);
+  }
+
+  .incubation img {
+    width: 34px;
+    height: auto;
+    flex-shrink: 0;
+  }
+
+  .incubation p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+  .incubation strong {
+    color: var(--color-text-dim);
+    font-weight: 600;
+  }
+
+  .incubation a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .footer-cols {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem 1.5rem;
+  }
+
+  .footer-col h2 {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text);
+    margin-bottom: 0.9rem;
+  }
+
+  .footer-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .footer-col a {
+    color: var(--color-text-muted);
+    transition: color 0.15s ease;
+  }
+
+  .footer-col a:hover {
+    color: var(--color-accent);
+  }
+
+  .footer-legal {
+    padding-top: 1.75rem;
+    display: grid;
+    gap: 0.6rem;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+  }
+
+  .footer-legal p {
+    margin: 0;
+  }
+
+  .trademark {
+    max-width: 88ch;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+  }
+
+  .trademark a {
+    color: var(--color-text-muted);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .trademark a:hover {
+    color: var(--color-accent);
+  }
+
+  @media (min-width: 760px) {
+    .footer-cols {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1040px) {
+    .footer-top {
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 2fr);
+    }
+  }
+</style>

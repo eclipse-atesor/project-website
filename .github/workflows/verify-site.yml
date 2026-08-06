@@ -1,0 +1,95 @@
+name: Verify published site
+
+# The Eclipse Foundation publisher serves this repo's ROOT verbatim — it does
+# not build anything. So the risk is committing a source change without the
+# regenerated output. This workflow rebuilds from site/ and fails if the
+# result differs from what is committed at the root.
+#
+# It deliberately does NOT push. Publishing stays an explicit human action.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Install dependencies
+        working-directory: site
+        run: npm ci
+
+      - name: Build
+        working-directory: site
+        run: npm run build
+
+      - name: Check prose spacing
+        working-directory: site
+        run: npm run check_spacing
+
+      - name: Compare build output against the committed root
+        run: |
+          set -euo pipefail
+          fail=0
+
+          # Every built file must exist at the root and match byte-for-byte.
+          while IFS= read -r rel; do
+            if [[ ! -f "$rel" ]]; then
+              echo "::error file=$rel::missing from repository root — run 'npm run deploy' in site/"
+              fail=1
+            elif ! cmp -s "site/dist/$rel" "$rel"; then
+              echo "::error file=$rel::differs from a fresh build — run 'npm run deploy' in site/"
+              fail=1
+            fi
+          done < <(cd site/dist && find . -type f -printf '%P\n' | sort)
+
+          if [[ $fail -eq 0 ]]; then
+            echo "Published root matches a fresh build of site/."
+          fi
+          exit $fail
+
+      - name: Check required Eclipse Foundation footer links
+        run: |
+          set -euo pipefail
+          fail=0
+          # Handbook §Footers: these are the mandatory minimum on every page.
+          required=(
+            "https://www.eclipse.org/legal/privacy/"
+            "https://www.eclipse.org/legal/terms-of-use/"
+            "https://www.eclipse.org/legal/compliance/"
+            "https://www.eclipse.org/legal/"
+            "https://www.eclipse.org"
+          )
+          for page in $(find . -maxdepth 2 -name 'index.html' -not -path './site/*'); do
+            for link in "${required[@]}"; do
+              grep -qF "$link" "$page" || {
+                echo "::error file=$page::missing required footer link $link"
+                fail=1
+              }
+            done
+            grep -qF "Eclipse Foundation AISBL" "$page" || {
+              echo "::error file=$page::missing the required copyright notice"
+              fail=1
+            }
+            # Mandatory while the project's PMI state is Incubating.
+            grep -qiF "incubat" "$page" || {
+              echo "::error file=$page::missing incubation branding"
+              fail=1
+            }
+          done
+          [[ $fail -eq 0 ]] && echo "Eclipse Foundation compliance checks passed."
+          exit $fail

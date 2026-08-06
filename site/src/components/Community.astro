@@ -1,0 +1,135 @@
+---
+import Section from './Section.astro';
+import Icon from './Icon.astro';
+import { project } from '../data/content';
+
+const links = [
+  {
+    icon: 'github',
+    title: 'Source and issues',
+    body: 'Read the code, file a bug, or bring a package that fails in an interesting way.',
+    href: project.urls.repo,
+    cta: 'eclipse-atesor/atesor',
+  },
+  {
+    icon: 'mail',
+    title: 'Developer mailing list',
+    body: 'The project’s primary discussion channel, hosted by the Eclipse Foundation.',
+    href: project.urls.mailingList,
+    cta: 'atesor-dev',
+  },
+  {
+    icon: 'users',
+    title: 'Project page',
+    body: 'Governance, committers, releases and the incubation review record.',
+    href: project.urls.pmi,
+    cta: 'projects.eclipse.org',
+  },
+  {
+    icon: 'scale',
+    title: 'Contributing',
+    body: 'New platform profiles, few-shot examples from real runs, and error patterns are all welcome.',
+    href: project.urls.contributing,
+    cta: 'CONTRIBUTING.md',
+  },
+];
+---
+
+<Section
+  id="community"
+  eyebrow="Community"
+  title="Built in the open, at the Eclipse Foundation."
+>
+  <div class="comm-grid">
+    {
+      links.map((l, i) => (
+        <a
+          class="card card-lit comm"
+          href={l.href}
+          rel="noopener"
+          target="_blank"
+          data-reveal
+          data-reveal-delay={i * 60}
+        >
+          <span class="comm-icon">
+            <Icon name={l.icon} size={18} />
+          </span>
+          <h3 class="h3">{l.title}</h3>
+          <p>{l.body}</p>
+          <span class="comm-cta">
+            {l.cta}
+            <Icon name="arrowRight" size={13} />
+          </span>
+        </a>
+      ))
+    }
+  </div>
+
+</Section>
+
+<style>
+  .comm-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .comm {
+    display: flex;
+    flex-direction: column;
+    padding: 1.35rem 1.4rem 1.4rem;
+  }
+
+  .comm-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    color: var(--color-accent);
+    background: color-mix(in srgb, var(--color-accent) 11%, transparent);
+    margin-bottom: 1rem;
+  }
+
+  .comm h3 {
+    margin: 0 0 0.45rem;
+  }
+
+  .comm p {
+    margin: 0 0 1.1rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+  }
+
+  .comm-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: auto;
+    font-family: var(--font-mono);
+    font-size: 0.73rem;
+    color: var(--color-accent);
+  }
+
+  .comm:hover .comm-cta :global(svg) {
+    transform: translateX(2px);
+  }
+
+  .comm-cta :global(svg) {
+    transition: transform 0.18s var(--ease-out-expo);
+  }
+
+  @media (min-width: 640px) {
+    .comm-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1040px) {
+    .comm-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+</style>

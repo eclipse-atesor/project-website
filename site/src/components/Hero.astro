@@ -1,0 +1,269 @@
+---
+import Icon from './Icon.astro';
+import Terminal from './Terminal.astro';
+import { project, executionTargets } from '../data/content';
+import { url } from '../lib/url';
+---
+
+<section class="hero">
+  <div class="bg-grid"></div>
+  <div class="bg-glow glow-a"></div>
+  <div class="bg-glow glow-b"></div>
+
+  <div class="container-x hero-inner">
+    <div class="hero-copy">
+      <p class="eyebrow">
+        Eclipse Foundation · OpenHW Group · Incubating
+      </p>
+
+      <!-- Handbook: the first and most prominent reference must be the
+           formal name carrying the trademark symbol. -->
+      <h1 class="h1">
+        Eclipse&nbsp;Atesor<span class="tm">™</span>
+      </h1>
+
+      <p class="promise">Agentic framework for RISC-V software porting.</p>
+
+      <p class="lede prose-width hero-lede">
+        Point it at a repository: a library, a package, a whole application. A{' '}
+        <strong>LangGraph</strong> state machine runs the port end to end:
+        detecting the build system, resolving dependencies, compiling{' '}
+        <em>natively</em> on <code>riscv64</code>, and repairing what breaks.
+        Out come verified binaries and a replayable recipe.
+      </p>
+
+      <p class="targets-label">Builds run and are tested on</p>
+      <ul class="targets">
+        {
+          executionTargets.map((t) => (
+            <li class:list={['target', { pending: !t.live }]}>
+              <span class="target-dot" />
+              <span class="target-text">
+                <strong>{t.name}</strong>
+                <span class="target-detail">
+                  {t.href ? (
+                    <a href={t.href} rel="noopener" target="_blank">
+                      {t.detail}
+                    </a>
+                  ) : (
+                    t.detail
+                  )}
+                </span>
+              </span>
+              {!t.live && <span class="target-badge">coming</span>}
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="hero-cta">
+        <a href={url('/#quickstart')} class="btn btn-primary">
+          Get started
+          <Icon name="arrowRight" size={16} />
+        </a>
+        <a
+          href={project.urls.repo}
+          class="btn btn-secondary"
+          rel="noopener"
+          target="_blank"
+        >
+          <Icon name="github" size={16} />
+          View source
+        </a>
+      </div>
+
+    </div>
+
+    <div class="hero-visual">
+      <Terminal />
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(3rem, 8vw, 6.5rem) clamp(3.5rem, 8vw, 6rem);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .glow-a {
+    width: 620px;
+    height: 460px;
+    top: -220px;
+    left: -120px;
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--color-accent) 26%, transparent),
+      transparent 70%
+    );
+  }
+
+  .glow-b {
+    width: 520px;
+    height: 420px;
+    top: 40px;
+    right: -180px;
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--color-verified) 15%, transparent),
+      transparent 70%
+    );
+  }
+
+  .hero-inner {
+    position: relative;
+    display: grid;
+    gap: clamp(2.5rem, 5vw, 4rem);
+    align-items: center;
+    grid-template-columns: 1fr;
+  }
+
+  .hero-copy .eyebrow {
+    margin-bottom: 1.1rem;
+  }
+
+  .h1 {
+    margin: 0;
+  }
+
+  .tm {
+    font-size: 0.34em;
+    vertical-align: super;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    letter-spacing: 0;
+    margin-left: 0.06em;
+  }
+
+  /* Solid accent rather than a gradient. The gradient pulled the eye across
+     the line and made the tail (in cyan) read as a different idea from the
+     head; cyan is also reserved for "verified" everywhere else on the page,
+     so spending it here diluted that. */
+  .promise {
+    margin: 0.85rem 0 0;
+    font-size: clamp(1.15rem, 2.4vw, 1.6rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--color-accent);
+  }
+
+  .hero-lede {
+    margin-top: 1.15rem;
+  }
+
+  .hero-lede code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    color: var(--color-verified);
+  }
+
+  .hero-lede em {
+    color: var(--color-text);
+    font-style: normal;
+    font-weight: 600;
+  }
+
+  /* Where a build actually runs. Two states — shipped and coming — because
+     native hardware is genuinely not live yet and the hero must not imply it. */
+  .targets-label {
+    margin: 1.85rem 0 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .targets {
+    display: grid;
+    gap: 0.55rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-width: 34rem;
+  }
+
+  .target {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.6rem 0.85rem;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--color-bg-card) 55%, transparent);
+  }
+
+  .target-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--color-verified);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-verified) 18%, transparent);
+  }
+
+  .target.pending .target-dot {
+    background: transparent;
+    border: 1.5px solid var(--color-text-muted);
+    box-shadow: none;
+  }
+
+  .target-text {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.45rem;
+    min-width: 0;
+  }
+
+  .target-text strong {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .target-detail {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+  }
+
+  .target-detail a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .target-badge {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border-bright);
+    border-radius: 999px;
+    padding: 0.12rem 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.9rem;
+  }
+
+  .hero-visual {
+    min-width: 0;
+  }
+
+  @media (min-width: 1020px) {
+    .hero-inner {
+      grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr);
+      gap: 3.5rem;
+    }
+  }
+</style>

@@ -1,0 +1,20 @@
+# Build tooling — the SOURCE lives in site/, the BUILT OUTPUT lives at the
+# repository root and MUST be committed (the Eclipse Foundation publisher
+# serves this repo's root verbatim; it does not run a build).
+site/node_modules/
+site/dist/
+site/.astro/
+site/.vercel/
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Logs
+npm-debug.log*
+yarn-error.log*
+
+site/DESIGN.md

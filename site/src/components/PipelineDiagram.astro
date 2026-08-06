@@ -1,0 +1,409 @@
+---
+/**
+ * The Atesor pipeline, drawn from the real topology in src/graph.py:
+ * 8 top-level node registrations plus a 3-node build/verify/fix subgraph.
+ *
+ * Orange = costs an LLM call. Cyan = deterministic, zero LLM.
+ * That colour split IS the argument, so it carries a visible legend.
+ *
+ * Authored as a fixed-viewBox SVG that scrolls horizontally on narrow
+ * screens; a screen-reader-only ordered list carries the same information.
+ */
+
+// ---- geometry ------------------------------------------------------------
+const W = 760;
+const CX = 300; // main spine centre
+const RX = 606; // right branch centre
+const NW = 250; // node width
+const NH = 52; // node height
+
+type Node = {
+  id: string;
+  x: number;
+  y: number;
+  label: string;
+  sub: string;
+  llm: boolean;
+  w?: number;
+};
+
+const nodes: Node[] = [
+  { id: 'init', x: CX, y: 92, label: 'init_node', sub: 'clone · quick_analysis', llm: false },
+  { id: 'analyst', x: CX, y: 176, label: 'analyst_node', sub: 'reads real build files', llm: true },
+  { id: 'plan', x: CX, y: 260, label: 'heuristic_plan_node', sub: 'default plan, no cost', llm: false },
+  { id: 'scout', x: RX, y: 260, label: 'scout_node', sub: 'only when deferred', llm: true, w: 200 },
+  { id: 'supervisor', x: CX, y: 352, label: 'supervisor_node', sub: 'heuristic router', llm: false },
+  { id: 'build', x: CX, y: 486, label: 'build_node', sub: '16 recovery heuristics', llm: false },
+  { id: 'verify', x: CX, y: 568, label: 'verify_node', sub: 'riscv64 ELF check', llm: false },
+  { id: 'fix', x: CX, y: 650, label: 'fix_node', sub: 'evidence-grounded', llm: true },
+  { id: 'finish', x: RX, y: 764, label: 'finish_node', sub: 'recipe + learning', llm: true, w: 200 },
+  { id: 'escalate', x: 94, y: 764, label: 'escalate_node', sub: 'human handoff', llm: false, w: 178 },
+];
+
+const byId = Object.fromEntries(nodes.map((n) => [n.id, n]));
+const left = (n: Node) => n.x - (n.w ?? NW) / 2;
+const right = (n: Node) => n.x + (n.w ?? NW) / 2;
+const bot = (n: Node) => n.y + NH / 2;
+const top = (n: Node) => n.y - NH / 2;
+
+/** Straight vertical connector between two stacked nodes. */
+const vlink = (a: string, b: string) => `M${byId[a].x} ${bot(byId[a])} L${byId[b].x} ${top(byId[b])}`;
+---
+
+<div class="diagram-wrap">
+  <div class="legend">
+    <span class="lg"><i class="sw sw-det"></i> deterministic, zero LLM</span>
+    <span class="lg"><i class="sw sw-llm"></i> LLM-backed</span>
+    <span class="lg"><i class="sw sw-loop"></i> retry loop</span>
+  </div>
+
+  <div class="diagram-scroll scroll-x">
+    <svg
+      viewBox={`0 0 ${W} 830`}
+      class="diagram"
+      role="img"
+      aria-labelledby="pipe-title pipe-desc"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <title id="pipe-title">Eclipse Atesor pipeline topology</title>
+      <desc id="pipe-desc">
+        A repository URL enters at init, is analysed once by an LLM, planned
+        heuristically, then routed by a zero-LLM supervisor into a build,
+        verify and fix retry loop, ending at either a recipe or a human handoff.
+      </desc>
+
+      <defs>
+        <linearGradient id="pd-llm" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#F9A840" />
+          <stop offset="1" stop-color="#F06C00" />
+        </linearGradient>
+        <marker
+          id="pd-arrow"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="6"
+          markerHeight="6"
+          orient="auto-start-reverse"
+        >
+          <path d="M0 0 L10 5 L0 10 z" fill="#334867" />
+        </marker>
+        <marker
+          id="pd-arrow-loop"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="6"
+          markerHeight="6"
+          orient="auto-start-reverse"
+        >
+          <path d="M0 0 L10 5 L0 10 z" fill="#F7941E" />
+        </marker>
+      </defs>
+
+      <!-- ============ the build/verify/fix subgraph container ============ -->
+      <rect
+        x={CX - 168}
+        y="440"
+        width="336"
+        height="252"
+        rx="14"
+        class="subgraph-box"
+      />
+      <text x={CX - 152} y="432" class="box-label">build_fix_subgraph</text>
+
+      <!-- ============ connectors ============ -->
+      <g class="wires">
+        <path d={vlink('init', 'analyst')} marker-end="url(#pd-arrow)" />
+        <path d={vlink('analyst', 'plan')} marker-end="url(#pd-arrow)" />
+        <path d={vlink('plan', 'supervisor')} marker-end="url(#pd-arrow)" />
+        <path d={vlink('build', 'verify')} marker-end="url(#pd-arrow)" />
+        <path d={vlink('verify', 'fix')} marker-end="url(#pd-arrow)" />
+
+        <!-- plan defers right to scout, scout returns down to supervisor -->
+        <path
+          d={`M${right(byId.plan)} ${byId.plan.y} L${left(byId.scout)} ${byId.scout.y}`}
+          marker-end="url(#pd-arrow)"
+        />
+        <path
+          d={`M${byId.scout.x} ${bot(byId.scout)} L${byId.scout.x} 352 L${right(byId.supervisor)} 352`}
+          marker-end="url(#pd-arrow)"
+        />
+
+        <!-- supervisor down into the subgraph -->
+        <path
+          d={`M${CX} ${bot(byId.supervisor)} L${CX} ${top(byId.build)}`}
+          marker-end="url(#pd-arrow)"
+        />
+
+        <!-- verified success exits right, down to finish -->
+        <path
+          d={`M${right(byId.verify)} ${byId.verify.y} L${RX} ${byId.verify.y} L${RX} ${top(byId.finish)}`}
+          marker-end="url(#pd-arrow)"
+          class="wire-ok"
+        />
+
+        <!-- escalation exits left and down -->
+        <path
+          d={`M${left(byId.supervisor)} ${byId.supervisor.y} L${94} ${byId.supervisor.y} L${94} ${top(byId.escalate)}`}
+          marker-end="url(#pd-arrow)"
+        />
+      </g>
+
+      <!-- inner retry loop: fix back up to build -->
+      <path
+        class="wire-loop"
+        d={`M${left(byId.fix)} ${byId.fix.y} L${CX - 148} ${byId.fix.y} L${CX - 148} ${byId.build.y} L${left(byId.build)} ${byId.build.y}`}
+        marker-end="url(#pd-arrow-loop)"
+      />
+      <!-- Label sits ON the loop line, rotated to run with it, with a
+           knockout behind it so the wire doesn't strike through the text. -->
+      <g transform={`translate(${CX - 148} 568)`}>
+        <rect x="-7" y="-19" width="14" height="38" rx="3" class="loop-label-bg" />
+        <text
+          x="0"
+          y="0"
+          class="loop-label"
+          text-anchor="middle"
+          transform="rotate(-90)"
+          dy="3.5">retry</text>
+      </g>
+
+      <!-- outer loop: subgraph back to supervisor -->
+      <path
+        class="wire-loop wire-loop-outer"
+        d={`M${right(byId.build)} ${byId.build.y} L${CX + 196} ${byId.build.y} L${CX + 196} ${byId.supervisor.y} L${right(byId.supervisor)} ${byId.supervisor.y}`}
+        marker-end="url(#pd-arrow-loop)"
+      />
+
+      <!-- ============ input marker ============ -->
+      <g class="entry">
+        <text x={CX} y="34" text-anchor="middle" class="entry-text">
+          $ atesor-ai --repo &lt;url&gt;
+        </text>
+        <path d={`M${CX} 44 L${CX} ${top(byId.init)}`} class="wire-entry" marker-end="url(#pd-arrow)" />
+      </g>
+
+      <!-- ============ nodes ============ -->
+      {
+        nodes.map((n, i) => (
+          <g
+            class:list={['node', n.llm ? 'is-llm' : 'is-det']}
+            style={`--i:${i}`}
+          >
+            <rect
+              x={left(n)}
+              y={top(n)}
+              width={n.w ?? NW}
+              height={NH}
+              rx="9"
+            />
+            <text x={left(n) + 16} y={n.y - 3} class="n-label">
+              {n.label}
+            </text>
+            <text x={left(n) + 16} y={n.y + 13} class="n-sub">
+              {n.sub}
+            </text>
+            <circle cx={right(n) - 15} cy={n.y} r="3.5" class="n-dot" />
+          </g>
+        ))
+      }
+    </svg>
+  </div>
+
+  <script>
+    // Only animate the retry loop while the diagram is actually visible.
+    const svg = document.querySelector<SVGElement>('.diagram');
+    if (svg && 'IntersectionObserver' in window) {
+      new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) svg.classList.toggle('in-view', e.isIntersecting);
+        },
+        { threshold: 0.05 }
+      ).observe(svg);
+    } else {
+      svg?.classList.add('in-view');
+    }
+  </script>
+
+  <ol class="sr-only">
+    <li>init_node clones the repo and runs a zero-LLM quick analysis.</li>
+    <li>analyst_node makes one LLM call that reads the real build files.</li>
+    <li>heuristic_plan_node builds a default plan at zero cost.</li>
+    <li>scout_node produces an LLM plan, only when the heuristic plan defers.</li>
+    <li>supervisor_node is a zero-LLM heuristic router.</li>
+    <li>build_node, verify_node and fix_node form a retry subgraph.</li>
+    <li>finish_node writes the recipe, or escalate_node hands off to a human.</li>
+  </ol>
+</div>
+
+<style>
+  .diagram-wrap {
+    margin-top: 0.5rem;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.1rem;
+    margin-bottom: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.73rem;
+    color: var(--color-text-muted);
+  }
+
+  .lg {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .sw {
+    width: 11px;
+    height: 11px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+  .sw-det { background: color-mix(in srgb, var(--color-verified) 22%, transparent); border: 1px solid var(--color-verified); }
+  .sw-llm { background: color-mix(in srgb, var(--color-accent) 22%, transparent); border: 1px solid var(--color-accent); }
+  .sw-loop { background: transparent; border: 1px dashed var(--color-accent); }
+
+  .diagram-scroll {
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 0%, color-mix(in srgb, var(--color-accent) 7%, transparent), transparent 70%),
+      var(--color-bg-inset);
+    padding: 1rem 0.5rem;
+  }
+
+  .diagram {
+    display: block;
+    width: 100%;
+    min-width: 660px;
+    height: auto;
+  }
+
+  /* ---- wires ---- */
+  .wires path,
+  .wire-entry {
+    fill: none;
+    stroke: var(--color-wire);
+    stroke-width: 1.5;
+  }
+
+  .wire-ok {
+    stroke: color-mix(in srgb, var(--color-verified) 70%, transparent) !important;
+  }
+
+  .wire-loop {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 1.4;
+    stroke-dasharray: 5 4;
+    opacity: 0.75;
+  }
+
+  .wire-loop-outer {
+    opacity: 0.45;
+  }
+
+  /* The marching-ants loop only runs while the diagram is on screen —
+     an always-on animation repaints the whole SVG forever, which costs
+     battery and pins the compositor. `.in-view` is toggled by the
+     observer below. */
+  @media (prefers-reduced-motion: no-preference) {
+    .diagram.in-view .wire-loop {
+      animation: dash 1.4s linear infinite;
+    }
+  }
+
+  @keyframes dash {
+    to {
+      stroke-dashoffset: -18;
+    }
+  }
+
+  .subgraph-box {
+    fill: color-mix(in srgb, var(--color-bg-card) 45%, transparent);
+    stroke: var(--color-border-bright);
+    stroke-width: 1;
+    stroke-dasharray: 4 4;
+  }
+
+  .box-label,
+  .loop-label,
+  .entry-text {
+    font-family: var(--font-mono);
+    fill: var(--color-text-muted);
+  }
+
+  .box-label { font-size: 11px; }
+  .loop-label { font-size: 9.5px; fill: var(--color-accent); }
+
+  .loop-label-bg {
+    fill: var(--color-bg-inset);
+  }
+  .entry-text { font-size: 12px; fill: var(--color-text-dim); }
+
+  /* ---- nodes ---- */
+  .node rect {
+    fill: var(--color-bg-card);
+    stroke: var(--color-border-bright);
+    stroke-width: 1.25;
+    transition: stroke 0.2s ease, fill 0.2s ease;
+  }
+
+  .node.is-llm rect {
+    stroke: color-mix(in srgb, var(--color-accent) 65%, transparent);
+    fill: color-mix(in srgb, var(--color-accent) 9%, var(--color-bg-card));
+  }
+
+  .node.is-det rect {
+    stroke: color-mix(in srgb, var(--color-verified) 42%, transparent);
+  }
+
+  .n-label {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    font-weight: 600;
+    fill: var(--color-text);
+  }
+
+  .n-sub {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    fill: var(--color-text-muted);
+  }
+
+  .node.is-llm .n-dot { fill: var(--color-accent); }
+  .node.is-det .n-dot { fill: var(--color-verified); }
+
+  /* Nodes fade in in flow order when the diagram scrolls into view. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global([data-reveal]) .node {
+      opacity: 0;
+    }
+    :global([data-reveal].is-visible) .node {
+      animation: node-in 0.45s var(--ease-out-expo) both;
+      animation-delay: calc(var(--i) * 90ms);
+    }
+  }
+
+  @keyframes node-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>

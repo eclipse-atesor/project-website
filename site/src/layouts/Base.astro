@@ -1,0 +1,110 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { project } from '../data/content';
+import { url } from '../lib/url';
+
+interface Props {
+  /** Page-specific title. The formal name + ™ is appended automatically so
+   *  every <title> satisfies the EF first-reference trademark rule. */
+  title: string;
+  description: string;
+  /** Set on the home page so the H1 there carries the formal name. */
+  ogPath?: string;
+}
+
+const { title, description, ogPath = '/' } = Astro.props;
+const fullTitle = `${title} | ${project.formalName}™`;
+const canonical = `${project.urls.website}${ogPath === '/' ? '' : ogPath}`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={url('/assets/atesor-logo.svg')} />
+    <link rel="apple-touch-icon" href={url('/assets/atesor-logo.svg')} />
+    <meta name="theme-color" content="#080b11" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={`${project.formalName}™`} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareSourceCode',
+        name: `${project.formalName}™`,
+        description: project.summary,
+        url: project.urls.website,
+        codeRepository: project.urls.repo,
+        programmingLanguage: 'Python',
+        license: 'https://opensource.org/licenses/MIT',
+      })}
+    />
+  </head>
+
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      // Scroll reveal. Progressive enhancement only — the CSS that hides
+      // [data-reveal] is itself gated behind prefers-reduced-motion, so if
+      // this never runs (or motion is reduced) the content is simply visible.
+      const els = document.querySelectorAll('[data-reveal]');
+      if (
+        'IntersectionObserver' in window &&
+        window.matchMedia('(prefers-reduced-motion: no-preference)').matches
+      ) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (!e.isIntersecting) continue;
+              const el = e.target as HTMLElement;
+              const delay = Number(el.dataset.revealDelay ?? 0);
+              setTimeout(() => el.classList.add('is-visible'), delay);
+              io.unobserve(el);
+            }
+          },
+          { rootMargin: '0px 0px -12% 0px', threshold: 0.08 }
+        );
+        els.forEach((el) => io.observe(el));
+      } else {
+        els.forEach((el) => el.classList.add('is-visible'));
+      }
+    </script>
+
+    <style>
+      .skip-link {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        z-index: 100;
+        padding: 0.75rem 1.25rem;
+        background: var(--color-accent);
+        color: #14100a;
+        font-weight: 600;
+        border-radius: 0 0 8px 0;
+      }
+      .skip-link:focus {
+        left: 0;
+      }
+    </style>
+  </body>
+</html>

@@ -1,0 +1,148 @@
+---
+import Section from './Section.astro';
+import Icon from './Icon.astro';
+import { outputs } from '../data/content';
+import { url } from '../lib/url';
+---
+
+<Section
+  raised
+  eyebrow="What you get back"
+  title="A recipe a human or a CI job can replay."
+  lede="The point isn’t just a binary. It’s the reproducible path to that binary. Every run writes a Markdown recipe, the verified artifacts, the patches applied, and a full audit trail of every model call and what it cost."
+>
+  <div class="out-layout">
+    <ul class="out-list">
+      {
+        outputs.map(([path, desc], i) => (
+          <li data-reveal data-reveal-delay={i * 50}>
+            <code>{path}</code>
+            <span>{desc}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <figure class="recipe card" data-reveal>
+      <figcaption>zlib_recipe.md</figcaption>
+      <div class="recipe-body">
+        <p class="r-h1"># Porting recipe: zlib</p>
+        <p class="r-meta">sandbox: alpine-riscv64 · musl · verified</p>
+        <p class="r-h2">## Dependencies</p>
+        <p class="r-code">apk add build-base autoconf</p>
+        <p class="r-h2">## Build</p>
+        <p class="r-code">./configure --prefix=/usr</p>
+        <p class="r-code">make CFLAGS="-mcmodel=medany"</p>
+        <p class="r-h2">## Artifacts</p>
+        <p class="r-ok">libz.so.1.3.1 · RISC-V ELF ✔</p>
+        <p class="r-dim">…</p>
+      </div>
+    </figure>
+  </div>
+
+  <div class="out-cta" data-reveal>
+    <p>
+      Every archive Atesor has published is browsable, with its recipe inside.
+    </p>
+    <a href={url('/downloads')} class="btn btn-primary">
+      <Icon name="box" size={16} />
+      Browse downloads
+    </a>
+  </div>
+</Section>
+
+<style>
+  .out-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .out-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .out-list li {
+    display: grid;
+    gap: 0.2rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .out-list li:last-child {
+    border-bottom: 0;
+  }
+
+  .out-list code {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--color-accent);
+  }
+
+  .out-list span {
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: var(--color-text-muted);
+  }
+
+  .out-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin-top: 2.25rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .out-cta p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--color-text-dim);
+  }
+
+  .recipe {
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .recipe figcaption {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    background: color-mix(in srgb, var(--color-bg-inset) 60%, transparent);
+  }
+
+  .recipe-body {
+    padding: 1.1rem 1.15rem;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    line-height: 1.85;
+  }
+
+  .recipe-body p {
+    margin: 0;
+    white-space: pre-wrap;
+  }
+
+  .r-h1 { color: var(--color-text); font-weight: 700; }
+  .r-h2 { color: var(--color-accent); margin-top: 0.6rem !important; }
+  .r-meta { color: var(--color-text-muted); }
+  .r-code { color: #b7c4d6; padding-left: 0.6rem; }
+  .r-ok { color: var(--color-verified); padding-left: 0.6rem; }
+  .r-dim { color: var(--color-text-muted); }
+
+  @media (min-width: 900px) {
+    .out-layout {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+      gap: 3rem;
+    }
+  }
+</style>

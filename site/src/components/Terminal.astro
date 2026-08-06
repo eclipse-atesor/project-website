@@ -1,0 +1,167 @@
+---
+/**
+ * Hero visual: a replay of a real `atesor-ai` run.
+ *
+ * The full transcript is present in the markup, so with JavaScript disabled
+ * or reduced motion requested the reader sees the complete output immediately.
+ * The script only *reveals* lines progressively — it never supplies content.
+ */
+const lines: Array<{ t: string; cls?: string; pause?: number }> = [
+  { t: '$ atesor-ai --repo https://github.com/madler/zlib', cls: 'l-prompt' },
+  { t: '', pause: 120 },
+  { t: '→ sandbox   alpine-riscv64 · musl · qemu-riscv64', cls: 'l-dim' },
+  { t: '→ cache     miss, running full pipeline', cls: 'l-dim', pause: 260 },
+  { t: '' },
+  { t: '  init        clone + quick_analysis            0 LLM', cls: 'l-node' },
+  { t: '  analyst     build system: autotools  (0.94)   1 call', cls: 'l-node' },
+  { t: '  plan        heuristic plan accepted           0 LLM', cls: 'l-node' },
+  { t: '  build       ./configure && make -j4', cls: 'l-node', pause: 320 },
+  { t: '' },
+  { t: '  ✗ relocation truncated to fit: R_RISCV_JAL', cls: 'l-err' },
+  { t: '  ↻ retry with -mcmodel=medany            heuristic 11/16', cls: 'l-fix', pause: 340 },
+  { t: '' },
+  { t: '  build       ok                        42.6s', cls: 'l-node' },
+  { t: '  verify      libz.so.1.3.1', cls: 'l-node' },
+  { t: '              ELF 64-bit LSB · UCB RISC-V · riscv64', cls: 'l-ok', pause: 200 },
+  { t: '' },
+  { t: '✔ verified riscv64 · $0.0007 · recipe written', cls: 'l-done' },
+  { t: '  workspace/output/zlib_recipe.md', cls: 'l-path' },
+];
+---
+
+<div class="term" data-term>
+  <div class="term-bar">
+    <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+    <span class="term-title">atesor-ai · porting run</span>
+  </div>
+  <div class="term-body scroll-x">
+    <pre><code>{lines.map((l, i) => (
+      <span
+        class={`t-line ${l.cls ?? ''}`}
+        data-i={i}
+        data-pause={l.pause ?? 0}
+      >{l.t || ' '}
+</span>
+    ))}</code></pre>
+  </div>
+</div>
+
+<script>
+  const term = document.querySelector<HTMLElement>('[data-term]');
+  if (term) {
+    const lines = Array.from(term.querySelectorAll<HTMLElement>('.t-line'));
+    const motionOK = window.matchMedia('(prefers-reduced-motion: no-preference)').matches;
+
+    if (!motionOK || !('IntersectionObserver' in window)) {
+      lines.forEach((l) => l.classList.add('shown'));
+    } else {
+      lines.forEach((l) => l.classList.add('hidden-line'));
+      let started = false;
+
+      const play = () => {
+        if (started) return;
+        started = true;
+        let delay = 0;
+        lines.forEach((line) => {
+          delay += 95 + Number(line.dataset.pause ?? 0);
+          setTimeout(() => {
+            line.classList.remove('hidden-line');
+            line.classList.add('shown');
+          }, delay);
+        });
+      };
+
+      const io = new IntersectionObserver(
+        (entries) => entries.forEach((e) => e.isIntersecting && play()),
+        { threshold: 0.25 }
+      );
+      io.observe(term);
+    }
+  }
+</script>
+
+<style>
+  .term {
+    background: var(--color-bg-inset);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.04) inset,
+      0 24px 60px -24px rgb(0 0 0 / 0.8);
+  }
+
+  .term-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.7rem 0.9rem;
+    background: color-mix(in srgb, var(--color-bg-card) 80%, transparent);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+
+  .term-title {
+    margin-left: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+  }
+
+  .term-body {
+    padding: 1.1rem 1.15rem 1.35rem;
+  }
+
+  .term-body pre {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    line-height: 1.72;
+    color: var(--color-text-dim);
+  }
+
+  .t-line {
+    display: block;
+    white-space: pre;
+  }
+
+  .hidden-line {
+    opacity: 0;
+  }
+
+  .shown {
+    animation: line-in 0.24s var(--ease-out-expo) both;
+  }
+
+  @keyframes line-in {
+    from { opacity: 0; transform: translateY(3px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shown { animation: none; }
+    .hidden-line { opacity: 1; }
+  }
+
+  .l-prompt { color: var(--color-text); font-weight: 600; }
+  .l-dim    { color: var(--color-text-muted); }
+  .l-node   { color: #b7c4d6; }
+  .l-err    { color: var(--color-danger); }
+  .l-fix    { color: var(--color-accent); }
+  .l-ok     { color: var(--color-verified); }
+  .l-done   { color: var(--color-verified); font-weight: 600; }
+  .l-path   { color: #c3b0ff; }
+
+  @media (min-width: 640px) {
+    .term-body pre { font-size: 0.82rem; }
+  }
+</style>

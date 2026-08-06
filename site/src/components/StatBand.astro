@@ -1,0 +1,64 @@
+---
+import { stats } from '../data/content';
+---
+
+<section class="statband" aria-label="Project statistics">
+  <div class="container-x">
+    <ul class="stat-grid">
+      {
+        stats.map((s, i) => (
+          <li class="stat" data-reveal data-reveal-delay={i * 70}>
+            <span class="stat-value">{s.value}</span>
+            <span class="stat-label">{s.label}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .statband {
+    padding-block: clamp(2.5rem, 5vw, 4rem);
+    background: var(--color-bg-raised);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem 1rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding-left: 0.9rem;
+    border-left: 2px solid color-mix(in srgb, var(--color-accent) 45%, transparent);
+  }
+
+  .stat-value {
+    font-family: var(--font-mono);
+    font-size: clamp(1.5rem, 3.4vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--color-text);
+    line-height: 1.1;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 720px) {
+    .stat-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+</style>
