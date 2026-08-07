@@ -2,11 +2,14 @@
 /**
  * Inline icon set. Hand-drawn on a 24x24 grid, stroke-based so they inherit
  * currentColor and line up with the type. No icon-font dependency — the site
- * makes zero third-party requests by design (see DESIGN.md §3).
+ * makes zero third-party requests by design (see the repo README §3).
  */
 interface Props {
   name: string;
   size?: number;
+  /** Optional; no caller passes these today, but both are wired through to
+   *  the <svg> so a caller can restyle or re-weight an icon without a code
+   *  change. Kept deliberately (DEAD-04/05). */
   class?: string;
   stroke?: number;
 }

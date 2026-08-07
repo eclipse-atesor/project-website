@@ -30,7 +30,7 @@
  *   GITHUB_TOKEN=... node scripts/build-manifest.mjs
  */
 import { writeFileSync, mkdirSync } from 'node:fs';
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -39,7 +39,9 @@ const REPO = process.env.ATESOR_GH_REPO ?? 'atesor';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OUT = resolve(HERE, '../public/assets/packages.json');
 const OUT_RECIPES = resolve(HERE, '../public/assets/recipes.json');
-const RAW = `https://raw.githubusercontent.com/${process.env.ATESOR_GH_OWNER ?? 'eclipse-atesor'}/${process.env.ATESOR_GH_REPO ?? 'atesor'}/main`;
+// STY-04: derive from the constants above rather than re-reading the env and
+// repeating the defaults.
+const RAW = `https://raw.githubusercontent.com/${OWNER}/${REPO}/main`;
 
 /** `<name>-<YYYYMMDD>-<HHMMSS>-<distro>.<ext>` */
 const ASSET = /^(.+)-(\d{8})-(\d{6})-([a-z0-9]+)\.(zip|tar\.gz|tgz|tar\.xz|tar\.bz2)$/;
@@ -70,7 +72,9 @@ const headers = {
 
 async function api(path) {
   if (GH_CLI) {
-    const out = execSync(`gh api ${JSON.stringify(path)}`, {
+    // SEC-03: execFileSync passes argv directly with no shell, so OWNER/REPO
+    // interpolated into `path` can never be reinterpreted as shell syntax.
+    const out = execFileSync('gh', ['api', path], {
       encoding: 'utf8',
       maxBuffer: 64 * 1024 * 1024,
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -123,13 +127,22 @@ let catalog = new Map();
 try {
   const full = await raw('.github/packages/full.json');
   const list = Array.isArray(full) ? full : (full.packages ?? []);
+  let rejected = 0;
   for (const p of list) {
     if (!p?.url) continue;
+    // SEC-01: only http(s) URLs are carried into the published manifest. A
+    // `javascript:` value here would land in an href in the browser.
+    if (!/^https?:\/\//i.test(p.url)) { rejected++; continue; }
     catalog.set(stem(p.url), { url: p.url, lang: p.lang });
   }
+  if (rejected) console.warn(`  rejected ${rejected} non-http(s) source URL(s)`);
   console.log(`catalog: ${catalog.size} source URLs`);
 } catch (e) {
-  console.warn(`catalog unavailable (${e.message}); source links will be omitted`);
+  // BLD-05: previously this only warned, so a failed fetch silently published
+  // a manifest with every source link missing and still exited 0.
+  console.error(`FATAL: catalog fetch failed (${e.message})`);
+  console.error('Refusing to write a manifest with no source links.');
+  process.exit(1);
 }
 
 /**
@@ -208,7 +221,11 @@ try {
       `(${inlined} inlined, ${derived} rebuilt from the cached build plan)`
   );
 } catch (e) {
-  console.warn(`recipe cache unavailable (${e.message}); recipe column will be empty`);
+  // BLD-05: same reasoning as the catalog — a silent empty recipe column
+  // looks identical to "no package has a recipe".
+  console.error(`FATAL: recipe cache fetch failed (${e.message})`);
+  console.error('Refusing to write a manifest with no recipes.');
+  process.exit(1);
 }
 
 const releases = await api(`/repos/${OWNER}/${REPO}/releases?per_page=100`);

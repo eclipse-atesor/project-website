@@ -12,7 +12,9 @@
     "deploy": "bash scripts/deploy.sh",
     "deploy:dry": "bash scripts/deploy.sh --dry-run",
     "check_spacing": "for f in dist/**/*.html dist/*.html; do node scripts/check-spacing.mjs \"$f\" || exit 1; done",
-    "manifest": "node scripts/build-manifest.mjs"
+    "manifest": "node scripts/build-manifest.mjs",
+    "logo": "python3 scripts/render-logo.py 512",
+    "verify": "npm run build && npm run check_spacing"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",

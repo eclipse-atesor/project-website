@@ -2,7 +2,7 @@
 
 /* ==========================================================================
    Eclipse Atesor — design tokens
-   See DESIGN.md for the rationale behind every value here.
+   Rationale for these values lives in the repo README (Rules).
    ========================================================================== */
 
 @theme {
@@ -312,4 +312,18 @@ body {
 .scroll-x {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+/* Visually hidden but available to assistive tech. Promoted from three
+   duplicate component-local copies (STY-02). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

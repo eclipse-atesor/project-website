@@ -37,6 +37,10 @@ jobs:
         working-directory: site
         run: npm run build
 
+      # DEAD-02: `npm run check` (astro check) is deliberately NOT wired here.
+      # It requires two extra devDependencies (@astrojs/check, typescript) that
+      # this repo does not carry, and prompts to install them interactively —
+      # which would hang CI. Add those deps first, then enable this step.
       - name: Check prose spacing
         working-directory: site
         run: npm run check_spacing
@@ -57,8 +61,19 @@ jobs:
             fi
           done < <(cd site/dist && find . -type f -printf '%P\n' | sort)
 
+          # BLD-04: the loop above only proves every BUILT file exists at the
+          # root. It says nothing about root files a fresh build no longer
+          # emits, so a stale asset (e.g. an old hashed stylesheet) stayed
+          # committed and CI still passed. Check the reverse direction too.
+          while IFS= read -r rel; do
+            if [[ ! -f "site/dist/$rel" ]]; then
+              echo "::error file=$rel::stale published file — not produced by a fresh build; run 'npm run deploy' in site/"
+              fail=1
+            fi
+          done < <(git ls-files -- 'index.html' 'downloads/**' '_astro/**' 'assets/**')
+
           if [[ $fail -eq 0 ]]; then
-            echo "Published root matches a fresh build of site/."
+            echo "Published root matches a fresh build of site/, in both directions."
           fi
           exit $fail
 

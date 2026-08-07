@@ -56,6 +56,20 @@ const canonical = `${project.urls.website}${ogPath === '/' ? '' : ogPath}`;
   </head>
 
   <body>
+    <!--
+      UX-02. [data-reveal] is opacity:0 until the IntersectionObserver adds
+      .is-visible, so with JavaScript disabled every revealed section renders
+      blank. Restore them unconditionally when JS is off.
+    -->
+    <noscript>
+      <style>
+        [data-reveal] {
+          opacity: 1 !important;
+          transform: none !important;
+        }
+      </style>
+    </noscript>
+
     <a href="#main" class="skip-link">Skip to content</a>
     <Header />
     <main id="main">
@@ -64,9 +78,11 @@ const canonical = `${project.urls.website}${ogPath === '/' ? '' : ogPath}`;
     <Footer />
 
     <script>
-      // Scroll reveal. Progressive enhancement only — the CSS that hides
-      // [data-reveal] is itself gated behind prefers-reduced-motion, so if
-      // this never runs (or motion is reduced) the content is simply visible.
+      // Scroll reveal. The hiding CSS is gated behind
+      // prefers-reduced-motion:no-preference, so reduced-motion users never
+      // see it applied. Default-motion users WITH JS disabled are covered by
+      // the <noscript> override above — without that, this script failing to
+      // run leaves the content permanently invisible.
       const els = document.querySelectorAll('[data-reveal]');
       if (
         'IntersectionObserver' in window &&

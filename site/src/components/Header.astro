@@ -59,11 +59,25 @@ const nav = [
   const panel = document.querySelector<HTMLElement>('#mobile-nav');
   const header = document.querySelector<HTMLElement>('.site-header');
 
+  // UX-10: opening the menu must move focus into it, and Escape must close it
+  // and hand focus back to the toggle, or keyboard users are stranded.
+  const setOpen = (open: boolean) => {
+    btn?.setAttribute('aria-expanded', String(open));
+    if (panel) panel.hidden = !open;
+    btn?.classList.toggle('is-open', open);
+  };
+
   btn?.addEventListener('click', () => {
     const open = btn.getAttribute('aria-expanded') === 'true';
-    btn.setAttribute('aria-expanded', String(!open));
-    if (panel) panel.hidden = open;
-    btn.classList.toggle('is-open', !open);
+    setOpen(!open);
+    if (!open) panel?.querySelector<HTMLAnchorElement>('a')?.focus();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (btn?.getAttribute('aria-expanded') !== 'true') return;
+    setOpen(false);
+    btn.focus();
   });
 
   // Close the mobile panel after following an in-page anchor.

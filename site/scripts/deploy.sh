@@ -35,6 +35,18 @@ DRY_RUN=0
 # Never let a mistake here escape into the repo internals.
 PROTECTED=(".git" "site" ".github" "README.md" ".gitignore" ".published-files")
 
+# BLD-01. The allowlist below only inspects the FIRST path segment, so a
+# manifest line like `../../evil` yields top=".." — which matches nothing and
+# would be deleted from outside the repo. The manifest is machine-generated
+# from `find dist -printf '%P'` and never contains such a path, but nothing
+# enforced that. Reject traversal and absolute paths outright.
+is_unsafe_rel() {
+  case "$1" in
+    /*|*/../*|../*|*/..|..) return 0 ;;
+  esac
+  return 1
+}
+
 is_protected() {
   local top="${1%%/*}"
   for p in "${PROTECTED[@]}"; do
@@ -73,37 +85,20 @@ while IFS= read -r page; do
   node "$SITE_DIR/scripts/check-spacing.mjs" "$page"
 done < <(find "$DIST" -name '*.html' | sort)
 
-# ------------------------------------------------- remove stale artefacts ----
-echo "==> Removing previously published files"
-if [[ -f "$MANIFEST" ]]; then
-  while IFS= read -r rel; do
-    [[ -z "$rel" ]] && continue
-    if is_protected "$rel"; then
-      say "SKIP (protected): $rel"
-      continue
-    fi
-    target="$REPO_ROOT/$rel"
-    if [[ -e "$target" ]]; then
-      say "rm $rel"
-      [[ $DRY_RUN -eq 0 ]] && rm -f "$target"
-    fi
-  done < "$MANIFEST"
-  # Drop now-empty directories left behind (e.g. _astro/).
-  if [[ $DRY_RUN -eq 0 ]]; then
-    find "$REPO_ROOT" -mindepth 1 -maxdepth 3 -type d -empty \
-      -not -path "$REPO_ROOT/.git/*" -not -path "$REPO_ROOT/.git" \
-      -not -path "$REPO_ROOT/site*" -not -path "$REPO_ROOT/.github*" \
-      -delete 2>/dev/null || true
-  fi
-else
-  say "(no manifest yet — first publish)"
-fi
-
-# ------------------------------------------------------------- copy new ----
+# --------------------------------------------------------- publish new ----
+# BLD-02. Copy BEFORE deleting. The previous order removed every published
+# file first, so an interrupt (Ctrl-C, OOM, full disk) between the two loops
+# left the served root with index.html gone and the replacement not yet
+# written. Copying first means every path is either the old file or the new
+# one at all times — never absent.
 echo "==> Publishing dist/ to repository root"
 NEW_MANIFEST="$(mktemp)"
 
-( cd "$DIST" && find . -type f -printf '%P\n' | sort ) | while IFS= read -r rel; do
+while IFS= read -r rel; do
+  if is_unsafe_rel "$rel"; then
+    say "SKIP (unsafe path): $rel"
+    continue
+  fi
   if is_protected "$rel"; then
     say "SKIP (protected): $rel"
     continue
@@ -114,7 +109,43 @@ NEW_MANIFEST="$(mktemp)"
     mkdir -p "$REPO_ROOT/$(dirname "$rel")"
     cp "$DIST/$rel" "$REPO_ROOT/$rel"
   fi
-done
+done < <( cd "$DIST" && find . -type f -printf '%P\n' | sort )
+
+# ------------------------------------------------- remove stale artefacts ----
+# Only files the previous deploy published that this one did NOT re-publish.
+echo "==> Removing files no longer published"
+if [[ -f "$MANIFEST" ]]; then
+  while IFS= read -r rel; do
+    [[ -z "$rel" ]] && continue
+    if is_unsafe_rel "$rel"; then
+      say "SKIP (unsafe path): $rel"
+      continue
+    fi
+    if is_protected "$rel"; then
+      say "SKIP (protected): $rel"
+      continue
+    fi
+    # Still in the new build? Then it was just overwritten, not orphaned.
+    if grep -qxF "$rel" "$NEW_MANIFEST" 2>/dev/null; then
+      continue
+    fi
+    target="$REPO_ROOT/$rel"
+    if [[ -e "$target" ]]; then
+      say "rm $rel"
+      [[ $DRY_RUN -eq 0 ]] && rm -f "$target"
+    fi
+  done < "$MANIFEST"
+
+  # Drop directories the removals emptied. Scoped to the published tree so an
+  # unrelated empty top-level directory is never swept up (SEC-08).
+  if [[ $DRY_RUN -eq 0 ]]; then
+    for d in "$REPO_ROOT/_astro" "$REPO_ROOT/assets" "$REPO_ROOT/downloads"; do
+      [[ -d "$d" ]] && find "$d" -mindepth 0 -type d -empty -delete 2>/dev/null || true
+    done
+  fi
+else
+  say "(no manifest yet — first publish)"
+fi
 
 if [[ $DRY_RUN -eq 0 ]]; then
   mv "$NEW_MANIFEST" "$MANIFEST"

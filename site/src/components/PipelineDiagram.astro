@@ -86,7 +86,7 @@ const vlink = (a: string, b: string) => `M${byId[a].x} ${bot(byId[a])} L${byId[b
           markerHeight="6"
           orient="auto-start-reverse"
         >
-          <path d="M0 0 L10 5 L0 10 z" fill="#334867" />
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--color-wire)" />
         </marker>
         <marker
           id="pd-arrow-loop"
@@ -393,17 +393,5 @@ const vlink = (a: string, b: string) => `M${byId[a].x} ${bot(byId[a])} L${byId[b
   @keyframes node-in {
     from { opacity: 0; transform: translateY(6px); }
     to   { opacity: 1; transform: none; }
-  }
-
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
   }
 </style>

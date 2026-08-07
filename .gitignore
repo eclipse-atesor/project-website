@@ -1,20 +1,47 @@
-# Build tooling — the SOURCE lives in site/, the BUILT OUTPUT lives at the
-# repository root and MUST be committed (the Eclipse Foundation publisher
-# serves this repo's root verbatim; it does not run a build).
 site/node_modules/
 site/dist/
 site/.astro/
 site/.vercel/
+node_modules/
 
-# Editors / OS
+# --- Python bytecode (scripts/render-logo.py) --------------------------------
+__pycache__/
+*.pyc
+*.pyo
+
+# --- Local review scaffold ---------------------------------------------------
+review/
+
+# --- Secrets: never commit, regardless of location ---------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*_token
+*credentials*
+
+# --- Editors / OS ------------------------------------------------------------
 .DS_Store
 Thumbs.db
+desktop.ini
 *.swp
+*.swo
+*~
 .idea/
 .vscode/
 
-# Logs
+# --- Logs and local scratch --------------------------------------------------
+*.log
 npm-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+.cache/
+tmp/
+*.tmp
+*.bak
+*.orig
+*.rej
 
+# --- Design notes kept out of the repo by choice ------------------------------
 site/DESIGN.md

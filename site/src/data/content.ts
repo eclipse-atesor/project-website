@@ -3,7 +3,7 @@
  *
  * Each entry is traceable to the Eclipse Atesor codebase or to the Eclipse
  * Foundation PMI. Do NOT add a number here without a `src` note saying where
- * it came from. See DESIGN.md §6 for the accuracy rules.
+ * it came from. See the README (Rules) for the accuracy rules.
  *
  * Ground truth is `src/graph.py` and `PROJECT.md` in the atesor repo — the
  * README's architecture section is stale and must not be used.
