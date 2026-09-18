@@ -37,6 +37,31 @@ to `main`. The site is live within about five minutes.
 | `npm run manifest` | Refresh the `/downloads` index from GitHub Releases |
 | `npm run check_spacing` | Prose lint (also runs inside deploy and CI) |
 
+## Downloads index
+
+The `/downloads` page reads `assets/packages.json`. A build step generates that
+file from GitHub Releases, so the page makes no third-party request and no
+visitor meets the GitHub rate limit. The cost is that a new release is invisible
+until the file is regenerated.
+
+`.github/workflows/refresh-downloads.yml` does that every Monday at 04:17 UTC.
+It regenerates the index, rebuilds, and commits only if the releases moved. It
+commits as `github-actions[bot]`, never as you, and it stages only the published
+paths. Run it early from Actions -> **Refresh downloads index** -> *Run workflow*.
+
+To refresh by hand instead:
+
+```bash
+cd site
+npm run manifest
+npm run deploy
+```
+
+Two limits to know. The workflow needs `contents: write`; if `main` is
+protected, give it a bypass or change it to open a pull request. GitHub also
+caps asset listings at 1,000 per release, so two older months list fewer builds
+than the release holds.
+
 ## Layout
 
 | Path | Role |
