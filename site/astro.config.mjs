@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import starlight from '@astrojs/starlight';
+import sortedSearchIndex from './src/integrations/sorted-search-index.mjs';
 
 // The Eclipse Foundation publishing job copies the repo root of `main`
 // byte-for-byte to https://eclipse.dev/atesor — there is no server-side
@@ -64,6 +65,9 @@ export default defineConfig({
         { label: 'Project', collapsed: true, items: [{ autogenerate: { directory: 'docs/project' } }] },
       ],
     }),
+    // After starlight(): it builds the search index again in a fixed order,
+    // so that CI and a local deploy give the same bytes.
+    sortedSearchIndex(),
   ],
   vite: {
     plugins: [tailwindcss()],
