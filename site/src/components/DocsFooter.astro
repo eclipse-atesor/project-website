@@ -1,0 +1,186 @@
+---
+/**
+ * Starlight footer override for the docs.
+ *
+ * Starlight's own footer (edit link, last updated, previous/next) renders
+ * first. Below it goes the Eclipse Foundation block that the handbook asks
+ * for on every project page: an Eclipse logo, the incubation logo, the
+ * copyright line, the trademark line, and the legal links. Logos are
+ * self-hosted, so the docs make no third-party requests.
+ *
+ * The Eclipse Foundation logo file draws "ECLIPSE" in white for the dark
+ * landing page. Here it is inlined and that word takes `currentColor`, so it
+ * reads on both docs themes. "FOUNDATION" keeps the Eclipse orange.
+ */
+import Default from '@astrojs/starlight/components/Footer.astro';
+import efLogoRaw from '../../public/assets/eclipse-foundation-logo.svg?raw';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const efLogo = efLogoRaw
+  .replace(/<\?xml[^>]*>\s*/, '')
+  .replace(/<!--[\s\S]*?-->\s*/g, '')
+  .replace(/<defs>[\s\S]*?<\/defs>\s*/, '')
+  .replace(/class="st0"/g, 'fill="#f06c02"')
+  .replace(/class="st1"/g, 'fill="currentColor"')
+  .replace(/\sid="Layer_1"/, '')
+  .replace('<svg ', '<svg role="img" aria-label="Eclipse Foundation" ');
+
+const legal = [
+  { label: 'Eclipse Foundation', href: 'https://www.eclipse.org' },
+  { label: 'Privacy policy', href: 'https://www.eclipse.org/legal/privacy/' },
+  { label: 'Terms of use', href: 'https://www.eclipse.org/legal/terms-of-use/' },
+  { label: 'Compliance', href: 'https://www.eclipse.org/legal/compliance/' },
+  { label: 'Legal resources', href: 'https://www.eclipse.org/legal/' },
+  { label: 'Report a vulnerability', href: 'https://www.eclipse.org/security/' },
+];
+---
+
+<Default><slot /></Default>
+
+<footer class="ef-footer" aria-label="Eclipse Foundation">
+  <div class="ef-top">
+    <a class="ef-logo" href="https://www.eclipse.org" rel="noopener" set:html={efLogo} />
+    <a
+      class="ef-incubation"
+      href="https://www.eclipse.org/projects/handbook/#incubation"
+      rel="noopener"
+    >
+      <span class="egg">
+        <img
+          src={`${base}/assets/incubation.png`}
+          alt="Eclipse Foundation incubation phase"
+          width="22"
+          height="29"
+          loading="lazy"
+        />
+      </span>
+      <span class="ef-incubation-text">
+        <strong>Incubating</strong>
+        <span>Eclipse Development Process</span>
+      </span>
+    </a>
+  </div>
+
+  <p>
+    Eclipse Atesor™ is an open source project of the{' '}
+    <a href="https://projects.eclipse.org/projects/openhw" rel="noopener">OpenHW Group</a>, hosted
+    by the Eclipse Foundation. Copyright © Eclipse Foundation AISBL. All Rights Reserved.
+  </p>
+  <p>
+    Eclipse Atesor, Atesor, Eclipse, and the Eclipse logo are trademarks of Eclipse Foundation
+    AISBL. Eclipse Atesor source code is licensed under the{' '}
+    <a href="https://github.com/eclipse-atesor/atesor/blob/main/LICENSE" rel="noopener">MIT License</a>.
+  </p>
+
+  <ul class="ef-links">
+    {legal.map((l) => <li><a href={l.href} rel="noopener">{l.label}</a></li>)}
+  </ul>
+</footer>
+
+<style>
+  .ef-footer {
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--sl-color-hairline);
+    display: grid;
+    gap: 0.6rem;
+    font-size: var(--sl-text-xs);
+    line-height: 1.55;
+    color: var(--sl-color-gray-3);
+  }
+
+  .ef-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  /* The inlined logo: "ECLIPSE" uses currentColor, so set it per theme. */
+  .ef-logo {
+    display: block;
+    line-height: 0;
+    color: var(--sl-color-white);
+  }
+  .ef-logo :global(svg) {
+    display: block;
+    width: 132px;
+    height: auto;
+  }
+
+  .ef-incubation {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.3rem 0.75rem 0.3rem 0.35rem;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 999px;
+    text-decoration: none;
+    color: var(--sl-color-gray-3);
+  }
+  .ef-incubation:hover {
+    border-color: var(--sl-color-gray-4);
+  }
+
+  /* The official incubation logo is a PNG on white; a white tile makes it a
+     badge that reads on the dark theme too. */
+  .egg {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid var(--sl-color-gray-5);
+    overflow: hidden;
+  }
+  .egg img {
+    width: 1.2rem;
+    height: auto;
+  }
+
+  .ef-incubation-text {
+    display: grid;
+    line-height: 1.2;
+  }
+  .ef-incubation-text strong {
+    color: var(--sl-color-gray-2);
+    font-weight: 600;
+  }
+
+  .ef-footer p {
+    margin: 0;
+    max-width: 72ch;
+  }
+
+  .ef-footer p a {
+    color: var(--sl-color-gray-2);
+    text-decoration-color: var(--sl-color-gray-5);
+    text-underline-offset: 2px;
+  }
+  .ef-footer p a:hover {
+    color: var(--sl-color-white);
+    text-decoration-color: currentColor;
+  }
+
+  .ef-links {
+    list-style: none;
+    padding: 0;
+    margin: 0.35rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1.1rem;
+  }
+  .ef-links li {
+    margin: 0;
+  }
+  .ef-links a {
+    color: var(--sl-color-gray-2);
+    text-decoration: none;
+  }
+  .ef-links a:hover {
+    color: var(--sl-color-white);
+    text-decoration: underline;
+  }
+</style>

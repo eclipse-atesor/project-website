@@ -7,10 +7,10 @@
  * The script only *reveals* lines progressively — it never supplies content.
  */
 const lines: Array<{ t: string; cls?: string; pause?: number }> = [
-  { t: '$ atesor-ai --repo https://github.com/madler/zlib', cls: 'l-prompt' },
+  { t: '$ atesor-ai --repo https://github.com/madler/zlib --force', cls: 'l-prompt' },
   { t: '', pause: 120 },
   { t: '→ sandbox   alpine-riscv64 · musl · qemu-riscv64', cls: 'l-dim' },
-  { t: '→ cache     miss, running full pipeline', cls: 'l-dim', pause: 260 },
+  { t: '→ cache     skipped (--force), running full pipeline', cls: 'l-dim', pause: 260 },
   { t: '' },
   { t: '  init        clone + quick_analysis            0 LLM', cls: 'l-node' },
   { t: '  analyst     build system: autotools  (0.94)   1 call', cls: 'l-node' },

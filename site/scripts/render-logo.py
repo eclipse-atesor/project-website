@@ -3,55 +3,72 @@
 
 There is no SVG rasteriser on this machine (no rsvg/inkscape/cairosvg), and
 adding one would mean a system package or a new npm dependency. It is not
-needed: every element of the mark is a *stroke with round caps*, so each one
-is exactly "within R of a line segment", and the body is a rounded rectangle
-outline. That makes the whole thing a signed-distance field, which numpy
-evaluates directly and which anti-aliases correctly at any size.
+needed: every element of the mark is a stroke with round caps and round
+joins, a ring, or a disc. A round-joined polyline is exactly "within R of one
+of its segments", so the whole mark is a signed-distance field that numpy
+evaluates directly and that anti-aliases correctly at any size.
 
-Geometry is transcribed from public/assets/atesor-logo.svg. Keep the two in
-step: if the SVG changes, update GEOMETRY below and re-run.
+Geometry is transcribed from public/brand/atesor-mark.svg (the full mark) and
+public/favicon.svg (the heavier small-size mark). Keep them in step: if an
+SVG changes, update GEOMETRY below and re-run.
 
 Usage:
-    python3 scripts/render-logo.py [size ...]      # default 512
+    python3 scripts/render-logo.py          # writes every file in OUTPUTS
 """
-import sys
 from pathlib import Path
 
 import numpy as np
 from PIL import Image
 
 HERE = Path(__file__).resolve().parent
-OUT_DIR = HERE.parent / "public" / "assets"
+PUBLIC = HERE.parent / "public"
 
-# ---------------------------------------------------------------- geometry --
 VIEWBOX = 512.0
 
-# linearGradient id="core-body", gradientUnits="userSpaceOnUse"
-GRAD_P0 = np.array([112.0, 112.0])
-GRAD_P1 = np.array([400.0, 400.0])
-GRAD_C0 = np.array([0xF9, 0xA8, 0x40], dtype=float)  # #F9A840
-GRAD_C1 = np.array([0xF0, 0x6C, 0x00], dtype=float)  # #F06C00
+# ---------------------------------------------------------------- colours --
+INK = (0x1B, 0x1E, 0x22)        # granodiorite
+CHALK = (0xEC, 0xEE, 0xEF)
+PAPER = (0xF2, 0xF2, 0xEF)
+BLUE = (0x21, 0x42, 0xB0)       # Egyptian blue
+BLUE_LIGHT = (0x8C, 0xA3, 0xFF)  # Egyptian blue, for dark grounds
 
-VERIFIED = np.array([0x2D, 0xD4, 0xBF], dtype=float)  # #2DD4BF
+# --------------------------------------------------------------- geometry --
+# Each shape: ("poly", points, stroke_width), ("ring", centre, r, stroke_width)
+# or ("disc", centre, r). "line" shapes take the line colour, "pad" the pad colour.
+MARK = {
+    "line": [
+        ("poly", [(160, 72), (440, 72), (440, 440), (72, 440), (72, 160), (160, 72)], 26),
+        ("ring", (352, 180), 16, 10),
+        ("poly", [(336, 180), (174, 180), (150, 204), (150, 232), (174, 256), (338, 256),
+                  (362, 280), (362, 308), (338, 332), (164, 332)], 26),
+    ],
+    "pad": [("disc", (164, 332), 24)],
+}
 
-# 12 pins: stroke-width 22 -> radius 11, round caps
-PIN_R = 11.0
-PINS = [
-    ((176, 104), (176, 58)), ((256, 104), (256, 58)), ((336, 104), (336, 58)),
-    ((176, 408), (176, 454)), ((256, 408), (256, 454)), ((336, 408), (336, 454)),
-    ((104, 176), (58, 176)), ((104, 256), (58, 256)), ((104, 336), (58, 336)),
-    ((408, 176), (454, 176)), ((408, 256), (454, 256)), ((408, 336), (454, 336)),
-]
+# Heavier strokes and no source ring, so it holds at 16-32 px.
+SMALL = {
+    "line": [
+        ("poly", [(150, 62), (450, 62), (450, 450), (62, 450), (62, 150), (150, 62)], 48),
+        ("poly", [(362, 176), (184, 176), (156, 204), (156, 228), (184, 256), (328, 256),
+                  (356, 284), (356, 308), (328, 336), (180, 336)], 44),
+    ],
+    "pad": [("disc", (180, 336), 36)],
+}
 
-# package body: rect 112,112 288x288 rx=54, stroke-width 26 -> half-width 13
-BODY_CENTER = np.array([256.0, 256.0])
-BODY_HALF = np.array([144.0, 144.0])
-BODY_RADIUS = 54.0
-BODY_HALF_STROKE = 13.0
-
-# the die: polyline, stroke-width 34 -> radius 17, round cap + round join
-CHECK_R = 17.0
-CHECK = [((186, 258), (238, 310)), ((238, 310), (330, 206))]
+# name: (geometry, size, line colour, pad colour, background or None, scale of mark in canvas)
+OUTPUTS = {
+    "brand/atesor-mark-512.png": (MARK, 512, INK, BLUE, None, 1.0),
+    "brand/atesor-mark-dark-512.png": (MARK, 512, CHALK, BLUE_LIGHT, None, 1.0),
+    # Eclipse PMI logo field: max 200x200, transparent background.
+    "brand/atesor-pmi-200.png": (MARK, 200, INK, BLUE, None, 1.0),
+    # GitHub organisation avatar: square, opaque.
+    "brand/github-avatar-500.png": (MARK, 500, INK, BLUE, PAPER, 0.86),
+    # Web app icons.
+    "brand/icon-192.png": (SMALL, 192, CHALK, BLUE_LIGHT, INK, 0.80),
+    "brand/icon-512.png": (SMALL, 512, CHALK, BLUE_LIGHT, INK, 0.80),
+    "apple-touch-icon.png": (SMALL, 180, CHALK, BLUE_LIGHT, INK, 0.80),
+    "favicon-32.png": (SMALL, 32, INK, BLUE, None, 1.0),
+}
 
 
 def seg_distance(px, py, a, b):
@@ -64,13 +81,22 @@ def seg_distance(px, py, a, b):
     return np.hypot(px - (ax + t * dx), py - (ay + t * dy))
 
 
-def round_box_sdf(px, py):
-    """Signed distance to the rounded-rectangle boundary (negative inside)."""
-    qx = np.abs(px - BODY_CENTER[0]) - BODY_HALF[0] + BODY_RADIUS
-    qy = np.abs(py - BODY_CENTER[1]) - BODY_HALF[1] + BODY_RADIUS
-    outside = np.hypot(np.maximum(qx, 0.0), np.maximum(qy, 0.0))
-    inside = np.minimum(np.maximum(qx, qy), 0.0)
-    return outside + inside - BODY_RADIUS
+def shape_sdf(px, py, shape):
+    """Signed distance to one shape (negative inside the painted area)."""
+    kind = shape[0]
+    if kind == "poly":
+        _, pts, width = shape
+        d = np.full(px.shape, np.inf)
+        for a, b in zip(pts, pts[1:]):
+            d = np.minimum(d, seg_distance(px, py, a, b))
+        return d - width / 2.0
+    if kind == "ring":
+        _, (cx, cy), r, width = shape
+        return np.abs(np.hypot(px - cx, py - cy) - r) - width / 2.0
+    if kind == "disc":
+        _, (cx, cy), r = shape
+        return np.hypot(px - cx, py - cy) - r
+    raise ValueError(kind)
 
 
 def over(dst_rgb, dst_a, src_rgb, src_a):
@@ -83,38 +109,29 @@ def over(dst_rgb, dst_a, src_rgb, src_a):
     return out_rgb, out_a
 
 
-def render(size):
-    px_size = VIEWBOX / size                      # user units per device pixel
-    coords = (np.arange(size) + 0.5) * px_size    # pixel centres in user space
+def render(geometry, size, line, pad, background, scale):
+    # Map pixel centres into mark space; `scale` < 1 leaves a margin round the mark.
+    px_size = VIEWBOX / (size * scale)
+    offset = (VIEWBOX - VIEWBOX / scale) / 2.0
+    coords = offset + (np.arange(size) + 0.5) * px_size
     px, py = np.meshgrid(coords, coords)
 
     def coverage(sd):
         """1px-wide analytic anti-aliasing from a signed distance."""
         return np.clip(0.5 - sd / px_size, 0.0, 1.0)
 
-    # gradient colour at every pixel
-    d = GRAD_P1 - GRAD_P0
-    t = np.clip(((px - GRAD_P0[0]) * d[0] + (py - GRAD_P0[1]) * d[1]) / d.dot(d), 0.0, 1.0)
-    grad = GRAD_C0 + (GRAD_C1 - GRAD_C0) * t[..., None]
-
     rgb = np.zeros((size, size, 3))
     alpha = np.zeros((size, size))
+    if background is not None:
+        rgb[:] = background
+        alpha[:] = 1.0
 
-    # pins — union of capsules, so take the nearest segment
-    pin_sd = np.full((size, size), np.inf)
-    for a, b in PINS:
-        pin_sd = np.minimum(pin_sd, seg_distance(px, py, a, b) - PIN_R)
-    rgb, alpha = over(rgb, alpha, grad, coverage(pin_sd))
-
-    # package body — an outline, so distance to the *boundary*
-    rgb, alpha = over(rgb, alpha, grad, coverage(np.abs(round_box_sdf(px, py)) - BODY_HALF_STROKE))
-
-    # the check, on top. Round joins mean a union of capsules is exact.
-    chk_sd = np.full((size, size), np.inf)
-    for a, b in CHECK:
-        chk_sd = np.minimum(chk_sd, seg_distance(px, py, a, b) - CHECK_R)
-    verified = np.broadcast_to(VERIFIED, (size, size, 3))
-    rgb, alpha = over(rgb, alpha, verified, coverage(chk_sd))
+    for role, colour in (("line", line), ("pad", pad)):
+        sd = np.full((size, size), np.inf)
+        for shape in geometry[role]:
+            sd = np.minimum(sd, shape_sdf(px, py, shape))
+        src = np.broadcast_to(np.array(colour, dtype=float), (size, size, 3))
+        rgb, alpha = over(rgb, alpha, src, coverage(sd))
 
     buf = np.concatenate(
         [np.rint(rgb).clip(0, 255), np.rint(alpha * 255).clip(0, 255)[..., None]], axis=2
@@ -123,13 +140,12 @@ def render(size):
 
 
 def main():
-    sizes = [int(a) for a in sys.argv[1:]] or [512]
-    for s in sizes:
-        img = render(s)
-        name = "atesor-logo.png" if s == 512 else f"atesor-logo-{s}.png"
-        path = OUT_DIR / name
+    for name, (geometry, size, line, pad, background, scale) in OUTPUTS.items():
+        img = render(geometry, size, line, pad, background, scale)
+        path = PUBLIC / name
+        path.parent.mkdir(parents=True, exist_ok=True)
         img.save(path, "PNG", optimize=True)
-        print(f"  wrote {path.name}  {s}x{s}  {path.stat().st_size / 1024:.1f} KB")
+        print(f"  wrote {name}  {size}x{size}  {path.stat().st_size / 1024:.1f} KB")
 
 
 if __name__ == "__main__":

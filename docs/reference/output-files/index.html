@@ -1,0 +1,861 @@
+<!DOCTYPE html><html lang="en" dir="ltr" data-theme="dark" data-has-toc data-has-sidebar class="astro-g5ptsecz"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Output files | Eclipse Atesor™</title><link rel="canonical" href="https://eclipse.dev/atesor/docs/reference/output-files/"/><link rel="sitemap" href="/atesor/sitemap-index.xml"/><link rel="apple-touch-icon" href="/atesor/apple-touch-icon.png"/><link rel="manifest" href="/atesor/site.webmanifest"/><link rel="alternate" type="text/plain" title="llms.txt" href="/atesor/llms.txt"/><link rel="shortcut icon" href="/atesor/favicon.svg" type="image/svg+xml"/><meta name="generator" content="Astro v7.3.8"/><meta name="generator" content="Starlight v0.42.6"/><meta property="og:title" content="Output files"/><meta property="og:type" content="article"/><meta property="og:url" content="https://eclipse.dev/atesor/docs/reference/output-files/"/><meta property="og:locale" content="en"/><meta property="og:description" content="Every file and folder that an Atesor run writes, with its location, format and main fields, from the recipe to performance mode results, the zip and the caches."/><meta property="og:site_name" content="Eclipse Atesor™"/><meta name="twitter:card" content="summary_large_image"/><meta name="description" content="Every file and folder that an Atesor run writes, with its location, format and main fields, from the recipe to performance mode results, the zip and the caches."/><meta property="og:image" content="https://eclipse.dev/atesor/brand/og-image.png"/><meta name="twitter:image" content="https://eclipse.dev/atesor/brand/og-image.png"/><script>
+	window.StarlightThemeProvider = (() => {
+		const storedTheme =
+			typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+		const theme =
+			storedTheme ||
+			(window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+		document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+		return {
+			updatePickers(theme = storedTheme || 'auto') {
+				document.querySelectorAll('starlight-theme-select').forEach((picker) => {
+					const select = picker.querySelector('select');
+					if (select) select.value = theme;
+					/** @type {HTMLTemplateElement | null} */
+					const tmpl = document.querySelector(`#theme-icons`);
+					const newIcon = tmpl && tmpl.content.querySelector('.' + theme);
+					if (newIcon) {
+						const oldIcon = picker.querySelector('svg.label-icon');
+						if (oldIcon) {
+							oldIcon.replaceChildren(...newIcon.cloneNode(true).childNodes);
+						}
+					}
+				});
+			},
+		};
+	})();
+</script><template id="theme-icons"><svg aria-hidden="true" class="light astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M5 12a1 1 0 0 0-1-1H3a1 1 0 0 0 0 2h1a1 1 0 0 0 1-1Zm.64 5-.71.71a1 1 0 0 0 0 1.41 1 1 0 0 0 1.41 0l.71-.71A1 1 0 0 0 5.64 17ZM12 5a1 1 0 0 0 1-1V3a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1Zm5.66 2.34a1 1 0 0 0 .7-.29l.71-.71a1 1 0 1 0-1.41-1.41l-.66.71a1 1 0 0 0 0 1.41 1 1 0 0 0 .66.29Zm-12-.29a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.71-.71a1.004 1.004 0 1 0-1.43 1.41l.73.71ZM21 11h-1a1 1 0 0 0 0 2h1a1 1 0 0 0 0-2Zm-2.64 6A1 1 0 0 0 17 18.36l.71.71a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.76-.66ZM12 6.5a5.5 5.5 0 1 0 5.5 5.5A5.51 5.51 0 0 0 12 6.5Zm0 9a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm0 3.5a1 1 0 0 0-1 1v1a1 1 0 0 0 2 0v-1a1 1 0 0 0-1-1Z"/></svg><svg aria-hidden="true" class="dark astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.64 13a1 1 0 0 0-1.05-.14 8.049 8.049 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05Zm-9.5 6.69A8.14 8.14 0 0 1 7.08 5.22v.27a10.15 10.15 0 0 0 10.14 10.14 9.784 9.784 0 0 0 2.1-.22 8.11 8.11 0 0 1-7.18 4.32v-.04Z"/></svg><svg aria-hidden="true" class="auto astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg></template><link rel="stylesheet" href="/atesor/_astro/print.ehPL0gv-.css" media="print"><link rel="stylesheet" href="/atesor/_astro/index.CxIBpmSu.css"><style>@layer starlight.components{svg:where(.astro-hkc32dio){color:var(--sl-icon-color);font-size:var(--sl-icon-size,1em);width:1em;height:1em;overflow:visible}}
+</style><script type="module" src="/atesor/_astro/page.cNngjUgL.js"></script></head><body class="astro-g5ptsecz"><a class="sl-skip-link astro-qb7clj6f" href="#_top">Skip to content</a><div class="page sl-flex astro-yntsjkba"><header class="header astro-yntsjkba"><div class="header astro-by6fddyj"><div class="title-wrapper sl-flex astro-by6fddyj"><a href="/atesor/" class="site-title sl-flex astro-6rvad3va"><img class="light:sl-hidden print:hidden astro-6rvad3va" alt src="/atesor/_astro/atesor-mark-dark.CIOkFVI-.svg" width="512" height="512"><img class="dark:sl-hidden print:block astro-6rvad3va" alt src="/atesor/_astro/atesor-mark.BhUamroi.svg" width="512" height="512"><span class="astro-6rvad3va" translate="no">Eclipse Atesor™</span></a></div><div class="sl-flex print:hidden astro-by6fddyj"><site-search class="astro-by6fddyj astro-b5kgnn7o" data-translations="{&quot;placeholder&quot;:&quot;Search&quot;}"><button data-open-modal disabled aria-label="Search" aria-keyshortcuts="Control+K" class="astro-b5kgnn7o"><svg aria-hidden="true" class="astro-b5kgnn7o astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.71 20.29 18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/></svg><span class="sl-hidden md:sl-block astro-b5kgnn7o" aria-hidden="true">Search</span><kbd class="sl-hidden md:sl-flex astro-b5kgnn7o" style="display: none;"><kbd class="astro-b5kgnn7o">Ctrl</kbd><kbd class="astro-b5kgnn7o">K</kbd></kbd></button><dialog style="padding:0" aria-label="Search" class="astro-b5kgnn7o"><div class="dialog-frame sl-flex astro-b5kgnn7o"><button data-close-modal class="sl-flex md:sl-hidden astro-b5kgnn7o">Cancel</button><div class="search-container astro-b5kgnn7o"><div id="starlight__search" class="astro-b5kgnn7o"></div></div></div></dialog></site-search><script>
+	(() => {
+		const openBtn = document.querySelector('button[data-open-modal]');
+		const shortcut = openBtn?.querySelector('kbd');
+		if (!openBtn || !(shortcut instanceof HTMLElement)) return;
+		const platformKey = shortcut.querySelector('kbd');
+		if (platformKey && /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
+			platformKey.textContent = '⌘';
+			openBtn.setAttribute('aria-keyshortcuts', 'Meta+K');
+		}
+		shortcut.style.display = '';
+	})();
+</script><script type="module" src="/atesor/_astro/Search.astro_astro_type_script_index_0_lang.BtDwG4cY.js"></script></div><div class="sl-hidden md:sl-flex print:hidden right-group astro-by6fddyj"><div class="sl-flex social-icons astro-by6fddyj"><a href="https://github.com/eclipse-atesor/atesor" rel="me" class="sl-flex astro-n2mnl6yq"><span class="sr-only astro-n2mnl6yq">Source on GitHub</span><svg aria-hidden="true" class="astro-n2mnl6yq astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/></svg></a></div><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-2z5xp7gb"><span class="sr-only astro-2z5xp7gb">Select theme</span><svg aria-hidden="true" class="icon label-icon astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-2z5xp7gb"><option value="dark" class="astro-2z5xp7gb">Dark</option><option value="light" class="astro-2z5xp7gb">Light</option><option value="auto" selected class="astro-2z5xp7gb">Auto</option></select><svg aria-hidden="true" class="icon caret astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script><script type="module">var e=`starlight-theme`,t=e=>e===`auto`||e===`dark`||e===`light`?e:`auto`,n=()=>t(typeof localStorage<`u`&&localStorage.getItem(e));function r(t){typeof localStorage<`u`&&localStorage.setItem(e,t===`light`||t===`dark`?t:``)}var i=()=>matchMedia(`(prefers-color-scheme: light)`).matches?`light`:`dark`;function a(e){StarlightThemeProvider.updatePickers(e),document.documentElement.dataset.theme=e===`auto`?i():e,r(e)}matchMedia(`(prefers-color-scheme: light)`).addEventListener(`change`,()=>{n()===`auto`&&a(`auto`)});var o=class extends HTMLElement{constructor(){super(),a(n()),this.querySelector(`select`)?.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&a(t(e.currentTarget.value))})}};customElements.define(`starlight-theme-select`,o);</script><script type="module">var e=class extends HTMLElement{constructor(){super();let e=this.querySelector(`select`);e&&(e.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&(window.location.pathname=e.currentTarget.value)}),window.addEventListener(`pageshow`,t=>{if(!t.persisted)return;let n=e.querySelector(`option[selected]`)?.index;n!==e.selectedIndex&&(e.selectedIndex=n??0)}))}};customElements.define(`starlight-lang-select`,e);</script></div></div></header><nav class="sidebar print:hidden astro-yntsjkba" aria-label="Main"><button popovertarget="starlight__sidebar" class="sl-menu-button sl-flex md:sl-hidden print:hidden astro-r2osgdlg"><svg aria-hidden="true" class="open-menu astro-r2osgdlg astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M3 8h18a1 1 0 1 0 0-2H3a1 1 0 0 0 0 2Zm18 8H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Zm0-5H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Z"/></svg><svg aria-hidden="true" class="close-menu astro-r2osgdlg astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="m13.41 12 6.3-6.29a1.004 1.004 0 1 0-1.42-1.42L12 10.59l-6.29-6.3a1.004 1.004 0 0 0-1.42 1.42l6.3 6.29-6.3 6.29a1 1 0 0 0 0 1.42.998.998 0 0 0 1.42 0l6.29-6.3 6.29 6.3a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.42L13.41 12Z"/></svg><span class="sr-only astro-r2osgdlg">Menu</span></button><script type="module">var e=class extends HTMLElement{constructor(){super();let e=matchMedia(`(min-width: 50em)`),t=()=>{this.popover=e.matches?null:`auto`};t(),e.addEventListener(`change`,()=>t()),this.addEventListener(`toggle`,({newState:e})=>this.trapFocus(e===`open`))}trapFocus(e){document.querySelectorAll(`.main-frame, .sl-skip-link`).forEach(t=>{t.toggleAttribute(`inert`,e)})}};customElements.define(`sl-sidebar-pane`,e);</script><sl-sidebar-pane popover id="starlight__sidebar" class="sidebar-pane astro-yntsjkba"><div class="sidebar-content sl-flex astro-yntsjkba"><sl-sidebar-state-persist data-hash="12ijkg5" class="astro-ipdry5cl"><script aria-hidden="true">
+		(() => {
+			try {
+				if (!matchMedia('(min-width: 50em)').matches) return;
+				/** @type {HTMLElement | null} */
+				const target = document.querySelector('sl-sidebar-state-persist');
+				const state = JSON.parse(sessionStorage.getItem('sl-sidebar-state') || '0');
+				if (!target || !state || target.dataset.hash !== state.hash) return;
+				window._starlightScrollRestore = state.scroll;
+				customElements.define(
+					'sl-sidebar-restore',
+					class SidebarRestore extends HTMLElement {
+						connectedCallback() {
+							try {
+								const idx = parseInt(this.dataset.index || '');
+								const details = this.closest('details');
+								if (details && typeof state.open[idx] === 'boolean') details.open = state.open[idx];
+							} catch {}
+						}
+					}
+				);
+			} catch {}
+		})();
+	</script><ul class="top-level astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/" class="large astro-rmhv4bp6"><span class="astro-rmhv4bp6">Overview</span></a></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Introduction</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="0"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/what-is-atesor/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">What is Atesor</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/how-it-works/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">How it works</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/concepts/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Concepts</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/limitations/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Limitations</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Getting Started</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="1"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/requirements/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Requirements</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/install/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Install Atesor</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/configure-llm/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Configure the LLM provider</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/first-port/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Your first port</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/read-the-output/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Read the output</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Guides</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="2"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/sandboxes/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Sandboxes</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/native-riscv/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Native RISC-V machine</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/recipe-cache/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Recipe cache</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/batch-runs/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Batch runs</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/cost-control/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Cost control</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/troubleshooting/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Troubleshooting</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/optimize/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Performance mode</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Architecture</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="3"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/overview/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Architecture overview</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/agent-state/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Agent state</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/scripted-ops/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Scripted operations</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/recovery-heuristics/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Recovery heuristics</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/verification/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Verification</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/llm-layer/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">LLM layer</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/optimize/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Performance mode internals</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Reference</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="4"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/cli/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Command-line options</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/environment-variables/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Environment variables</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/exit-codes/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Exit codes</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/output-files/" aria-current="page" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Output files</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/build-systems/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Build systems</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Contributing</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="5"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/development-setup/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Development setup</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/tests/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Tests and checks</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/add-a-platform/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Add a platform</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/add-a-heuristic/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Add a recovery heuristic</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/few-shot-examples/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Few-shot examples</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/docs/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Change the docs</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Project</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="6"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/releases/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Releases</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/roadmap/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Roadmap</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/governance/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Governance</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/name/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">About the name</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/brand/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Brand and logos</span></a></li></ul></details></li></ul><script aria-hidden="true">
+		(() => {
+			const scroller = document.getElementById('starlight__sidebar');
+			if (!window._starlightScrollRestore || !scroller) return;
+			scroller.scrollTop = window._starlightScrollRestore;
+			delete window._starlightScrollRestore;
+		})();
+	</script></sl-sidebar-state-persist><div class="md:sl-hidden"><div class="mobile-preferences sl-flex astro-p4azlveh"><div class="social-icons astro-p4azlveh"><a href="https://github.com/eclipse-atesor/atesor" rel="me" class="sl-flex astro-n2mnl6yq"><span class="sr-only astro-n2mnl6yq">Source on GitHub</span><svg aria-hidden="true" class="astro-n2mnl6yq astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/></svg></a></div><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-2z5xp7gb"><span class="sr-only astro-2z5xp7gb">Select theme</span><svg aria-hidden="true" class="icon label-icon astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-2z5xp7gb"><option value="dark" class="astro-2z5xp7gb">Dark</option><option value="light" class="astro-2z5xp7gb">Light</option><option value="auto" selected class="astro-2z5xp7gb">Auto</option></select><svg aria-hidden="true" class="icon caret astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script></div></div></div></sl-sidebar-pane></nav><div class="main-frame astro-yntsjkba"><script type="module">var e=document.getElementById(`starlight__sidebar`),t=e?.querySelector(`sl-sidebar-state-persist`),n=`sl-sidebar-state`,r=()=>{let r=[],i=t?.dataset.hash||``;try{let e=sessionStorage.getItem(n),t=JSON.parse(e||`{}`);Array.isArray(t.open)&&t.hash===i&&(r=t.open)}catch{}return{hash:i,open:r,scroll:e?.scrollTop||0}},i=e=>{try{sessionStorage.setItem(n,JSON.stringify(e))}catch{}},a=()=>i(r()),o=(e,t)=>{let n=r();n.open[t]=e,i(n)};t?.addEventListener(`click`,e=>{if(!(e.target instanceof Element))return;let t=e.target.closest(`summary`)?.closest(`details`);if(!t)return;let n=t.querySelector(`sl-sidebar-restore`),r=parseInt(n?.dataset.index||``);isNaN(r)||o(!t.open,r)}),addEventListener(`visibilitychange`,()=>{document.visibilityState===`hidden`&&a()});</script><div class="lg:sl-flex astro-lrzkfocr"><aside class="right-sidebar-container print:hidden astro-lrzkfocr"><div class="right-sidebar astro-lrzkfocr"><div class="lg:sl-hidden astro-qok35upx"><mobile-starlight-toc data-min-h="2" data-max-h="3" class="astro-66cqc7ze"><nav aria-labelledby="starlight__on-this-page--mobile" class="astro-66cqc7ze"><details id="starlight__mobile-toc" class="astro-66cqc7ze"><summary id="starlight__on-this-page--mobile" class="sl-flex astro-66cqc7ze"><span class="toggle sl-flex astro-66cqc7ze">On this page<svg aria-hidden="true" class="caret astro-66cqc7ze astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></span><span class="display-current astro-66cqc7ze"></span></summary><div class="dropdown astro-66cqc7ze"><ul class="isMobile astro-jugkfwgx" style="--depth: 0;"><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#_top" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Overview</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#where-does-atesor-write-its-files" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Where does Atesor write its files?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#which-directories-does-atesor-create" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Which directories does Atesor create?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#which-files-does-a-run-write" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Which files does a run write?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-recipe" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the recipe?</span></a><ul class="isMobile astro-jugkfwgx" style="--depth: 1;"><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#recipe-from-the-summarizer" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Recipe from the summarizer</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#fallback-recipe" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Fallback recipe</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#recipe-from-the-cache" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Recipe from the cache</span></a></li></ul></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-report" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the report?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-state-file" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the state file?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-patches-folder" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the patches folder?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#which-files-does-performance-mode-write" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Which files does performance mode write?</span></a><ul class="isMobile astro-jugkfwgx" style="--depth: 1;"><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#machine-profile" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Machine profile</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#the-repoopt-tree" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">The &lt;repo&gt;.opt tree</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#the-optimization-record" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">The optimization record</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#what-is-in-the-performance-mode-section-of-the-report" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">What is in the performance mode section of the report?</span></a></li></ul></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-zip-package" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the zip package?</span></a><ul class="isMobile astro-jugkfwgx" style="--depth: 1;"><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#manifestjson-fields" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">manifest.json fields</span></a></li></ul></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-logs" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the logs?</span></a><ul class="isMobile astro-jugkfwgx" style="--depth: 1;"><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#agent-log" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Agent log</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#llm-call-log" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">LLM call log</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#setup-lock" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Setup lock</span></a></li></ul></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-cache-files" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the cache files?</span></a><ul class="isMobile astro-jugkfwgx" style="--depth: 1;"><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#recipe_cachejson" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">recipe_cache.json</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#few-shot-example-files" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Few-shot example files</span></a></li></ul></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#which-files-does-the-native-target-add" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Which files does the native target add?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#which-other-files-can-appear" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Which other files can appear?</span></a></li></ul></div></details></nav></mobile-starlight-toc><script type="module" src="/atesor/_astro/MobileTableOfContents.astro_astro_type_script_index_0_lang.C3fM4Kra.js"></script></div><div class="right-sidebar-panel sl-hidden lg:sl-block astro-qok35upx"><div class="sl-container astro-qok35upx"><starlight-toc data-min-h="2" data-max-h="3"><nav aria-labelledby="starlight__on-this-page"><h2 id="starlight__on-this-page">On this page</h2><ul class="astro-jugkfwgx" style="--depth: 0;"><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#_top" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Overview</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#where-does-atesor-write-its-files" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Where does Atesor write its files?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#which-directories-does-atesor-create" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Which directories does Atesor create?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#which-files-does-a-run-write" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Which files does a run write?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-recipe" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the recipe?</span></a><ul class="astro-jugkfwgx" style="--depth: 1;"><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#recipe-from-the-summarizer" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Recipe from the summarizer</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#fallback-recipe" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Fallback recipe</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#recipe-from-the-cache" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Recipe from the cache</span></a></li></ul></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-report" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the report?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-state-file" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the state file?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-patches-folder" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the patches folder?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#which-files-does-performance-mode-write" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Which files does performance mode write?</span></a><ul class="astro-jugkfwgx" style="--depth: 1;"><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#machine-profile" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Machine profile</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#the-repoopt-tree" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">The &lt;repo&gt;.opt tree</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#the-optimization-record" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">The optimization record</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#what-is-in-the-performance-mode-section-of-the-report" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">What is in the performance mode section of the report?</span></a></li></ul></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-zip-package" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the zip package?</span></a><ul class="astro-jugkfwgx" style="--depth: 1;"><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#manifestjson-fields" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">manifest.json fields</span></a></li></ul></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-logs" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the logs?</span></a><ul class="astro-jugkfwgx" style="--depth: 1;"><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#agent-log" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Agent log</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#llm-call-log" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">LLM call log</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#setup-lock" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Setup lock</span></a></li></ul></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-cache-files" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the cache files?</span></a><ul class="astro-jugkfwgx" style="--depth: 1;"><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#recipe_cachejson" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">recipe_cache.json</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#few-shot-example-files" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Few-shot example files</span></a></li></ul></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#which-files-does-the-native-target-add" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Which files does the native target add?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#which-other-files-can-appear" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Which other files can appear?</span></a></li></ul></nav></starlight-toc><script type="module" src="/atesor/_astro/TableOfContents.astro_astro_type_script_index_0_lang.BpJaGz7G.js"></script></div></div></div></aside><div class="main-pane astro-lrzkfocr"><main data-pagefind-body class="astro-g5ptsecz" lang="en" dir="ltr"><div class="content-panel astro-a7po4psb"><div class="sl-container astro-a7po4psb"><h1 id="_top" class="astro-bebwqqxs">Output files</h1></div></div><div class="content-panel astro-a7po4psb"><div class="sl-container astro-a7po4psb"><div class="sl-markdown-content"><p>Eclipse Atesor™ writes its results, logs and caches under one state home. This page lists every file and folder that a run writes, where it goes, its format, and its main fields or sections. Use it to find a result, to parse a file in a script, or to clean up disk space.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="where-does-atesor-write-its-files">Where does Atesor write its files?</h2><a class="sl-anchor-link" href="#where-does-atesor-write-its-files"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Where does Atesor write its files?”</span></a></div>
+<p>All runtime state goes under the state home. <code dir="auto">src/config.py</code> selects the state home in this order:</p>
+<ol>
+<li><code dir="auto">$ATESOR_HOME</code>, when it has a value.</li>
+<li><code dir="auto">/workspace</code>, when Atesor itself runs in a container.</li>
+<li>The source checkout root, when it has <code dir="auto">.git</code> or <code dir="auto">tests/</code> and you can write to it.</li>
+<li><code dir="auto">$XDG_DATA_HOME/atesor-ai</code>. The default is <code dir="auto">~/.local/share/atesor-ai</code>.</li>
+</ol>
+<p>The workspace is a directory under the state home. Its name depends on the target:</p>
+<table>
+<thead>
+<tr>
+<th>Target</th>
+<th>Workspace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">qemu</code></td>
+<td><code dir="auto">&lt;state home&gt;/workspace</code></td>
+</tr>
+<tr>
+<td><code dir="auto">native</code></td>
+<td><code dir="auto">&lt;state home&gt;/workspace-native</code></td>
+</tr>
+</tbody>
+</table>
+<p>Exception: when Atesor runs in a container on the <code dir="auto">qemu</code> target and <code dir="auto">ATESOR_HOME</code> has no value, the workspace is <code dir="auto">/workspace</code>.</p>
+<p>Common locations:</p>
+<table>
+<thead>
+<tr>
+<th>How you run Atesor</th>
+<th>State home</th>
+<th>Workspace on <code dir="auto">qemu</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">python3 main.py</code> in a source checkout</td>
+<td>the checkout root</td>
+<td><code dir="auto">&lt;checkout&gt;/workspace</code></td>
+</tr>
+<tr>
+<td><code dir="auto">atesor-ai</code> from the <code dir="auto">.deb</code></td>
+<td><code dir="auto">~/.local/share/atesor-ai</code></td>
+<td><code dir="auto">~/.local/share/atesor-ai/workspace</code></td>
+</tr>
+<tr>
+<td>Either form, with <code dir="auto">ATESOR_HOME</code></td>
+<td><code dir="auto">$ATESOR_HOME</code></td>
+<td><code dir="auto">$ATESOR_HOME/workspace</code></td>
+</tr>
+</tbody>
+</table>
+<p>The results of the two targets never mix. They use different workspaces, different recipe cache keys and different zip names.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="which-directories-does-atesor-create">Which directories does Atesor create?</h2><a class="sl-anchor-link" href="#which-directories-does-atesor-create"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Which directories does Atesor create?”</span></a></div>
+<p><code dir="auto">main.py</code> imports <code dir="auto">src/config.py</code> at start-up, for every command. That import creates these directories when they are missing:</p>
+<table>
+<thead>
+<tr>
+<th>Directory</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">&lt;state home&gt;/data/</code></td>
+<td>The recipe cache and the few-shot examples.</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;workspace&gt;/repos/</code></td>
+<td>The cloned repositories, one directory for each repository name. With <code dir="auto">--optimize</code>, also the <code dir="auto">&lt;repo&gt;.opt/</code> tree.</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;workspace&gt;/output/</code></td>
+<td>The recipe, the report, the state file and the patches of each run, and the machine profile of <code dir="auto">--probe</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;workspace&gt;/logs/</code></td>
+<td>The agent logs, the LLM call logs and the setup lock file.</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;workspace&gt;/packages/</code></td>
+<td>The zip files from <code dir="auto">--package</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;workspace&gt;/.cache/</code></td>
+<td>Atesor creates it, but the code writes no files to it.</td>
+</tr>
+</tbody>
+</table>
+<p>On the <code dir="auto">qemu</code> target, the sandbox container mounts the workspace at <code dir="auto">/workspace</code>. A path such as <code dir="auto">/workspace/repos/zlib</code> in a log is <code dir="auto">&lt;workspace&gt;/repos/zlib</code> on your computer.</p>
+<p><code dir="auto">--clean-workspace</code> also lists a <code dir="auto">patches/</code> directory when it exists. The sandbox images create <code dir="auto">/workspace/patches</code>, but the code writes no files to it. Atesor writes patches to <code dir="auto">output/</code>.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="which-files-does-a-run-write">Which files does a run write?</h2><a class="sl-anchor-link" href="#which-files-does-a-run-write"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Which files does a run write?”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Directory</th>
+<th>When Atesor writes it</th>
+<th>Format</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">&lt;repo&gt;_recipe.md</code></td>
+<td><code dir="auto">output/</code></td>
+<td>A port that ends with <code dir="auto">SUCCESS</code>, or a recipe cache hit</td>
+<td>Markdown</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;repo&gt;_report_&lt;YYYYMMDD_HHMMSS&gt;.md</code></td>
+<td><code dir="auto">output/</code></td>
+<td>The end of each agent run, for each final status</td>
+<td>Markdown</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;repo&gt;_state_&lt;YYYYMMDD_HHMMSS&gt;.json</code></td>
+<td><code dir="auto">output/</code></td>
+<td>The end of each agent run, for each final status</td>
+<td>JSON</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;repo&gt;_patches_&lt;YYYYMMDD_HHMMSS&gt;/</code></td>
+<td><code dir="auto">output/</code></td>
+<td>The end of a run in which the fixer applied a patch</td>
+<td>Folder of <code dir="auto">.patch</code> files</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;owner&gt;-&lt;repo&gt;-&lt;YYYYMMDD-HHMMSS&gt;-&lt;platform&gt;.zip</code></td>
+<td><code dir="auto">packages/</code></td>
+<td><code dir="auto">--package</code>, after a port that ends with <code dir="auto">SUCCESS</code></td>
+<td>Zip</td>
+</tr>
+<tr>
+<td><code dir="auto">machine_profile_&lt;target&gt;.json</code></td>
+<td><code dir="auto">output/</code></td>
+<td><code dir="auto">--probe</code></td>
+<td>JSON</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;repo&gt;.opt/accepted/</code></td>
+<td><code dir="auto">repos/</code></td>
+<td><code dir="auto">--optimize</code>, when performance mode accepts a tune</td>
+<td>Folder of riscv64 artifacts</td>
+</tr>
+<tr>
+<td><code dir="auto">agent_&lt;repo&gt;.log</code></td>
+<td><code dir="auto">logs/</code></td>
+<td>Each command with <code dir="auto">--repo</code></td>
+<td>Text log</td>
+</tr>
+<tr>
+<td><code dir="auto">agent.log</code></td>
+<td><code dir="auto">logs/</code></td>
+<td>A command without <code dir="auto">--repo</code> that passes the first checks, for example <code dir="auto">--setup-only</code> or <code dir="auto">--probe</code></td>
+<td>Text log</td>
+</tr>
+<tr>
+<td><code dir="auto">agent-call_&lt;repo&gt;.log</code></td>
+<td><code dir="auto">logs/</code></td>
+<td>Each LLM call of a port</td>
+<td>Text log</td>
+</tr>
+<tr>
+<td><code dir="auto">agent-call.log</code></td>
+<td><code dir="auto">logs/</code></td>
+<td>Atesor creates it with a header when it first loads the LLM logger</td>
+<td>Text log</td>
+</tr>
+<tr>
+<td><code dir="auto">.container_setup.lock</code></td>
+<td><code dir="auto">logs/</code></td>
+<td>Each sandbox setup</td>
+<td>Lock file</td>
+</tr>
+<tr>
+<td><code dir="auto">recipe_cache.json</code></td>
+<td><code dir="auto">&lt;state home&gt;/data/</code></td>
+<td>A verified port, and a measured run of <code dir="auto">--optimize</code> on <code dir="auto">native</code></td>
+<td>JSON</td>
+</tr>
+<tr>
+<td><code dir="auto">examples/&lt;agent&gt;_examples.json</code></td>
+<td><code dir="auto">&lt;state home&gt;/data/</code></td>
+<td>A verified port</td>
+<td>JSON</td>
+</tr>
+</tbody>
+</table>
+<p><code dir="auto">&lt;repo&gt;</code> is the repository name that Atesor derives from the URL. <code dir="auto">&lt;target&gt;</code> is <code dir="auto">qemu</code> or <code dir="auto">native</code>. Refer to <a href="/atesor/docs/reference/cli/">Command-line options</a>.</p>
+<p>When the agent run raises an error or you interrupt it, Atesor writes no recipe, report, state file or patches for that run. This rule also applies during the optimize step of <code dir="auto">--optimize</code>.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-is-in-the-recipe">What is in the recipe?</h2><a class="sl-anchor-link" href="#what-is-in-the-recipe"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What is in the recipe?”</span></a></div>
+<p><code dir="auto">&lt;repo&gt;_recipe.md</code> is the replayable porting guide. Atesor writes the same file name on each run, so a new run replaces the old recipe. The file has one of three forms.</p>
+<div class="sl-heading-wrapper level-h3"><h3 id="recipe-from-the-summarizer">Recipe from the summarizer</h3><a class="sl-anchor-link" href="#recipe-from-the-summarizer"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Recipe from the summarizer”</span></a></div>
+<p>After a successful build, the summarizer agent writes the recipe with an LLM. Its prompt asks for these H2 headings, in this order:</p>
+<div class="expressive-code"><link rel="stylesheet" href="/atesor/_astro/ec.w36nc.css"><script type="module" src="/atesor/_astro/ec.0vx5m.js"></script><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="markdown"><code><div class="ec-line"><div class="code"><span style="--0:#82B1FF;--1:#3B61B0">## Executive Summary</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82B1FF;--1:#3B61B0">## Prerequisites</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82B1FF;--1:#3B61B0">## Build Instructions</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82B1FF;--1:#3B61B0">## Architecture Notes</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82B1FF;--1:#3B61B0">## Verification</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82B1FF;--1:#3B61B0">## Known Issues &amp; Recommendations</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="## Executive Summary## Prerequisites## Build Instructions## Architecture Notes## Verification## Known Issues &amp; Recommendations"><div></div></button></div></figure></div>
+<ul>
+<li><code dir="auto">Executive Summary</code>: the status and a short portability verdict.</li>
+<li><code dir="auto">Prerequisites</code>: the package install commands for the sandbox distribution.</li>
+<li><code dir="auto">Build Instructions</code>: shell commands in fenced <code dir="auto">bash</code> blocks, one block for each step, in order.</li>
+<li><code dir="auto">Architecture Notes</code>: the arch-specific items that the project needed. The LLM can omit this section.</li>
+<li><code dir="auto">Verification</code>: how to check that the binaries are riscv64, with <code dir="auto">file</code> or <code dir="auto">readelf -h</code>.</li>
+<li><code dir="auto">Known Issues &amp; Recommendations</code>: open concerns and ideas for upstream changes.</li>
+</ul>
+<p>The summarizer gets the build steps that ran, the artifacts, the verification verdict and the package test result. An LLM writes this text, so Atesor does not check that the output has each heading.</p>
+<div class="sl-heading-wrapper level-h3"><h3 id="fallback-recipe">Fallback recipe</h3><a class="sl-anchor-link" href="#fallback-recipe"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Fallback recipe”</span></a></div>
+<p>When the summarizer call fails, Atesor writes a short recipe from the build plan:</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="markdown"><code><div class="ec-line"><div class="code"><span style="--0:#82B1FF;--1:#3B61B0"># RISC-V Porting Recipe: </span><span style="--1:#8844AE"><span style="--0:#7FDBCA">&lt;</span><span style="--0:#CAECE6">repo</span><span style="--0:#7FDBCA">&gt;</span></span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">The build commands succeeded. Artifact verification: </span><span style="--1:#8844AE"><span style="--0:#7FDBCA">&lt;</span><span style="--0:#CAECE6">verdict</span><span style="--0:#7FDBCA">&gt;</span></span><span style="--0:#D6DEEB;--1:#403F53">.</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#82B1FF;--1:#3B61B0">### </span><span style="--1:#8844AE"><span style="--0:#7FDBCA">&lt;</span><span style="--0:#CAECE6">phase</span><span style="--0:#7FDBCA"> </span></span><span style="--0:#C5E478;--1:#3B61B0">name</span><span style="--0:#7FDBCA;--1:#8844AE">&gt;</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="# RISC-V Porting Recipe: <repo>The build commands succeeded. Artifact verification: <verdict>.### <phase name>"><div></div></button></div></figure></div>
+<p>Each phase has a <code dir="auto">bash</code> block with its commands. When the run has artifacts, a <code dir="auto">### Build Artifacts Generated</code> list follows. The text ends with an <code dir="auto">**Artifact verification:**</code> line and a <code dir="auto">**Package tests (not gating):**</code> line.</p>
+<div class="sl-heading-wrapper level-h3"><h3 id="recipe-from-the-cache">Recipe from the cache</h3><a class="sl-anchor-link" href="#recipe-from-the-cache"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Recipe from the cache”</span></a></div>
+<p>On a cache hit, Atesor writes the recipe again from the cache entry. When the entry stores the original Markdown, Atesor copies it unchanged. Else Atesor builds a recipe from the entry fields:</p>
+<ul>
+<li>A <code dir="auto"># RISC-V Porting Recipe: &lt;repo&gt;</code> title.</li>
+<li>Bullets for the repository, the build system, the architecture, the sandbox and the last build time.</li>
+<li>A note that the recipe comes from the cache, and that <code dir="auto">--force</code> makes a full guide from a fresh build.</li>
+<li><code dir="auto">## Dependencies</code>, <code dir="auto">## Build Steps</code> (one <code dir="auto">###</code> heading and one <code dir="auto">bash</code> block for each phase), <code dir="auto">## Patches / Fixes Applied</code> and <code dir="auto">## Build Artifacts</code>, when the entry has data for them.</li>
+</ul>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-is-in-the-report">What is in the report?</h2><a class="sl-anchor-link" href="#what-is-in-the-report"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What is in the report?”</span></a></div>
+<p><code dir="auto">&lt;repo&gt;_report_&lt;YYYYMMDD_HHMMSS&gt;.md</code> describes one agent run. Atesor writes a new report for each run, also for a failed run. The report has these sections:</p>
+<ol>
+<li><code dir="auto"># RISC-V Porting Report: &lt;repo&gt;</code>.</li>
+<li><code dir="auto">## Executive Summary</code>: the status, the target (<code dir="auto">qemu</code> or <code dir="auto">native</code>), the repository URL and the time of the report.</li>
+<li><code dir="auto">## Metrics</code>: a table with the build status, the total duration, the attempts, the API calls, the scripted operations, the LLM tokens (in and out) and the cost in USD.</li>
+<li><code dir="auto">## Artifact Verification</code>: the verdict, the reason and the source commit. A table gives the counts of riscv64 outputs, other-arch outputs and committed foreign files. Lists show up to 20 items of each kind, the ABI warnings and the expected artifacts that the build did not produce.</li>
+<li><code dir="auto">## Package Tests (not gating)</code>: the result, the command with its exit code and duration, the reason, and the last 1500 characters of the output.</li>
+<li><code dir="auto">## Machine Profile</code>: the facts of the machine probe and the settings that follow from them, in a code block.</li>
+<li><code dir="auto">## Performance Mode (--optimize)</code>: the result of performance mode. Refer to <a href="/atesor/docs/reference/output-files/#what-is-in-the-performance-mode-section-of-the-report">Performance mode section</a>.</li>
+<li><code dir="auto">## Build System Analysis</code>: the build system and each build phase with its commands. A <code dir="auto">### Dependencies</code> part lists the build tools and the system packages.</li>
+<li><code dir="auto">## Architecture-Specific Code</code>: up to 5 findings, each with its file, line and code snippet.</li>
+<li><code dir="auto">## Patches Applied</code>: each patch, cut at 500 characters.</li>
+<li><code dir="auto">## Error Resolution History</code>: each recorded error with its category and the first 300 characters of the message.</li>
+<li><code dir="auto">## Recommendations</code>: next steps for the final status.</li>
+</ol>
+<p>Atesor writes sections 6 and 7 only after the optimize step of <code dir="auto">--optimize</code>. Section 6 needs a machine probe that ran. Atesor omits sections 9 to 11 when they have no data. The status text is one of these:</p>
+<ul>
+<li><code dir="auto">SUCCESS (riscv64 output verified)</code></li>
+<li><code dir="auto">SUCCESS, NOT VERIFIED (no riscv64 output proven)</code></li>
+<li>The final status of a run that did not succeed, for example <code dir="auto">ESCALATED</code> or <code dir="auto">FAILED</code>.</li>
+</ul>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-is-in-the-state-file">What is in the state file?</h2><a class="sl-anchor-link" href="#what-is-in-the-state-file"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What is in the state file?”</span></a></div>
+<p><code dir="auto">&lt;repo&gt;_state_&lt;YYYYMMDD_HHMMSS&gt;.json</code> is the full <code dir="auto">AgentState</code> at the end of the run, as indented JSON. Enum values appear as strings, for example <code dir="auto">"SUCCESS"</code>. Dates appear as strings. The top-level keys are:</p>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Keys</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Repository</td>
+<td><code dir="auto">repo_url</code>, <code dir="auto">repo_name</code>, <code dir="auto">repo_path</code>, <code dir="auto">repo_tree</code></td>
+</tr>
+<tr>
+<td>Planning</td>
+<td><code dir="auto">task_plan</code>, <code dir="auto">package_analysis</code>, <code dir="auto">current_phase</code></td>
+</tr>
+<tr>
+<td>Build</td>
+<td><code dir="auto">build_system_info</code>, <code dir="auto">build_plan</code>, <code dir="auto">build_status</code>, <code dir="auto">tests_run</code></td>
+</tr>
+<tr>
+<td>Dependencies</td>
+<td><code dir="auto">dependencies</code></td>
+</tr>
+<tr>
+<td>Architecture</td>
+<td><code dir="auto">arch_specific_code</code></td>
+</tr>
+<tr>
+<td>Attempts</td>
+<td><code dir="auto">attempt_count</code>, <code dir="auto">max_attempts</code>, <code dir="auto">last_successful_phase</code></td>
+</tr>
+<tr>
+<td>Errors</td>
+<td><code dir="auto">last_error</code>, <code dir="auto">last_error_category</code>, <code dir="auto">last_error_severity</code>, <code dir="auto">error_history</code>, <code dir="auto">fixes_attempted</code></td>
+</tr>
+<tr>
+<td>Usage</td>
+<td><code dir="auto">api_calls_made</code>, <code dir="auto">api_cost_usd</code>, <code dir="auto">api_tokens_in</code>, <code dir="auto">api_tokens_out</code>, <code dir="auto">scripted_ops_count</code>, <code dir="auto">execution_start_time</code></td>
+</tr>
+<tr>
+<td>Caches</td>
+<td><code dir="auto">context_cache</code>, <code dir="auto">file_content_cache</code>, <code dir="auto">command_results_cache</code></td>
+</tr>
+<tr>
+<td>Plan facts</td>
+<td><code dir="auto">scout_build_system_result</code>, <code dir="auto">scout_deps_result</code>, <code dir="auto">scout_arch_issues_result</code></td>
+</tr>
+<tr>
+<td>Graph</td>
+<td><code dir="auto">subgraph_outcome</code>, <code dir="auto">messages</code>, <code dir="auto">current_agent</code></td>
+</tr>
+<tr>
+<td>Results</td>
+<td><code dir="auto">patches_generated</code>, <code dir="auto">porting_recipe</code>, <code dir="auto">build_artifacts</code>, <code dir="auto">curated_artifacts</code>, <code dir="auto">artifact_verification</code>, <code dir="auto">package_tests</code></td>
+</tr>
+<tr>
+<td>Performance mode</td>
+<td><code dir="auto">optimize_requested</code>, <code dir="auto">emulate_cpu</code>, <code dir="auto">cached_recipe</code>, <code dir="auto">machine_profile</code>, <code dir="auto">optimization</code></td>
+</tr>
+<tr>
+<td>Audit</td>
+<td><code dir="auto">audit_trail</code>, <code dir="auto">created_at</code>, <code dir="auto">last_updated</code></td>
+</tr>
+</tbody>
+</table>
+<p><code dir="auto">error_history</code> keeps the last 200 errors. <code dir="auto">audit_trail</code> keeps the last 2000 events. The performance mode keys have these values:</p>
+<ul>
+<li><code dir="auto">optimize_requested</code>: <code dir="auto">true</code> with <code dir="auto">--optimize</code>.</li>
+<li><code dir="auto">emulate_cpu</code>: the <code dir="auto">QEMU_CPU</code> model of the run, or <code dir="auto">null</code>.</li>
+<li><code dir="auto">cached_recipe</code>: the verified recipe cache entry that became the build plan, or <code dir="auto">null</code>.</li>
+<li><code dir="auto">machine_profile</code> and <code dir="auto">optimization</code>: <code dir="auto">null</code> until the optimize step runs. Refer to <a href="/atesor/docs/reference/output-files/#which-files-does-performance-mode-write">Performance mode outputs</a>.</li>
+</ul>
+<p>Two keys hold the main verdicts of the port:</p>
+<ul>
+<li><code dir="auto">artifact_verification</code>: <code dir="auto">status</code> (<code dir="auto">verified</code>, <code dir="auto">wrong_arch</code> or <code dir="auto">unverified</code>), <code dir="auto">verified</code>, <code dir="auto">reason</code>, <code dir="auto">source_commit</code>, <code dir="auto">counts</code> (<code dir="auto">riscv64</code>, <code dir="auto">foreign</code>, <code dir="auto">prebuilt_foreign</code>), the lists <code dir="auto">riscv64</code>, <code dir="auto">foreign</code> and <code dir="auto">prebuilt_foreign</code> (up to 200 items each), <code dir="auto">abi_warnings</code>, <code dir="auto">examined</code>, <code dir="auto">truncated</code>, <code dir="auto">scan_error</code> and <code dir="auto">expected_missing</code>. Each listed artifact has <code dir="auto">path</code>, <code dir="auto">type</code>, <code dir="auto">arch</code>, <code dir="auto">abi</code>, <code dir="auto">size</code> and <code dir="auto">prebuilt</code>.</li>
+<li><code dir="auto">package_tests</code>: <code dir="auto">status</code> (<code dir="auto">passed</code>, <code dir="auto">failed</code>, <code dir="auto">timeout</code>, <code dir="auto">skipped</code> or <code dir="auto">error</code>). After a test run, it also has <code dir="auto">framework</code>, <code dir="auto">command</code>, <code dir="auto">exit_code</code>, <code dir="auto">duration_seconds</code>, <code dir="auto">timeout_seconds</code> and <code dir="auto">output_tail</code> (the last 3000 characters). A <code dir="auto">skipped</code> or <code dir="auto">error</code> result has a <code dir="auto">reason</code> instead.</li>
+</ul>
+<p>Refer to <a href="/atesor/docs/architecture/agent-state/">Agent state</a> and <a href="/atesor/docs/architecture/verification/">Verification</a>.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-is-in-the-patches-folder">What is in the patches folder?</h2><a class="sl-anchor-link" href="#what-is-in-the-patches-folder"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What is in the patches folder?”</span></a></div>
+<p><code dir="auto">&lt;repo&gt;_patches_&lt;YYYYMMDD_HHMMSS&gt;/</code> holds one file for each patch that the fixer applied with success: <code dir="auto">patch_1.patch</code>, <code dir="auto">patch_2.patch</code> and so on. Each file holds the patch text that the fixer agent wrote, in the order of application. Atesor creates the folder only when the run applied at least one patch.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="which-files-does-performance-mode-write">Which files does performance mode write?</h2><a class="sl-anchor-link" href="#which-files-does-performance-mode-write"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Which files does performance mode write?”</span></a></div>
+<p><code dir="auto">--probe</code> and <code dir="auto">--optimize</code> write the files in this part. Refer to <a href="/atesor/docs/guides/optimize/">Performance mode</a> for the steps of the optimize step.</p>
+<div class="sl-heading-wrapper level-h3"><h3 id="machine-profile">Machine profile</h3><a class="sl-anchor-link" href="#machine-profile"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Machine profile”</span></a></div>
+<p><code dir="auto">--probe</code> writes <code dir="auto">machine_profile_&lt;target&gt;.json</code> to <code dir="auto">output/</code>, as indented JSON. A new probe on the same target replaces the file. The optimize step does not write this file. It keeps the same data in the <code dir="auto">machine_profile</code> key of the state file. The fields are:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">kind</code></td>
+<td><code dir="auto">native</code> or <code dir="auto">qemu</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">emulated_cpu</code></td>
+<td>The <code dir="auto">QEMU_CPU</code> model, or <code dir="auto">null</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">extensions</code></td>
+<td>The ISA extensions that the machine runs, in lower case.</td>
+</tr>
+<tr>
+<td><code dir="auto">vlen</code></td>
+<td>The vector register length in bits, or <code dir="auto">null</code> without the V extension.</td>
+</tr>
+<tr>
+<td><code dir="auto">core</code></td>
+<td>The identity facts: <code dir="auto">mvendorid</code>, <code dir="auto">marchid</code>, <code dir="auto">mimpid</code>, <code dir="auto">uarch</code>, <code dir="auto">model</code> and <code dir="auto">compatible</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">core_name</code></td>
+<td>The name of the known core that matched, or <code dir="auto">null</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">misaligned</code></td>
+<td>The speed of misaligned scalar access: <code dir="auto">fast</code>, <code dir="auto">slow</code>, <code dir="auto">emulated</code>, <code dir="auto">unsupported</code> or <code dir="auto">unknown</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">misaligned_source</code></td>
+<td><code dir="auto">hwprobe</code>, <code dir="auto">timing test</code> or <code dir="auto">none</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">misaligned_test</code></td>
+<td>The result of the timing test.</td>
+</tr>
+<tr>
+<td><code dir="auto">cores</code>, <code dir="auto">allowed_cpus</code></td>
+<td>The number of usable CPUs, and the CPU numbers that the sandbox can use.</td>
+</tr>
+<tr>
+<td><code dir="auto">mem_kib</code></td>
+<td>The total memory in KiB, or <code dir="auto">null</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">kernel</code>, <code dir="auto">libc</code></td>
+<td>The kernel release, and <code dir="auto">glibc &lt;version&gt;</code>, <code dir="auto">musl</code> or <code dir="auto">null</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">board</code></td>
+<td>The governor, the frequencies, the temperatures, the perf settings, the load and the caches.</td>
+</tr>
+<tr>
+<td><code dir="auto">toolchains</code></td>
+<td>The facts of each compiler, plus <code dir="auto">go</code> and <code dir="auto">rust</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">label</code></td>
+<td>A short ISA label, for example <code dir="auto">rv64gc+zba+zbb</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">sources</code></td>
+<td>The sources that gave facts: <code dir="auto">cpuinfo</code>, <code dir="auto">hwprobe</code> and <code dir="auto">tests</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">tests</code></td>
+<td>The result of each test instruction: <code dir="auto">present</code>, <code dir="auto">absent</code> or <code dir="auto">error</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">warnings</code></td>
+<td>Warnings in plain language.</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h3"><h3 id="the-repoopt-tree">The <code dir="auto">&lt;repo&gt;.opt</code> tree</h3><a class="sl-anchor-link" href="#the-repoopt-tree"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “The &lt;repo&gt;.opt tree”</span></a></div>
+<p>The optimize step works in <code dir="auto">/workspace/repos/&lt;repo&gt;.opt/</code> in the sandbox, next to the clone. Before the baseline build, Atesor removes the tree of an earlier step. During the step, the tree holds these directories:</p>
+<ul>
+<li><code dir="auto">base/</code>: a copy of the verified build, built again. Atesor compares each tune with this copy.</li>
+<li><code dir="auto">tune1/</code>, <code dir="auto">tune2/</code> and so on: one copy of the patched tree for each tune.</li>
+<li>In each copy, <code dir="auto">.atesor/</code> holds the compiler wrappers <code dir="auto">cc</code> and <code dir="auto">cxx</code>. A C or C++ build logs each compiler call to <code dir="auto">.atesor/cc.log</code>.</li>
+<li>Work directories for the second check, the PGO profiles, the generated input files and the run outputs.</li>
+</ul>
+<p>At the end of the step, Atesor copies the riscv64 artifacts of the accepted tune to <code dir="auto">accepted/</code>, at their paths in the tree. Then it removes the other directories. When the tree is empty at the end, Atesor removes it. The verified build in <code dir="auto">repos/&lt;repo&gt;/</code> never changes.</p>
+<p>Where <code dir="auto">accepted/</code> stays:</p>
+<ul>
+<li>On <code dir="auto">qemu</code>, the sandbox mounts the workspace. The files stay in <code dir="auto">&lt;workspace&gt;/repos/&lt;repo&gt;.opt/accepted/</code> on your computer.</li>
+<li>On <code dir="auto">native</code>, the tree is on the machine. When the command ends, Atesor removes <code dir="auto">/workspace/repos/&lt;repo&gt;.opt</code> from the machine.</li>
+<li>On <code dir="auto">native</code> with <code dir="auto">--package</code>, Atesor first copies the tree into the local mirror, <code dir="auto">&lt;state home&gt;/workspace-native/repos/&lt;repo&gt;.opt/</code>. The zip holds the files in <code dir="auto">optimized/</code>.</li>
+</ul>
+<div class="sl-heading-wrapper level-h3"><h3 id="the-optimization-record">The optimization record</h3><a class="sl-anchor-link" href="#the-optimization-record"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “The optimization record”</span></a></div>
+<p>The <code dir="auto">optimization</code> key of the state file holds the result of the optimize step. Its main fields are:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">status</code></td>
+<td><code dir="auto">accepted</code>, <code dir="auto">no gain</code>, <code dir="auto">not confirmed</code>, <code dir="auto">not measured</code>, <code dir="auto">checked</code> (on <code dir="auto">qemu</code>), <code dir="auto">skipped</code> or <code dir="auto">error</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">headline</code></td>
+<td>The answer in one line, for example <code dir="auto">YES: ...</code> or <code dir="auto">NO: ...</code>. The console summary shows it after <code dir="auto">Optimized:</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">reason</code>, <code dir="auto">advice</code></td>
+<td>Why the step ended with this status, and a fix when Atesor has one.</td>
+</tr>
+<tr>
+<td><code dir="auto">kind</code>, <code dir="auto">machine_label</code>, <code dir="auto">machine_check</code></td>
+<td>The target, the ISA label, and on <code dir="auto">native</code> the result of the machine check.</td>
+</tr>
+<tr>
+<td><code dir="auto">budget_seconds</code>, <code dir="auto">duration_seconds</code></td>
+<td>The time limit and the time used, in seconds.</td>
+</tr>
+<tr>
+<td><code dir="auto">language</code>, <code dir="auto">package</code></td>
+<td><code dir="auto">c</code>, <code dir="auto">go</code> or <code dir="auto">rust</code>, and the package profile: <code dir="auto">kind</code>, <code dir="auto">libraries</code>, <code dir="auto">programs</code> and more.</td>
+</tr>
+<tr>
+<td><code dir="auto">baseline</code></td>
+<td><code dir="auto">build_seconds</code>, <code dir="auto">same_code</code> and <code dir="auto">artifacts</code> of the baseline copy.</td>
+</tr>
+<tr>
+<td><code dir="auto">build_flags</code></td>
+<td>C and C++ only: <code dir="auto">compiles</code>, <code dir="auto">levels</code> and <code dir="auto">lto</code> of the compiler calls of the baseline copy.</td>
+</tr>
+<tr>
+<td><code dir="auto">workload</code></td>
+<td>The workload: <code dir="auto">mode</code>, <code dir="auto">command</code>, <code dir="auto">description</code>, <code dir="auto">origin</code>, and the source <code dir="auto">files</code> of a harness.</td>
+</tr>
+<tr>
+<td><code dir="auto">variants</code></td>
+<td>One record for each tune: <code dir="auto">variant</code> (the settings), <code dir="auto">verdict</code>, <code dir="auto">reason</code>, <code dir="auto">ratio</code>, <code dir="auto">measurement</code> and <code dir="auto">second_check</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">accepted</code>, <code dir="auto">accepted_label</code>, <code dir="auto">accepted_title</code>, <code dir="auto">accepted_ratio</code></td>
+<td>The accepted tune. <code dir="auto">accepted</code> is <code dir="auto">null</code> when no tune is accepted.</td>
+</tr>
+<tr>
+<td><code dir="auto">accepted_dir</code>, <code dir="auto">accepted_artifacts</code></td>
+<td>The sandbox path of <code dir="auto">accepted/</code> and the files in it.</td>
+</tr>
+<tr>
+<td><code dir="auto">warnings</code>, <code dir="auto">notes</code></td>
+<td>Warnings and notes in plain language.</td>
+</tr>
+</tbody>
+</table>
+<p>A field that does not apply is missing or <code dir="auto">null</code>. For example, a step that stops before the baseline build has no <code dir="auto">baseline</code>.</p>
+<div class="sl-heading-wrapper level-h3"><h3 id="what-is-in-the-performance-mode-section-of-the-report">What is in the performance mode section of the report?</h3><a class="sl-anchor-link" href="#what-is-in-the-performance-mode-section-of-the-report"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What is in the performance mode section of the report?”</span></a></div>
+<p>The report adds <code dir="auto">## Machine Profile</code> with the facts of the probe and the settings that follow from them, in a code block. Then <code dir="auto">## Performance Mode (--optimize)</code> has these items:</p>
+<ul>
+<li><code dir="auto">**Optimized**:</code> the headline. <code dir="auto">**Result**:</code> the status and the reason. <code dir="auto">**Fix**:</code> the advice, when there is one.</li>
+<li><code dir="auto">**Machine**:</code> the target, the ISA label, the core and the misaligned access speed.</li>
+<li><code dir="auto">**Package**:</code> the package type, the language, the build system, the libraries and the programs.</li>
+<li><code dir="auto">**Baseline**:</code> the build time of the baseline copy, and the number of riscv64 artifacts with the same code as the verified build.</li>
+<li><code dir="auto">**Workload**:</code>, <code dir="auto">**Duration**:</code> and <code dir="auto">**Optimized artifacts**:</code> when they apply.</li>
+<li>A table with one row for each tune. The columns are <code dir="auto">Tune</code>, <code dir="auto">Technique</code>, <code dir="auto">Settings</code>, <code dir="auto">Result</code>, <code dir="auto">Time ratio (95% CI)</code> and <code dir="auto">Details</code>.</li>
+<li><code dir="auto">### Warnings</code> and <code dir="auto">### Notes</code>, with up to 30 items each.</li>
+<li><code dir="auto">### Workload source:</code> with the source file of a harness that the optimizer agent wrote.</li>
+</ul>
+<p>The section ends with a note on the table. A time ratio below 1 means that the tune ran faster than the baseline. Only native runs measure time.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-is-in-the-zip-package">What is in the zip package?</h2><a class="sl-anchor-link" href="#what-is-in-the-zip-package"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What is in the zip package?”</span></a></div>
+<p>With <code dir="auto">--package</code>, Atesor writes a zip after a port that ends with <code dir="auto">SUCCESS</code>. This includes a build that is not verified.</p>
+<p>The file name is <code dir="auto">&lt;owner&gt;-&lt;repo&gt;-&lt;YYYYMMDD-HHMMSS&gt;-&lt;platform&gt;.zip</code>:</p>
+<ul>
+<li><code dir="auto">&lt;owner&gt;-&lt;repo&gt;</code> comes from the last two segments of the URL, in lower case. For example, <code dir="auto">https://github.com/madler/zlib</code> gives <code dir="auto">madler-zlib</code>.</li>
+<li><code dir="auto">&lt;platform&gt;</code> is the profile name: <code dir="auto">alpine</code> or <code dir="auto">debian</code>. The <code dir="auto">ubuntu</code> platform uses the <code dir="auto">debian</code> profile, so its zip name has <code dir="auto">debian</code>.</li>
+<li>On the <code dir="auto">native</code> target, the platform part ends in <code dir="auto">-native</code>, for example <code dir="auto">debian-native</code>.</li>
+<li>When the file name exists already, Atesor adds <code dir="auto">.1</code>, <code dir="auto">.2</code> and so on before <code dir="auto">.zip</code>.</li>
+</ul>
+<p>Atesor writes the zip as <code dir="auto">&lt;name&gt;.zip.part</code> and renames it at the end. A run that stops during the write leaves no partial <code dir="auto">.zip</code> file. The zip holds:</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="text"><code><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">build_recipe.md        copy of &lt;repo&gt;_recipe.md</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">manifest.json          metadata, see below</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">&lt;repo&gt;.log             batch log, when batch_test.py wrote one</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">agent_&lt;repo&gt;.log       agent log, when it exists</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">optimized/             the files of the accepted tune (--optimize only)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">&lt;repo&gt;/                the source tree of the verified build</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="build_recipe.md        copy of <repo>_recipe.mdmanifest.json          metadata, see below<repo>.log             batch log, when batch_test.py wrote oneagent_<repo>.log       agent log, when it existsoptimized/             the files of the accepted tune (--optimize only)<repo>/                the source tree of the verified build"><div></div></button></div></figure></div>
+<p>The source tree has no <code dir="auto">.git</code> directories and no symbolic links. On the <code dir="auto">native</code> target, Atesor copies the final tree from the machine before it writes the zip. With <code dir="auto">--optimize</code>, it also copies the <code dir="auto">&lt;repo&gt;.opt</code> tree when performance mode accepted a tune.</p>
+<p><code dir="auto">optimized/</code> holds the riscv64 artifacts of the accepted tune, at their paths in the repository tree: <code dir="auto">optimized/&lt;path&gt;</code> is the tune’s build of <code dir="auto">&lt;repo&gt;/&lt;path&gt;</code>. Atesor skips symbolic links and paths outside the accepted directory.</p>
+<div class="sl-heading-wrapper level-h3"><h3 id="manifestjson-fields"><code dir="auto">manifest.json</code> fields</h3><a class="sl-anchor-link" href="#manifestjson-fields"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “manifest.json fields”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">schema_version</code></td>
+<td><code dir="auto">2</code>, or <code dir="auto">3</code> with <code dir="auto">--optimize</code></td>
+</tr>
+<tr>
+<td><code dir="auto">repo_name</code></td>
+<td>The repository name.</td>
+</tr>
+<tr>
+<td><code dir="auto">repo_url</code></td>
+<td>The repository URL.</td>
+</tr>
+<tr>
+<td><code dir="auto">package_stem</code></td>
+<td>The <code dir="auto">&lt;owner&gt;-&lt;repo&gt;</code> part of the file name.</td>
+</tr>
+<tr>
+<td><code dir="auto">legacy_package_stem</code></td>
+<td>The name stem that older releases used.</td>
+</tr>
+<tr>
+<td><code dir="auto">platform</code></td>
+<td>The platform part of the file name, for example <code dir="auto">debian-native</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">created_at</code></td>
+<td>The local time, ISO 8601, in seconds.</td>
+</tr>
+<tr>
+<td><code dir="auto">verification</code></td>
+<td><code dir="auto">status</code>, <code dir="auto">verified</code>, <code dir="auto">reason</code>, <code dir="auto">source_commit</code>, <code dir="auto">counts</code>, <code dir="auto">abi_warnings</code>, <code dir="auto">expected_missing</code>, <code dir="auto">truncated</code> and <code dir="auto">scan_error</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">artifacts</code></td>
+<td>The riscv64 outputs that the artifact scan found.</td>
+</tr>
+<tr>
+<td><code dir="auto">package_tests</code></td>
+<td><code dir="auto">status</code>, <code dir="auto">framework</code>, <code dir="auto">command</code>, <code dir="auto">exit_code</code>, <code dir="auto">duration_seconds</code> and <code dir="auto">reason</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">recipe_filename_in_zip</code></td>
+<td><code dir="auto">build_recipe.md</code></td>
+</tr>
+<tr>
+<td><code dir="auto">source_root_in_zip</code></td>
+<td>The repository name.</td>
+</tr>
+<tr>
+<td><code dir="auto">logs_in_zip</code></td>
+<td>The names of the log files in the zip.</td>
+</tr>
+<tr>
+<td><code dir="auto">machine</code></td>
+<td>Schema 3 only. <code dir="auto">kind</code>, <code dir="auto">emulated_cpu</code>, <code dir="auto">label</code>, <code dir="auto">extensions</code>, <code dir="auto">vlen</code>, <code dir="auto">core_name</code>, <code dir="auto">misaligned</code>, <code dir="auto">kernel</code> and <code dir="auto">libc</code> from the machine probe.</td>
+</tr>
+<tr>
+<td><code dir="auto">optimization</code></td>
+<td>Schema 3 only. The result of performance mode, see below.</td>
+</tr>
+</tbody>
+</table>
+<p>Each item in <code dir="auto">artifacts</code> has <code dir="auto">path</code>, <code dir="auto">type</code>, <code dir="auto">arch</code>, <code dir="auto">abi</code>, <code dir="auto">size</code> and <code dir="auto">in_zip</code>. It can also have these fields:</p>
+<ul>
+<li><code dir="auto">role</code>, when the artifact curator gave the file a role, such as <code dir="auto">primary</code>.</li>
+<li><code dir="auto">path_in_zip</code>, when the file is in the repository tree.</li>
+<li><code dir="auto">sha256</code>, when the file is a regular file in the zip.</li>
+</ul>
+<p>An output that the build installed outside the repository tree, for example in <code dir="auto">/usr/local/bin</code>, has <code dir="auto">"in_zip": false</code>.</p>
+<p>The <code dir="auto">optimization</code> section of schema 3 has these fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">status</code></td>
+<td>The status of performance mode, for example <code dir="auto">accepted</code> or <code dir="auto">no gain</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">kind</code></td>
+<td><code dir="auto">native</code> or <code dir="auto">qemu</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">reason</code></td>
+<td>Why performance mode ended with this status.</td>
+</tr>
+<tr>
+<td><code dir="auto">workload</code>, <code dir="auto">workload_mode</code>, <code dir="auto">workload_origin</code></td>
+<td>The description, the mode and the origin of the workload.</td>
+</tr>
+<tr>
+<td><code dir="auto">accepted</code>, <code dir="auto">accepted_label</code>, <code dir="auto">accepted_ratio</code></td>
+<td>The ID, the console name and the time ratio of the accepted tune, or <code dir="auto">null</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">accepted_variant</code></td>
+<td>The full settings of the accepted tune, or <code dir="auto">null</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">artifacts</code></td>
+<td>One item for each file in <code dir="auto">optimized/</code>, with <code dir="auto">path_in_zip</code> and <code dir="auto">sha256</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">variants</code></td>
+<td>One item for each tune, with <code dir="auto">vid</code>, <code dir="auto">label</code>, <code dir="auto">technique</code>, <code dir="auto">verdict</code> and <code dir="auto">ratio</code>.</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-is-in-the-logs">What is in the logs?</h2><a class="sl-anchor-link" href="#what-is-in-the-logs"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What is in the logs?”</span></a></div>
+<div class="sl-heading-wrapper level-h3"><h3 id="agent-log">Agent log</h3><a class="sl-anchor-link" href="#agent-log"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Agent log”</span></a></div>
+<p><code dir="auto">agent_&lt;repo&gt;.log</code> records all log messages of the run from level <code dir="auto">DEBUG</code> up, also without <code dir="auto">--verbose</code>. Each line has this form:</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="text"><code><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">HH:MM:SS [LEVEL] logger.name: message</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="HH:MM:SS [LEVEL] logger.name: message"><div></div></button></div></figure></div>
+<p>Atesor appends to the file. A new run of the same repository adds to the same log.</p>
+<div class="sl-heading-wrapper level-h3"><h3 id="llm-call-log">LLM call log</h3><a class="sl-anchor-link" href="#llm-call-log"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “LLM call log”</span></a></div>
+<p><code dir="auto">agent-call_&lt;repo&gt;.log</code> records each LLM call of a port. Atesor appends one block for each call:</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="text"><code><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">CALL: call_&lt;8 hex characters&gt;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">TIMESTAMP: &lt;ISO 8601 time&gt;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">AGENT: &lt;role&gt;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">MODEL: &lt;model ID&gt;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">COST: $&lt;cost in USD&gt;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">TOKENS: in=&lt;input tokens&gt; out=&lt;output tokens&gt;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">METADATA: &lt;JSON, when present&gt;</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">--- PROMPT ---</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">&lt;the first 10000 characters of the prompt&gt;</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">--- RESPONSE ---</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">&lt;the first 10000 characters of the response&gt;</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="CALL: call_<8 hex characters>TIMESTAMP: <ISO 8601 time>AGENT: <role>MODEL: <model ID>COST: $<cost in USD>TOKENS: in=<input tokens> out=<output tokens>METADATA: <JSON, when present>--- PROMPT ---<the first 10000 characters of the prompt>--- RESPONSE ---<the first 10000 characters of the response>"><div></div></button></div></figure></div>
+<p>A line of 80 <code dir="auto">=</code> characters comes before and after each block. When Atesor cuts the prompt or the response, it adds a line with the number of characters that it removed. The calls come from the agents through <code dir="auto">src/llm_helpers.py</code>, from the summarizer and from the artifact curator. With <code dir="auto">--optimize</code>, the optimizer agent adds calls with <code dir="auto">AGENT: optimizer</code>. Their <code dir="auto">METADATA</code> has a <code dir="auto">phase</code> value that starts with <code dir="auto">optimize-</code>.</p>
+<p><code dir="auto">agent-call.log</code> is the file that Atesor creates with a header line <code dir="auto">ATESOR AI - LLM CALL LOG</code> when it first loads the LLM logger. A port switches to <code dir="auto">agent-call_&lt;repo&gt;.log</code> before the first call.</p>
+<div class="sl-heading-wrapper level-h3"><h3 id="setup-lock">Setup lock</h3><a class="sl-anchor-link" href="#setup-lock"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Setup lock”</span></a></div>
+<p><code dir="auto">.container_setup.lock</code> is a lock file. Each sandbox setup locks it, so that parallel batch workers do not build the same image at the same time.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-is-in-the-cache-files">What is in the cache files?</h2><a class="sl-anchor-link" href="#what-is-in-the-cache-files"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What is in the cache files?”</span></a></div>
+<p>On the first load of <code dir="auto">src/memory.py</code>, Atesor copies the bundled seed files into <code dir="auto">&lt;state home&gt;/data/</code> when they are missing: <code dir="auto">examples/*.json</code> and <code dir="auto">recipe_cache.json</code>. Without a bundled cache, it writes an empty cache. After that, Atesor changes only the copies in <code dir="auto">&lt;state home&gt;/data/</code>.</p>
+<p>Atesor writes to these files only after a verified port. A build that is not verified, or a build that fails, does not change them. Each write holds a lock file next to the data file, for example <code dir="auto">recipe_cache.json.lock</code>. Atesor writes a temporary file, then renames it. Performance mode also writes to <code dir="auto">recipe_cache.json</code>, as the <code dir="auto">optimizations</code> field below tells.</p>
+<div class="sl-heading-wrapper level-h3"><h3 id="recipe_cachejson"><code dir="auto">recipe_cache.json</code></h3><a class="sl-anchor-link" href="#recipe_cachejson"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “recipe_cache.json”</span></a></div>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="json"><code><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">{</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#7FDBCA;--1:#096E72">"version"</span><span style="--0:#D6DEEB;--1:#403F53">: </span><span style="--0:#D9F5DD;--1:#111111">"</span><span style="--0:#C789D6;--1:#7C5686">2.0</span><span style="--0:#D9F5DD;--1:#111111">"</span><span style="--0:#D6DEEB;--1:#403F53">,</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#7FDBCA;--1:#096E72">"packages"</span><span style="--0:#D6DEEB;--1:#403F53">: {</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#7FDBCA;--1:#096E72">"&lt;repo&gt;"</span><span style="--0:#D6DEEB;--1:#403F53">: {</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#7FDBCA;--1:#096E72">"&lt;sandbox&gt;"</span><span style="--0:#D6DEEB;--1:#403F53">: { </span><span style="--0:#7FDBCA;--1:#096E72">"..."</span><span style="--0:#D6DEEB;--1:#403F53">: </span><span style="--0:#D9F5DD;--1:#111111">"</span><span style="--0:#C789D6;--1:#7C5686">one entry</span><span style="--0:#D9F5DD;--1:#111111">"</span><span style="--0:#D6DEEB;--1:#403F53"> }</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#D6DEEB;--1:#403F53">    </span></span><span style="--0:#D6DEEB;--1:#403F53">}</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#D6DEEB;--1:#403F53">  </span></span><span style="--0:#D6DEEB;--1:#403F53">}</span></div></div><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">}</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="{  &quot;version&quot;: &quot;2.0&quot;,  &quot;packages&quot;: {    &quot;<repo>&quot;: {      &quot;<sandbox>&quot;: { &quot;...&quot;: &quot;one entry&quot; }    }  }}"><div></div></button></div></figure></div>
+<p>The sandbox key is <code dir="auto">&lt;profile&gt;-riscv64</code>, for example <code dir="auto">alpine-riscv64</code> or <code dir="auto">debian-riscv64</code>. On the <code dir="auto">native</code> target, the key ends in <code dir="auto">-native</code>. Each entry has these fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">repo_url</code></td>
+<td>The repository URL. When it has a value, a cache hit needs a matching URL.</td>
+</tr>
+<tr>
+<td><code dir="auto">build_system</code></td>
+<td>The build system of the plan.</td>
+</tr>
+<tr>
+<td><code dir="auto">architecture</code></td>
+<td><code dir="auto">riscv64</code></td>
+</tr>
+<tr>
+<td><code dir="auto">sandbox</code></td>
+<td>The sandbox key.</td>
+</tr>
+<tr>
+<td><code dir="auto">last_built</code></td>
+<td>The time of the build, ISO 8601.</td>
+</tr>
+<tr>
+<td><code dir="auto">build_plan</code></td>
+<td><code dir="auto">phases</code>, each with <code dir="auto">name</code> and <code dir="auto">commands</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">dependencies</code></td>
+<td>The system packages.</td>
+</tr>
+<tr>
+<td><code dir="auto">patches</code></td>
+<td>Up to 10 applied patches.</td>
+</tr>
+<tr>
+<td><code dir="auto">artifacts</code></td>
+<td>Up to 20 artifacts, each with <code dir="auto">type</code>, <code dir="auto">path</code> and an optional <code dir="auto">role</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">build_duration_seconds</code></td>
+<td>The duration of the run.</td>
+</tr>
+<tr>
+<td><code dir="auto">recipe_file</code></td>
+<td><code dir="auto">output/&lt;repo&gt;_recipe.md</code></td>
+</tr>
+<tr>
+<td><code dir="auto">recipe_markdown</code></td>
+<td>The full recipe text, when the run made one.</td>
+</tr>
+<tr>
+<td><code dir="auto">verification</code></td>
+<td><code dir="auto">status</code>, <code dir="auto">reason</code> and <code dir="auto">source_commit</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">optimizations</code></td>
+<td>Results of performance mode, one for each machine. Present only after a measured run of <code dir="auto">--optimize</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Atesor reads entries in an older flat format and moves each one under its sandbox key, with <code dir="auto">alpine-riscv64</code> as the default key. Refer to <a href="/atesor/docs/guides/recipe-cache/">Recipe cache</a>.</p>
+<p>The <code dir="auto">optimizations</code> field follows these rules:</p>
+<ul>
+<li>Atesor adds a result only on the <code dir="auto">native</code> target, only when the run had a workload, and only for the status <code dir="auto">accepted</code> or <code dir="auto">no gain</code>.</li>
+<li>Atesor adds a result only to an entry that exists already. Performance mode never creates an entry.</li>
+<li>The key is the core name from the machine probe, else the ISA label, else <code dir="auto">unknown</code>. Results from different boards stay apart.</li>
+<li>Each result has <code dir="auto">date</code>, <code dir="auto">machine</code>, <code dir="auto">status</code>, <code dir="auto">accepted</code>, <code dir="auto">ratio</code> and <code dir="auto">workload</code>. An accepted tune adds <code dir="auto">variant</code>: <code dir="auto">label</code>, <code dir="auto">technique</code>, <code dir="auto">title</code>, <code dir="auto">compiler</code>, <code dir="auto">flags</code>, <code dir="auto">env</code> and <code dir="auto">pgo</code>.</li>
+<li><code dir="auto">variant</code> keeps only the settings that a later run can repeat. It drops the <code dir="auto">-fprofile</code> flags and the <code dir="auto">GOFLAGS</code> and <code dir="auto">CCACHE_DISABLE</code> values, and keeps <code dir="auto">pgo</code> as <code dir="auto">true</code> or <code dir="auto">false</code>.</li>
+<li>A new verified port of the package replaces the entry, and the old <code dir="auto">optimizations</code> field with it. When that port runs with <code dir="auto">--optimize</code>, Atesor adds the new result after the port.</li>
+</ul>
+<div class="sl-heading-wrapper level-h3"><h3 id="few-shot-example-files">Few-shot example files</h3><a class="sl-anchor-link" href="#few-shot-example-files"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Few-shot example files”</span></a></div>
+<p><code dir="auto">&lt;state home&gt;/data/examples/</code> holds <code dir="auto">scout_examples.json</code>, <code dir="auto">fixer_examples.json</code>, <code dir="auto">builder_examples.json</code> and <code dir="auto">supervisor_examples.json</code>. After a verified port, Atesor adds learned examples:</p>
+<ul>
+<li>One scout example with the build plan.</li>
+<li>One builder example with the build phases.</li>
+<li>One fixer example for each fix that succeeded.</li>
+</ul>
+<p>Each learned example gets an <code dir="auto">id</code> such as <code dir="auto">scout-auto-001</code>, <code dir="auto">"source": "auto"</code>, a <code dir="auto">timestamp</code> (<code dir="auto">YYYY-MM-DD</code>) and a <code dir="auto">sandbox</code> such as <code dir="auto">debian-riscv64</code>. Atesor skips a duplicate example. Each file keeps up to 100 examples. When a file has more, Atesor removes the oldest learned examples first and keeps the manual ones. Refer to <a href="/atesor/docs/contributing/few-shot-examples/">Few-shot examples</a>.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="which-files-does-the-native-target-add">Which files does the native target add?</h2><a class="sl-anchor-link" href="#which-files-does-the-native-target-add"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Which files does the native target add?”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>File or directory</th>
+<th>Location</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">ssh_config</code></td>
+<td><code dir="auto">$XDG_CACHE_HOME/atesor-ai/</code>, default <code dir="auto">~/.cache/atesor-ai/</code></td>
+<td>The field-mode SSH settings, mode <code dir="auto">0600</code>. Atesor writes it again on each run.</td>
+</tr>
+<tr>
+<td><code dir="auto">cm-&lt;process ID&gt;-&lt;hash&gt;</code></td>
+<td><code dir="auto">$XDG_RUNTIME_DIR/atesor-ai/</code> when that directory exists, else the cache directory</td>
+<td>The ssh control socket of one Atesor process. Atesor closes it when the command ends.</td>
+</tr>
+<tr>
+<td><code dir="auto">repos/&lt;repo&gt;/</code></td>
+<td><code dir="auto">&lt;state home&gt;/workspace-native/</code></td>
+<td>The local mirror. rsync copies the tree from the machine for local reads.</td>
+</tr>
+<tr>
+<td>work directory</td>
+<td><code dir="auto">ATESOR_REMOTE_WORKDIR</code> on the machine, default <code dir="auto">~/atesor-ai</code></td>
+<td>The container mounts it at <code dir="auto">/workspace</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Atesor creates <code dir="auto">repos</code>, <code dir="auto">output</code>, <code dir="auto">logs</code> and <code dir="auto">patches</code> in the work directory on the machine. After each port, Atesor removes <code dir="auto">/workspace/repos/&lt;repo&gt;</code> on the machine. The local mirror keeps its copy. With <code dir="auto">--optimize</code>, Atesor also removes <code dir="auto">/workspace/repos/&lt;repo&gt;.opt</code>. The local mirror has a copy of that tree only after <code dir="auto">--package</code>. Refer to <a href="/atesor/docs/guides/native-riscv/">Native RISC-V machine</a>.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="which-other-files-can-appear">Which other files can appear?</h2><a class="sl-anchor-link" href="#which-other-files-can-appear"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Which other files can appear?”</span></a></div>
+<ul>
+<li><code dir="auto">.ccache/</code>: <code dir="auto">Dockerfile.debian</code> and <code dir="auto">Dockerfile.native</code> set <code dir="auto">CCACHE_DIR=/workspace/.ccache</code>. The compiler cache of the sandbox can write files there. On <code dir="auto">qemu</code>, this is <code dir="auto">&lt;workspace&gt;/.ccache/</code>. On <code dir="auto">native</code>, it is in the work directory on the machine.</li>
+<li><code dir="auto">output/batch_logs/&lt;repo&gt;.log</code>: <code dir="auto">batch_test.py</code> writes one log for each package, relative to its current directory. <code dir="auto">--package</code> adds this file to the zip when it exists. Refer to <a href="/atesor/docs/guides/batch-runs/">Batch runs</a>.</li>
+</ul>
+</div><footer class="sl-flex astro-ddtxxk7k"><div class="meta sl-flex astro-ddtxxk7k"><a href="https://github.com/eclipse-atesor/project-website/edit/main/site/src/content/docs/docs/reference/output-files.md" class="sl-flex print:hidden astro-qlekgd3o"><svg aria-hidden="true" class="astro-qlekgd3o astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.2em;"><path d="M22 7.24a1 1 0 0 0-.29-.71l-4.24-4.24a1 1 0 0 0-1.1-.22 1 1 0 0 0-.32.22l-2.83 2.83L2.29 16.05a1 1 0 0 0-.29.71V21a1 1 0 0 0 1 1h4.24a1 1 0 0 0 .76-.29l10.87-10.93L21.71 8c.1-.1.17-.2.22-.33a1 1 0 0 0 0-.24v-.14l.07-.05ZM6.83 20H4v-2.83l9.93-9.93 2.83 2.83L6.83 20ZM18.17 8.66l-2.83-2.83 1.42-1.41 2.82 2.82-1.41 1.42Z"/></svg>Edit this page on GitHub</a></div><div class="pagination-links print:hidden astro-b5raizh3" dir="ltr"><a href="/atesor/docs/reference/exit-codes/" rel="prev" class="astro-b5raizh3"><svg aria-hidden="true" class="astro-b5raizh3 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg><span class="astro-b5raizh3">Previous<br class="astro-b5raizh3"><span class="link-title astro-b5raizh3">Exit codes</span></span></a><a href="/atesor/docs/reference/build-systems/" rel="next" class="astro-b5raizh3"><svg aria-hidden="true" class="astro-b5raizh3 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg><span class="astro-b5raizh3">Next<br class="astro-b5raizh3"><span class="link-title astro-b5raizh3">Build systems</span></span></a></div></footer><footer class="ef-footer astro-pnsvry7h" aria-label="Eclipse Foundation"><div class="ef-top astro-pnsvry7h"><a class="ef-logo astro-pnsvry7h" href="https://www.eclipse.org" rel="noopener"><svg role="img" aria-label="Eclipse Foundation" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 281.5 90.7">
+  <path fill="#f06c02" d="M265.7,84l-8.7-11h-2.7v17.7h3.3v-12l9.3,12h2.1v-17.7h-3.3v11ZM233.3,75.7c4.2,0,5.8,3.3,5.8,6.3s-1.6,6-5.8,6-5.7-3.1-5.8-6,1.7-6.3,5.8-6.3ZM233.3,72.7c-6.1,0-9.1,4.7-9.1,9.3s2.9,9.1,9.1,9.1,9-4.6,9.1-9.2-3-9.3-9.1-9.3ZM212.1,90.7v-17.7h-3.3v17.7h3.3ZM188.5,90.7h3.3v-14.7h5.6v-3h-14.6v3h5.6v14.7ZM169.6,84.2h-6.6l3.3-7.6,3.3,7.6ZM172.4,90.7h3.6l-7.9-17.7h-3.6l-8,17.7h3.6l1.5-3.3h9.3l1.5,3.3ZM134.4,76.1h3.6c3.9,0,5.5,2.8,5.5,5.5,0,2.8-1.5,5.8-5.5,5.8h-3.6v-11.4ZM138.1,73h-6.9v17.7h6.9c6.2,0,8.9-4.5,8.9-9s-2.8-8.7-8.9-8.7h0ZM115.7,84l-8.7-11h-2.7v17.7h3.3v-12l9.3,12h2.1v-17.7h-3.3v11ZM88.2,73v10.2c0,3-1.6,4.9-4.3,4.9s-4.6-1.7-4.6-4.9v-10.1h-3.3v10.1c0,5.3,3.6,7.9,7.9,7.9s7.7-2.7,7.7-7.9v-10.1h-3.3ZM55.2,75.7c4.2,0,5.8,3.3,5.8,6.3,0,3-1.6,6-5.8,6s-5.7-3.1-5.8-6,1.7-6.3,5.8-6.3h0ZM55.2,72.7c-6.1,0-9.1,4.7-9.1,9.3s2.9,9.1,9.1,9.1,9-4.6,9.1-9.2-3-9.3-9.1-9.3h0ZM25.5,90.7v-6.5h8.9v-3.1h-8.9v-4.8h9.4v-3.2h-12.7v17.6h3.3Z"/>
+  <path fill="currentColor" d="M269.4,54.4h-22.2v-8.9h21.4v-6.9h-21.4v-9.1h22.2v-7.2h-29.6v39.5h29.6v-7.3ZM229.4,28.8c-3-6.1-9.4-7.8-15.5-7.8s-15.3,3.4-15.3,11.5,7.4,11,15.5,12c5.2.6,9.1,2.1,9.1,5.8s-4.4,5.9-9.1,5.9-9.4-1.9-11.1-6.3l-6.2,3.2c2.9,7.2,9.1,9.7,17.2,9.7s16.6-3.8,16.6-12.6-7.7-11.6-15.9-12.6c-4.7-.6-8.8-1.5-8.8-5s2.6-5.2,8.2-5.2,8,2.2,9.4,4.4l5.9-3ZM176,22.2c-6.2,0-12.4,0-18.6,0v39.5h7.4v-11.6h11.2c19.4,0,19.3-27.9,0-27.9h0ZM164.9,29.3h11.2c9.5,0,9.5,14,0,14h-11.2v-14ZM146.9,61.8V22.2h-7.4v39.5h7.4ZM102.9,22.2v39.5h27.8v-6.9h-20.3V22.2h-7.5ZM90.7,51.7c-2.7,2.5-6.2,4-9.9,4-9.8,0-13.5-6.8-13.6-13.4s4.1-13.7,13.6-13.7c3.5,0,7,1.3,9.5,3.7l5-4.8c-3.8-3.9-9.1-6-14.5-6-14.3,0-21,10.5-20.9,20.8,0,10.3,6.3,20.3,20.9,20.3,5.6.1,11-2,15-5.9l-5.1-5.1ZM51.7,54.4h-22.2v-8.9h21.4v-6.9h-21.4v-9.1h22.2v-7.2h-29.5v39.5h29.6v-7.3Z"/>
+  <path fill="#f06c02" d="M9.8,18.2C18.8,4.1,37-.8,52.1,5.9l-1-.7C35.6-4.6,15.1-.2,5.3,15.3-4.6,30.7-.2,51.2,15.3,61.1l1.1.6C3.8,50.8.8,32.3,9.8,18.2Z"/>
+  <path fill="currentColor" d="M272.2,26.1h0c0-2.5,2.1-4.6,4.6-4.6s4.6,2.1,4.6,4.6h0c0,2.5-2.1,4.6-4.6,4.6s-4.6-2.1-4.6-4.6ZM280.8,26.1h0c0-2.2-1.8-4.1-4-4.1s-4.1,1.8-4.1,4.1h0c0,2.2,1.7,4,3.9,4.1,0,0,0,0,.1,0,2.2,0,4.1-1.8,4.1-4,0,0,0,0,0,0h0ZM274.8,23.6h2.3c1.1,0,1.9.5,1.9,1.6,0,.7-.4,1.3-1.1,1.5l1.2,1.7h-1.4l-1-1.5h-.7v1.5h-1.1v-4.7ZM277,25.9c.5,0,.8-.3.8-.7s-.3-.7-.8-.7h-1v1.3h1Z"/>
+</svg></a><a class="ef-incubation astro-pnsvry7h" href="https://www.eclipse.org/projects/handbook/#incubation" rel="noopener"><span class="egg astro-pnsvry7h"><img src="/atesor/assets/incubation.png" alt="Eclipse Foundation incubation phase" width="22" height="29" loading="lazy" class="astro-pnsvry7h"></span><span class="ef-incubation-text astro-pnsvry7h"><strong class="astro-pnsvry7h">Incubating</strong><span class="astro-pnsvry7h">Eclipse Development Process</span></span></a></div><p class="astro-pnsvry7h">Eclipse Atesor™ is an open source project of the <a href="https://projects.eclipse.org/projects/openhw" rel="noopener" class="astro-pnsvry7h">OpenHW Group</a>, hosted by the Eclipse Foundation. Copyright © Eclipse Foundation AISBL. All Rights Reserved.</p><p class="astro-pnsvry7h">Eclipse Atesor, Atesor, Eclipse, and the Eclipse logo are trademarks of Eclipse Foundation AISBL. Eclipse Atesor source code is licensed under the <a href="https://github.com/eclipse-atesor/atesor/blob/main/LICENSE" rel="noopener" class="astro-pnsvry7h">MIT License</a>.</p><ul class="ef-links astro-pnsvry7h"><li class="astro-pnsvry7h"><a href="https://www.eclipse.org" rel="noopener" class="astro-pnsvry7h">Eclipse Foundation</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/privacy/" rel="noopener" class="astro-pnsvry7h">Privacy policy</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/terms-of-use/" rel="noopener" class="astro-pnsvry7h">Terms of use</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/compliance/" rel="noopener" class="astro-pnsvry7h">Compliance</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/" rel="noopener" class="astro-pnsvry7h">Legal resources</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/security/" rel="noopener" class="astro-pnsvry7h">Report a vulnerability</a></li></ul></footer></div></div></main></div></div></div></div></body></html>

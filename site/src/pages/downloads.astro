@@ -31,7 +31,6 @@ const { artifacts, unique, bothLibc, withRecipe, months, distros, langs } = mani
   ogPath="/downloads"
 >
   <Section
-    eyebrow="Downloads"
     title="Every artifact Atesor has published."
     lede="Two things ship here: the Atesor command-line tool itself, and the riscv64 builds it has produced. Every package archive carries the replayable porting recipe next to the binaries."
   >
@@ -46,7 +45,7 @@ const { artifacts, unique, bothLibc, withRecipe, months, distros, langs } = mani
         </p>
         <ul class="cli-meta">
           <li>Ubuntu 22.04 / Debian-based</li>
-          <li>amd64 · arm64</li>
+          <li>amd64</li>
           <li>MIT licensed</li>
         </ul>
       </div>
@@ -55,7 +54,7 @@ const { artifacts, unique, bothLibc, withRecipe, months, distros, langs } = mani
           <Icon name="box" size={16} />
           Get the release
         </a>
-        <a href={url('/#quickstart')} class="btn btn-secondary">Install guide</a>
+        <a href={url('/docs/getting-started/install/')} class="btn btn-secondary">Install guide</a>
       </div>
     </div>
 

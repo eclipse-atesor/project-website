@@ -13,12 +13,13 @@
     "deploy:dry": "bash scripts/deploy.sh --dry-run",
     "check_spacing": "for f in dist/**/*.html dist/*.html; do node scripts/check-spacing.mjs \"$f\" || exit 1; done",
     "manifest": "node scripts/build-manifest.mjs",
-    "logo": "python3 scripts/render-logo.py 512",
+    "logo": "python3 scripts/render-logo.py",
     "verify": "npm run build && npm run check_spacing"
   },
   "dependencies": {
+    "@astrojs/starlight": "^0.42.6",
     "@tailwindcss/vite": "^4.3.3",
-    "astro": "^7.1.6",
+    "astro": "^7.3.8",
     "tailwindcss": "^4.3.3"
   }
 }

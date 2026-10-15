@@ -1,33 +1,52 @@
 ---
-import { url } from '../lib/url';
-
 /**
- * The Eclipse Atesor project mark.
+ * The Eclipse Atesor project mark, inline.
  *
- * Renders the canonical file at `assets/atesor-logo.svg` rather than
- * inlining a copy, so there is exactly one source of truth for the mark. If
- * the logo is revised, that one file changes and every usage follows.
+ * Inlined (not an <img>) so it follows the surface it sits on: the line takes
+ * the text colour (granodiorite on paper, chalk on dark and stone surfaces)
+ * and the pad takes the accent (Egyptian blue). The canonical files are in
+ * public/brand/; BRAND.md explains the mark. Keep the geometry here in step
+ * with public/brand/atesor-mark.svg.
  *
- * The mark is a chip package whose die carries a check — the project's core
- * promise, that every binary is confirmed genuine riscv64 rather than a
- * silent x86 fallthrough.
+ * The mark is a stone with one cut corner. Inside, one line runs right to
+ * left and reverses on each of three rows: source in at the open ring,
+ * native riscv64 binary out at the solid pad.
  */
 interface Props {
   size?: number;
   class?: string;
   /** Decorative when the mark sits beside the wordmark, which is the usual
-   *  case in the header — the adjacent text already names the project. */
+   *  case in the header: the adjacent text already names the project. */
   decorative?: boolean;
 }
 const { size = 32, class: klass = '', decorative = false } = Astro.props;
 ---
 
-<img
-  src={url('/assets/atesor-logo.svg')}
+<svg
+  class:list={['atesor-mark', klass]}
+  viewBox="0 0 512 512"
   width={size}
   height={size}
-  class={klass}
-  alt={decorative ? '' : 'Eclipse Atesor'}
+  role={decorative ? undefined : 'img'}
+  aria-label={decorative ? undefined : 'Eclipse Atesor'}
   aria-hidden={decorative ? 'true' : undefined}
-  decoding="async"
-/>
+  focusable="false"
+>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M160 72H440V440H72V160Z" stroke-width="26" />
+    <circle cx="352" cy="180" r="16" stroke-width="10" />
+    <path d="M336 180H174L150 204V232L174 256H338L362 280V308L338 332H164" stroke-width="26" />
+  </g>
+  <circle class="pad" cx="164" cy="332" r="24" />
+</svg>
+
+<style>
+  .atesor-mark {
+    flex: none;
+    stroke: var(--color-text);
+  }
+  .atesor-mark .pad {
+    fill: var(--color-accent);
+    stroke: none;
+  }
+</style>

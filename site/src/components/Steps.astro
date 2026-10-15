@@ -1,0 +1,397 @@
+---
+import Icon from './Icon.astro';
+import { url } from '../lib/url';
+
+/**
+ * How a port runs, in three rows: the S of the logo.
+ *
+ * The connecting line is the trace from the mark: it enters at an open ring
+ * (the source), reverses direction on each row like boustrophedon writing,
+ * and ends at a solid pad (the native binary). It runs in fixed-height lanes
+ * between the rows and down the side of each row, so it stays exact at any
+ * width without JavaScript. The bends are 45 degrees, as in the mark.
+ *
+ * Each row is a picture and one line of text; the text sits next to the line
+ * so the eye follows the S. Detail lives in the docs.
+ */
+const stages = [
+  {
+    title: 'Point it at source code',
+    line: 'Give it a link to the Git repository.',
+    icon: 'source',
+  },
+  {
+    title: 'It builds and tests on RISC-V',
+    line: 'On an emulated or a real riscv64 machine. It fixes what breaks on the way.',
+    icon: 'build',
+  },
+  {
+    title: 'It verifies the result',
+    line: 'It checks that every binary is real riscv64 code, and writes the steps into a recipe.',
+    icon: 'prove',
+  },
+];
+
+/* 40 x 64 corner pieces. The line is 3 units wide, centred 1.5 units in from
+   the edge where it runs vertically; the bend cuts 14 units at 45 degrees. */
+const corner = {
+  downLeft: 'M40 32H15.5L1.5 46V64',
+  upLeft: 'M1.5 0V18L15.5 32H40',
+  downRight: 'M0 32H24.5L38.5 46V64',
+  upRight: 'M38.5 0V18L24.5 32H0',
+};
+---
+
+<section class="steps" aria-labelledby="steps-title">
+  <div class="container-x">
+    <div class="steps-head">
+      <h2 id="steps-title" class="h2">How a port runs</h2>
+      <p class="lede">From source code to a verified RISC-V build, in three steps.</p>
+    </div>
+
+    <ol class="trace">
+      {
+        stages.map((s, i) => {
+          const left = i % 2 === 0;
+          return (
+            <li class:list={['step', left ? 'line-left' : 'line-right']}>
+              <div class="lane" aria-hidden="true">
+                {left ? (
+                  <>
+                    <svg class="corner" viewBox="0 0 40 64"><path d={corner.downLeft} /></svg>
+                    <span class="run" />
+                    {i === 0 ? (
+                      <svg class="corner" viewBox="0 0 40 64">
+                        <path d="M0 32H26" />
+                        <circle cx="32.5" cy="32" r="5" />
+                      </svg>
+                    ) : (
+                      <svg class="corner" viewBox="0 0 40 64"><path d={corner.upRight} /></svg>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <svg class="corner" viewBox="0 0 40 64"><path d={corner.upLeft} /></svg>
+                    <span class="run" />
+                    <svg class="corner" viewBox="0 0 40 64"><path d={corner.downRight} /></svg>
+                  </>
+                )}
+              </div>
+
+              <div class="step-body">
+                <div class="step-text">
+                  <h3>
+                    <span class="step-n">{i + 1}</span>
+                    {s.title}
+                  </h3>
+                  <p>{s.line}</p>
+                </div>
+
+                <span class="pict-wrap">
+                <svg class="pict" viewBox="0 0 64 64" aria-hidden="true">
+                  {s.icon === 'source' && (
+                    <>
+                      <path d="M20 6H52V58H12V14Z" />
+                      <path d="M21 25H37M21 43H31" />
+                      <path class="a" d="M21 34H43" />
+                    </>
+                  )}
+                  {s.icon === 'build' && (
+                    <>
+                      <rect x="10" y="10" width="30" height="30" rx="5" />
+                      <path d="M18 10V4M25 10V4M32 10V4M18 40V46M25 40V46M32 40V46M10 18H4M10 25H4M10 32H4M40 18H46M40 25H46M40 32H46" />
+                      <rect class="a" x="19" y="19" width="12" height="12" rx="2" />
+                      <path class="a" d="M51 41A9 9 0 1 1 42 50" />
+                      <path class="a" d="M38 54L42 50L46 54" />
+                    </>
+                  )}
+                  {s.icon === 'prove' && (
+                    <>
+                      <path d="M18 6H50V58H10V14Z" />
+                      <path d="M18 21H34M18 30H40M18 39H28" />
+                    </>
+                  )}
+                </svg>
+                {s.icon === 'prove' && (
+                  <span class="rv-badge">
+                    <img
+                      src={url('/brand/third-party/riscv-symbol.svg')}
+                      alt="RISC-V"
+                      width="158"
+                      height="157"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <span class="rv-check" aria-hidden="true">
+                      <svg viewBox="0 0 16 16"><path d="M3.5 8.5L6.8 11.8L12.5 5" /></svg>
+                    </span>
+                  </span>
+                )}
+                </span>
+              </div>
+
+              {i === stages.length - 1 && <span class="pad" aria-hidden="true" />}
+            </li>
+          );
+        })
+      }
+    </ol>
+
+    <p class="steps-foot">
+      <a href={url('/docs/introduction/how-it-works/')}>
+        Read more about how it works
+        <Icon name="arrowRight" size={14} />
+      </a>
+    </p>
+  </div>
+</section>
+
+<style>
+  .steps {
+    padding-block: clamp(4rem, 8vw, 6.5rem);
+    /* The trace: ink on paper, chalk on dark. */
+    --line: 3px;
+    --line-color: var(--color-text);
+  }
+
+  .steps-head {
+    max-width: 44rem;
+    margin-bottom: clamp(1.25rem, 2.5vw, 2rem);
+  }
+
+  .steps-head .h2 {
+    margin: 0;
+  }
+
+  .steps-head .lede {
+    margin: 0.8rem 0 0;
+  }
+
+  .trace {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .step {
+    position: relative;
+  }
+
+  /* ---- the trace ------------------------------------------------------ */
+
+  .lane {
+    display: flex;
+    height: 64px;
+    color: var(--line-color);
+  }
+
+  .corner {
+    flex: none;
+    width: 40px;
+    height: 64px;
+    overflow: visible;
+  }
+
+  .corner path,
+  .corner circle {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .run {
+    flex: 1;
+    background: linear-gradient(currentColor, currentColor) center / 100% var(--line) no-repeat;
+  }
+
+  .line-left .step-body {
+    border-left: var(--line) solid var(--line-color);
+    padding-left: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  .line-right .step-body {
+    border-right: var(--line) solid var(--line-color);
+    padding-right: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  /* The solid pad where the last row's line ends: the native binary. */
+  .pad {
+    position: absolute;
+    left: calc(var(--line) / 2 - 10px);
+    bottom: -10px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-accent);
+  }
+
+  /* ---- each row: one line of text and a picture ------------------------ */
+
+  .step-body {
+    display: flex;
+    align-items: center;
+    gap: clamp(1.25rem, 4vw, 3rem);
+    min-height: 7.5rem;
+    padding-block: 0.75rem;
+  }
+
+  /* Text next to the line, picture on the far side. */
+  .line-left .step-body {
+    flex-direction: row;
+  }
+
+  .line-right .step-body {
+    flex-direction: row-reverse;
+  }
+
+  .step-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .line-right .step-text {
+    text-align: right;
+  }
+
+  .step-text h3 {
+    margin: 0;
+    font-size: clamp(1.15rem, 2vw, 1.45rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+
+  .step-n {
+    margin-right: 0.45rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-accent);
+  }
+
+  .step-text p {
+    margin: 0.45rem 0 0;
+    max-width: 44ch;
+    text-wrap: balance;
+    font-size: 0.975rem;
+    line-height: 1.55;
+    color: var(--color-text-dim);
+  }
+
+  .line-right .step-text p {
+    margin-left: auto;
+  }
+
+  .pict-wrap {
+    position: relative;
+    flex: none;
+    display: block;
+    line-height: 0;
+  }
+
+  .pict {
+    display: block;
+    width: clamp(64px, 9vw, 96px);
+    height: clamp(64px, 9vw, 96px);
+    overflow: visible;
+    color: var(--line-color);
+  }
+
+  .pict :global(path),
+  .pict :global(rect),
+  .pict :global(circle) {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    /* Same 3 px as the trace, at any picture size. */
+    vector-effect: non-scaling-stroke;
+  }
+
+  .pict :global(.a) {
+    stroke: var(--color-accent);
+  }
+
+  /* The verify stage shows what it checks: a RISC-V result. The RV symbol,
+     taken from the official RISC-V logo SVG with its paths unchanged, sits on
+     a white tile (its colours are made for light grounds); the check sits on
+     our tile's corner, never on the symbol. Credit is in the site footer. */
+  .rv-badge {
+    position: absolute;
+    right: -1.4rem;
+    bottom: -0.6rem;
+    display: grid;
+    place-items: center;
+    width: 3.1rem;
+    height: 3.1rem;
+    padding: 0.5rem;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 0 0 3px var(--color-bg);
+    line-height: 0;
+  }
+
+  .rv-badge img {
+    width: 100%;
+    height: auto;
+  }
+
+  .rv-check {
+    position: absolute;
+    top: -0.55rem;
+    right: -0.55rem;
+    display: grid;
+    place-items: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+    color: var(--color-bg);
+    box-shadow: 0 0 0 2px var(--color-bg);
+  }
+
+  .rv-check svg {
+    width: 0.85rem;
+    height: 0.85rem;
+  }
+
+  .rv-check path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  @media (min-width: 900px) {
+    .pict-wrap {
+      margin-inline: 0 clamp(2rem, 12vw, 10rem);
+    }
+
+    .line-right .pict-wrap {
+      margin-inline: clamp(2rem, 12vw, 10rem) 0;
+    }
+  }
+
+  /* ---- after the trace ------------------------------------------------- */
+
+  .steps-foot {
+    margin: clamp(2.5rem, 5vw, 3.5rem) 0 0;
+  }
+
+  .steps-foot a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+
+  .steps-foot a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+</style>

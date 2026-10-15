@@ -1,0 +1,390 @@
+<!DOCTYPE html><html lang="en" dir="ltr" data-theme="dark" data-has-toc data-has-sidebar class="astro-g5ptsecz"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Agent state | Eclipse Atesor™</title><link rel="canonical" href="https://eclipse.dev/atesor/docs/architecture/agent-state/"/><link rel="sitemap" href="/atesor/sitemap-index.xml"/><link rel="apple-touch-icon" href="/atesor/apple-touch-icon.png"/><link rel="manifest" href="/atesor/site.webmanifest"/><link rel="alternate" type="text/plain" title="llms.txt" href="/atesor/llms.txt"/><link rel="shortcut icon" href="/atesor/favicon.svg" type="image/svg+xml"/><meta name="generator" content="Astro v7.3.8"/><meta name="generator" content="Starlight v0.42.6"/><meta property="og:title" content="Agent state"/><meta property="og:type" content="article"/><meta property="og:url" content="https://eclipse.dev/atesor/docs/architecture/agent-state/"/><meta property="og:locale" content="en"/><meta property="og:description" content="The AgentState dataclass in src/state.py, its field groups, the error taxonomy, severity inference and the escalation checks."/><meta property="og:site_name" content="Eclipse Atesor™"/><meta name="twitter:card" content="summary_large_image"/><meta name="description" content="The AgentState dataclass in src/state.py, its field groups, the error taxonomy, severity inference and the escalation checks."/><meta property="og:image" content="https://eclipse.dev/atesor/brand/og-image.png"/><meta name="twitter:image" content="https://eclipse.dev/atesor/brand/og-image.png"/><script>
+	window.StarlightThemeProvider = (() => {
+		const storedTheme =
+			typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+		const theme =
+			storedTheme ||
+			(window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+		document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+		return {
+			updatePickers(theme = storedTheme || 'auto') {
+				document.querySelectorAll('starlight-theme-select').forEach((picker) => {
+					const select = picker.querySelector('select');
+					if (select) select.value = theme;
+					/** @type {HTMLTemplateElement | null} */
+					const tmpl = document.querySelector(`#theme-icons`);
+					const newIcon = tmpl && tmpl.content.querySelector('.' + theme);
+					if (newIcon) {
+						const oldIcon = picker.querySelector('svg.label-icon');
+						if (oldIcon) {
+							oldIcon.replaceChildren(...newIcon.cloneNode(true).childNodes);
+						}
+					}
+				});
+			},
+		};
+	})();
+</script><template id="theme-icons"><svg aria-hidden="true" class="light astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M5 12a1 1 0 0 0-1-1H3a1 1 0 0 0 0 2h1a1 1 0 0 0 1-1Zm.64 5-.71.71a1 1 0 0 0 0 1.41 1 1 0 0 0 1.41 0l.71-.71A1 1 0 0 0 5.64 17ZM12 5a1 1 0 0 0 1-1V3a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1Zm5.66 2.34a1 1 0 0 0 .7-.29l.71-.71a1 1 0 1 0-1.41-1.41l-.66.71a1 1 0 0 0 0 1.41 1 1 0 0 0 .66.29Zm-12-.29a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.71-.71a1.004 1.004 0 1 0-1.43 1.41l.73.71ZM21 11h-1a1 1 0 0 0 0 2h1a1 1 0 0 0 0-2Zm-2.64 6A1 1 0 0 0 17 18.36l.71.71a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.76-.66ZM12 6.5a5.5 5.5 0 1 0 5.5 5.5A5.51 5.51 0 0 0 12 6.5Zm0 9a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm0 3.5a1 1 0 0 0-1 1v1a1 1 0 0 0 2 0v-1a1 1 0 0 0-1-1Z"/></svg><svg aria-hidden="true" class="dark astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.64 13a1 1 0 0 0-1.05-.14 8.049 8.049 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05Zm-9.5 6.69A8.14 8.14 0 0 1 7.08 5.22v.27a10.15 10.15 0 0 0 10.14 10.14 9.784 9.784 0 0 0 2.1-.22 8.11 8.11 0 0 1-7.18 4.32v-.04Z"/></svg><svg aria-hidden="true" class="auto astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg></template><link rel="stylesheet" href="/atesor/_astro/print.ehPL0gv-.css" media="print"><link rel="stylesheet" href="/atesor/_astro/index.CxIBpmSu.css"><style>@layer starlight.components{svg:where(.astro-hkc32dio){color:var(--sl-icon-color);font-size:var(--sl-icon-size,1em);width:1em;height:1em;overflow:visible}}
+</style><script type="module" src="/atesor/_astro/page.cNngjUgL.js"></script></head><body class="astro-g5ptsecz"><a class="sl-skip-link astro-qb7clj6f" href="#_top">Skip to content</a><div class="page sl-flex astro-yntsjkba"><header class="header astro-yntsjkba"><div class="header astro-by6fddyj"><div class="title-wrapper sl-flex astro-by6fddyj"><a href="/atesor/" class="site-title sl-flex astro-6rvad3va"><img class="light:sl-hidden print:hidden astro-6rvad3va" alt src="/atesor/_astro/atesor-mark-dark.CIOkFVI-.svg" width="512" height="512"><img class="dark:sl-hidden print:block astro-6rvad3va" alt src="/atesor/_astro/atesor-mark.BhUamroi.svg" width="512" height="512"><span class="astro-6rvad3va" translate="no">Eclipse Atesor™</span></a></div><div class="sl-flex print:hidden astro-by6fddyj"><site-search class="astro-by6fddyj astro-b5kgnn7o" data-translations="{&quot;placeholder&quot;:&quot;Search&quot;}"><button data-open-modal disabled aria-label="Search" aria-keyshortcuts="Control+K" class="astro-b5kgnn7o"><svg aria-hidden="true" class="astro-b5kgnn7o astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.71 20.29 18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/></svg><span class="sl-hidden md:sl-block astro-b5kgnn7o" aria-hidden="true">Search</span><kbd class="sl-hidden md:sl-flex astro-b5kgnn7o" style="display: none;"><kbd class="astro-b5kgnn7o">Ctrl</kbd><kbd class="astro-b5kgnn7o">K</kbd></kbd></button><dialog style="padding:0" aria-label="Search" class="astro-b5kgnn7o"><div class="dialog-frame sl-flex astro-b5kgnn7o"><button data-close-modal class="sl-flex md:sl-hidden astro-b5kgnn7o">Cancel</button><div class="search-container astro-b5kgnn7o"><div id="starlight__search" class="astro-b5kgnn7o"></div></div></div></dialog></site-search><script>
+	(() => {
+		const openBtn = document.querySelector('button[data-open-modal]');
+		const shortcut = openBtn?.querySelector('kbd');
+		if (!openBtn || !(shortcut instanceof HTMLElement)) return;
+		const platformKey = shortcut.querySelector('kbd');
+		if (platformKey && /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
+			platformKey.textContent = '⌘';
+			openBtn.setAttribute('aria-keyshortcuts', 'Meta+K');
+		}
+		shortcut.style.display = '';
+	})();
+</script><script type="module" src="/atesor/_astro/Search.astro_astro_type_script_index_0_lang.BtDwG4cY.js"></script></div><div class="sl-hidden md:sl-flex print:hidden right-group astro-by6fddyj"><div class="sl-flex social-icons astro-by6fddyj"><a href="https://github.com/eclipse-atesor/atesor" rel="me" class="sl-flex astro-n2mnl6yq"><span class="sr-only astro-n2mnl6yq">Source on GitHub</span><svg aria-hidden="true" class="astro-n2mnl6yq astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/></svg></a></div><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-2z5xp7gb"><span class="sr-only astro-2z5xp7gb">Select theme</span><svg aria-hidden="true" class="icon label-icon astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-2z5xp7gb"><option value="dark" class="astro-2z5xp7gb">Dark</option><option value="light" class="astro-2z5xp7gb">Light</option><option value="auto" selected class="astro-2z5xp7gb">Auto</option></select><svg aria-hidden="true" class="icon caret astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script><script type="module">var e=`starlight-theme`,t=e=>e===`auto`||e===`dark`||e===`light`?e:`auto`,n=()=>t(typeof localStorage<`u`&&localStorage.getItem(e));function r(t){typeof localStorage<`u`&&localStorage.setItem(e,t===`light`||t===`dark`?t:``)}var i=()=>matchMedia(`(prefers-color-scheme: light)`).matches?`light`:`dark`;function a(e){StarlightThemeProvider.updatePickers(e),document.documentElement.dataset.theme=e===`auto`?i():e,r(e)}matchMedia(`(prefers-color-scheme: light)`).addEventListener(`change`,()=>{n()===`auto`&&a(`auto`)});var o=class extends HTMLElement{constructor(){super(),a(n()),this.querySelector(`select`)?.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&a(t(e.currentTarget.value))})}};customElements.define(`starlight-theme-select`,o);</script><script type="module">var e=class extends HTMLElement{constructor(){super();let e=this.querySelector(`select`);e&&(e.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&(window.location.pathname=e.currentTarget.value)}),window.addEventListener(`pageshow`,t=>{if(!t.persisted)return;let n=e.querySelector(`option[selected]`)?.index;n!==e.selectedIndex&&(e.selectedIndex=n??0)}))}};customElements.define(`starlight-lang-select`,e);</script></div></div></header><nav class="sidebar print:hidden astro-yntsjkba" aria-label="Main"><button popovertarget="starlight__sidebar" class="sl-menu-button sl-flex md:sl-hidden print:hidden astro-r2osgdlg"><svg aria-hidden="true" class="open-menu astro-r2osgdlg astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M3 8h18a1 1 0 1 0 0-2H3a1 1 0 0 0 0 2Zm18 8H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Zm0-5H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Z"/></svg><svg aria-hidden="true" class="close-menu astro-r2osgdlg astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="m13.41 12 6.3-6.29a1.004 1.004 0 1 0-1.42-1.42L12 10.59l-6.29-6.3a1.004 1.004 0 0 0-1.42 1.42l6.3 6.29-6.3 6.29a1 1 0 0 0 0 1.42.998.998 0 0 0 1.42 0l6.29-6.3 6.29 6.3a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.42L13.41 12Z"/></svg><span class="sr-only astro-r2osgdlg">Menu</span></button><script type="module">var e=class extends HTMLElement{constructor(){super();let e=matchMedia(`(min-width: 50em)`),t=()=>{this.popover=e.matches?null:`auto`};t(),e.addEventListener(`change`,()=>t()),this.addEventListener(`toggle`,({newState:e})=>this.trapFocus(e===`open`))}trapFocus(e){document.querySelectorAll(`.main-frame, .sl-skip-link`).forEach(t=>{t.toggleAttribute(`inert`,e)})}};customElements.define(`sl-sidebar-pane`,e);</script><sl-sidebar-pane popover id="starlight__sidebar" class="sidebar-pane astro-yntsjkba"><div class="sidebar-content sl-flex astro-yntsjkba"><sl-sidebar-state-persist data-hash="12ijkg5" class="astro-ipdry5cl"><script aria-hidden="true">
+		(() => {
+			try {
+				if (!matchMedia('(min-width: 50em)').matches) return;
+				/** @type {HTMLElement | null} */
+				const target = document.querySelector('sl-sidebar-state-persist');
+				const state = JSON.parse(sessionStorage.getItem('sl-sidebar-state') || '0');
+				if (!target || !state || target.dataset.hash !== state.hash) return;
+				window._starlightScrollRestore = state.scroll;
+				customElements.define(
+					'sl-sidebar-restore',
+					class SidebarRestore extends HTMLElement {
+						connectedCallback() {
+							try {
+								const idx = parseInt(this.dataset.index || '');
+								const details = this.closest('details');
+								if (details && typeof state.open[idx] === 'boolean') details.open = state.open[idx];
+							} catch {}
+						}
+					}
+				);
+			} catch {}
+		})();
+	</script><ul class="top-level astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/" class="large astro-rmhv4bp6"><span class="astro-rmhv4bp6">Overview</span></a></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Introduction</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="0"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/what-is-atesor/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">What is Atesor</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/how-it-works/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">How it works</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/concepts/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Concepts</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/limitations/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Limitations</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Getting Started</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="1"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/requirements/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Requirements</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/install/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Install Atesor</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/configure-llm/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Configure the LLM provider</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/first-port/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Your first port</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/read-the-output/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Read the output</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Guides</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="2"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/sandboxes/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Sandboxes</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/native-riscv/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Native RISC-V machine</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/recipe-cache/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Recipe cache</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/batch-runs/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Batch runs</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/cost-control/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Cost control</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/troubleshooting/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Troubleshooting</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/optimize/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Performance mode</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Architecture</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="3"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/overview/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Architecture overview</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/agent-state/" aria-current="page" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Agent state</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/scripted-ops/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Scripted operations</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/recovery-heuristics/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Recovery heuristics</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/verification/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Verification</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/llm-layer/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">LLM layer</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/optimize/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Performance mode internals</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Reference</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="4"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/cli/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Command-line options</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/environment-variables/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Environment variables</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/exit-codes/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Exit codes</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/output-files/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Output files</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/build-systems/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Build systems</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Contributing</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="5"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/development-setup/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Development setup</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/tests/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Tests and checks</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/add-a-platform/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Add a platform</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/add-a-heuristic/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Add a recovery heuristic</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/few-shot-examples/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Few-shot examples</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/docs/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Change the docs</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Project</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="6"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/releases/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Releases</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/roadmap/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Roadmap</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/governance/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Governance</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/name/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">About the name</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/brand/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Brand and logos</span></a></li></ul></details></li></ul><script aria-hidden="true">
+		(() => {
+			const scroller = document.getElementById('starlight__sidebar');
+			if (!window._starlightScrollRestore || !scroller) return;
+			scroller.scrollTop = window._starlightScrollRestore;
+			delete window._starlightScrollRestore;
+		})();
+	</script></sl-sidebar-state-persist><div class="md:sl-hidden"><div class="mobile-preferences sl-flex astro-p4azlveh"><div class="social-icons astro-p4azlveh"><a href="https://github.com/eclipse-atesor/atesor" rel="me" class="sl-flex astro-n2mnl6yq"><span class="sr-only astro-n2mnl6yq">Source on GitHub</span><svg aria-hidden="true" class="astro-n2mnl6yq astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/></svg></a></div><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-2z5xp7gb"><span class="sr-only astro-2z5xp7gb">Select theme</span><svg aria-hidden="true" class="icon label-icon astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-2z5xp7gb"><option value="dark" class="astro-2z5xp7gb">Dark</option><option value="light" class="astro-2z5xp7gb">Light</option><option value="auto" selected class="astro-2z5xp7gb">Auto</option></select><svg aria-hidden="true" class="icon caret astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script></div></div></div></sl-sidebar-pane></nav><div class="main-frame astro-yntsjkba"><script type="module">var e=document.getElementById(`starlight__sidebar`),t=e?.querySelector(`sl-sidebar-state-persist`),n=`sl-sidebar-state`,r=()=>{let r=[],i=t?.dataset.hash||``;try{let e=sessionStorage.getItem(n),t=JSON.parse(e||`{}`);Array.isArray(t.open)&&t.hash===i&&(r=t.open)}catch{}return{hash:i,open:r,scroll:e?.scrollTop||0}},i=e=>{try{sessionStorage.setItem(n,JSON.stringify(e))}catch{}},a=()=>i(r()),o=(e,t)=>{let n=r();n.open[t]=e,i(n)};t?.addEventListener(`click`,e=>{if(!(e.target instanceof Element))return;let t=e.target.closest(`summary`)?.closest(`details`);if(!t)return;let n=t.querySelector(`sl-sidebar-restore`),r=parseInt(n?.dataset.index||``);isNaN(r)||o(!t.open,r)}),addEventListener(`visibilitychange`,()=>{document.visibilityState===`hidden`&&a()});</script><div class="lg:sl-flex astro-lrzkfocr"><aside class="right-sidebar-container print:hidden astro-lrzkfocr"><div class="right-sidebar astro-lrzkfocr"><div class="lg:sl-hidden astro-qok35upx"><mobile-starlight-toc data-min-h="2" data-max-h="3" class="astro-66cqc7ze"><nav aria-labelledby="starlight__on-this-page--mobile" class="astro-66cqc7ze"><details id="starlight__mobile-toc" class="astro-66cqc7ze"><summary id="starlight__on-this-page--mobile" class="sl-flex astro-66cqc7ze"><span class="toggle sl-flex astro-66cqc7ze">On this page<svg aria-hidden="true" class="caret astro-66cqc7ze astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></span><span class="display-current astro-66cqc7ze"></span></summary><div class="dropdown astro-66cqc7ze"><ul class="isMobile astro-jugkfwgx" style="--depth: 0;"><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#_top" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Overview</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#why-is-the-state-the-contract-between-nodes" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Why is the state the contract between nodes?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-are-the-main-field-groups" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What are the main field groups?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#how-does-the-state-count-attempts" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">How does the state count attempts?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-the-error-taxonomy" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is the error taxonomy?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#how-does-atesor-infer-severity" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">How does Atesor infer severity?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#when-does-a-run-escalate" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">When does a run escalate?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#which-helper-methods-change-the-state" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Which helper methods change the state?</span></a></li></ul></div></details></nav></mobile-starlight-toc><script type="module" src="/atesor/_astro/MobileTableOfContents.astro_astro_type_script_index_0_lang.C3fM4Kra.js"></script></div><div class="right-sidebar-panel sl-hidden lg:sl-block astro-qok35upx"><div class="sl-container astro-qok35upx"><starlight-toc data-min-h="2" data-max-h="3"><nav aria-labelledby="starlight__on-this-page"><h2 id="starlight__on-this-page">On this page</h2><ul class="astro-jugkfwgx" style="--depth: 0;"><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#_top" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Overview</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#why-is-the-state-the-contract-between-nodes" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Why is the state the contract between nodes?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-are-the-main-field-groups" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What are the main field groups?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#how-does-the-state-count-attempts" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">How does the state count attempts?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-the-error-taxonomy" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is the error taxonomy?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#how-does-atesor-infer-severity" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">How does Atesor infer severity?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#when-does-a-run-escalate" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">When does a run escalate?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#which-helper-methods-change-the-state" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Which helper methods change the state?</span></a></li></ul></nav></starlight-toc><script type="module" src="/atesor/_astro/TableOfContents.astro_astro_type_script_index_0_lang.BpJaGz7G.js"></script></div></div></div></aside><div class="main-pane astro-lrzkfocr"><main data-pagefind-body class="astro-g5ptsecz" lang="en" dir="ltr"><div class="content-panel astro-a7po4psb"><div class="sl-container astro-a7po4psb"><h1 id="_top" class="astro-bebwqqxs">Agent state</h1></div></div><div class="content-panel astro-a7po4psb"><div class="sl-container astro-a7po4psb"><div class="sl-markdown-content"><p>Eclipse Atesor™ keeps everything about one port in a single <code dir="auto">AgentState</code> dataclass, defined in <code dir="auto">src/state.py</code>. Every node reads it and writes it, and every routing decision comes from its fields. Read this page before you change a node, a routing function or an error pattern.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="why-is-the-state-the-contract-between-nodes">Why is the state the contract between nodes?</h2><a class="sl-anchor-link" href="#why-is-the-state-the-contract-between-nodes"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Why is the state the contract between nodes?”</span></a></div>
+<p>The graph in <code dir="auto">src/graph.py</code> is a <code dir="auto">StateGraph(AgentState)</code>. All nodes receive the same <code dir="auto">AgentState</code> object, change it in place, and return it. No node calls another node. A node tells the next node what happened through state fields.</p>
+<p>The routing functions read only state fields, for example <code dir="auto">build_status</code>, <code dir="auto">last_error_category</code> and <code dir="auto">attempt_count</code>. The final report, the exit code, the zip manifest and the learning gate also read the state. At the end of a run, <code dir="auto">main.py</code> writes the full state to <code dir="auto">&lt;repo&gt;_state_&lt;timestamp&gt;.json</code>.</p>
+<p><code dir="auto">CONTRIBUTING.md</code> states the rule: <code dir="auto">AgentState</code> is the single source of truth. Mutate it in place inside every node, and never construct a fresh one. In a run, <code dir="auto">create_initial_state(repo_url, max_attempts, optimize, emulate_cpu, cached_recipe)</code> makes the only instance. It rejects a URL that is not a plain <code dir="auto">http(s)</code> URL, derives <code dir="auto">repo_name</code>, and sets <code dir="auto">repo_path</code> to <code dir="auto">/workspace/repos/&lt;repo_name&gt;</code>. The last 3 arguments come from the performance mode flags and default to off.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-are-the-main-field-groups">What are the main field groups?</h2><a class="sl-anchor-link" href="#what-are-the-main-field-groups"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What are the main field groups?”</span></a></div>
+<p>The source groups the fields with comments. This table shows the important fields in each group.</p>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Important fields</th>
+<th>Written by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Repository</td>
+<td><code dir="auto">repo_url</code>, <code dir="auto">repo_name</code>, <code dir="auto">repo_path</code>, <code dir="auto">repo_tree</code></td>
+<td><code dir="auto">create_initial_state</code>, <code dir="auto">init_node</code></td>
+</tr>
+<tr>
+<td>Task planning</td>
+<td><code dir="auto">package_analysis</code>, <code dir="auto">task_plan</code>, <code dir="auto">current_phase</code></td>
+<td><code dir="auto">analyst_node</code>, <code dir="auto">cached_recipe_node</code>, all nodes</td>
+</tr>
+<tr>
+<td>Build</td>
+<td><code dir="auto">build_system_info</code>, <code dir="auto">build_plan</code>, <code dir="auto">build_status</code></td>
+<td><code dir="auto">init_node</code>, planners, all nodes</td>
+</tr>
+<tr>
+<td>Dependencies</td>
+<td><code dir="auto">dependencies</code></td>
+<td><code dir="auto">init_node</code></td>
+</tr>
+<tr>
+<td>Architecture</td>
+<td><code dir="auto">arch_specific_code</code></td>
+<td><code dir="auto">init_node</code></td>
+</tr>
+<tr>
+<td>Execution tracking</td>
+<td><code dir="auto">attempt_count</code>, <code dir="auto">max_attempts</code>, <code dir="auto">last_successful_phase</code></td>
+<td><code dir="auto">add_error()</code>, <code dir="auto">builder_node</code>, <code dir="auto">fixer_node</code></td>
+</tr>
+<tr>
+<td>Error handling</td>
+<td><code dir="auto">last_error</code>, <code dir="auto">last_error_category</code>, <code dir="auto">last_error_severity</code>, <code dir="auto">error_history</code>, <code dir="auto">fixes_attempted</code></td>
+<td><code dir="auto">add_error()</code>, <code dir="auto">fixer_node</code></td>
+</tr>
+<tr>
+<td>Cost tracking</td>
+<td><code dir="auto">api_calls_made</code>, <code dir="auto">api_cost_usd</code>, <code dir="auto">api_tokens_in</code>, <code dir="auto">api_tokens_out</code>, <code dir="auto">scripted_ops_count</code>, <code dir="auto">execution_start_time</code></td>
+<td><code dir="auto">log_api_call()</code>, <code dir="auto">log_scripted_op()</code></td>
+</tr>
+<tr>
+<td>Caches</td>
+<td><code dir="auto">context_cache</code>, <code dir="auto">file_content_cache</code>, <code dir="auto">command_results_cache</code></td>
+<td>all nodes</td>
+</tr>
+<tr>
+<td>Heuristic plan facts</td>
+<td><code dir="auto">scout_build_system_result</code>, <code dir="auto">scout_deps_result</code>, <code dir="auto">scout_arch_issues_result</code></td>
+<td><code dir="auto">heuristic_plan_node</code></td>
+</tr>
+<tr>
+<td>Outputs</td>
+<td><code dir="auto">patches_generated</code>, <code dir="auto">porting_recipe</code>, <code dir="auto">build_artifacts</code>, <code dir="auto">curated_artifacts</code>, <code dir="auto">artifact_verification</code>, <code dir="auto">package_tests</code></td>
+<td><code dir="auto">fixer_node</code>, <code dir="auto">cached_recipe_node</code>, <code dir="auto">verify_node</code>, <code dir="auto">finish_node</code></td>
+</tr>
+<tr>
+<td>Performance mode</td>
+<td><code dir="auto">optimize_requested</code>, <code dir="auto">emulate_cpu</code>, <code dir="auto">cached_recipe</code>, <code dir="auto">machine_profile</code>, <code dir="auto">optimization</code></td>
+<td><code dir="auto">create_initial_state</code>, <code dir="auto">cached_recipe_node</code>, <code dir="auto">optimize_node</code></td>
+</tr>
+<tr>
+<td>Audit</td>
+<td><code dir="auto">audit_trail</code>, <code dir="auto">current_agent</code>, <code dir="auto">messages</code></td>
+<td><code dir="auto">log_event()</code>, <code dir="auto">@agent_node</code>, <code dir="auto">main.py</code></td>
+</tr>
+</tbody>
+</table>
+<p>Some fields need a short note:</p>
+<ul>
+<li><code dir="auto">task_plan</code> is a fixed structural record from <code dir="auto">create_default_plan()</code>. No LLM writes it, and no routing function reads its content.</li>
+<li><code dir="auto">build_status</code> takes one of 8 <code dir="auto">BuildStatus</code> values: <code dir="auto">PENDING</code>, <code dir="auto">PLANNING</code>, <code dir="auto">SCOUTING</code>, <code dir="auto">BUILDING</code>, <code dir="auto">FIXING</code>, <code dir="auto">SUCCESS</code>, <code dir="auto">FAILED</code> and <code dir="auto">ESCALATED</code>.</li>
+<li><code dir="auto">last_successful_phase</code> lets the builder resume at the phase that failed.</li>
+<li><code dir="auto">command_results_cache</code> keys each command by its MD5 hash. The builder skips a command that already has a cached success.</li>
+<li><code dir="auto">artifact_verification</code> holds the last scan verdict: <code dir="auto">verified</code>, <code dir="auto">wrong_arch</code> or <code dir="auto">unverified</code>. It is <code dir="auto">None</code> until <code dir="auto">verify_node</code> runs.</li>
+<li><code dir="auto">package_tests</code> holds the non-gating test result. It is <code dir="auto">None</code> until <code dir="auto">finish_node</code> runs. Performance mode runs the same test command again in each tune tree.</li>
+<li><code dir="auto">optimize_requested</code> is true only with <code dir="auto">--optimize</code>. <code dir="auto">route_finish_to_next</code> reads it.</li>
+<li><code dir="auto">emulate_cpu</code> holds the QEMU CPU model for performance mode on the QEMU target, or <code dir="auto">None</code>.</li>
+<li><code dir="auto">cached_recipe</code> holds a verified recipe cache entry. <code dir="auto">main.py</code> sets it only with <code dir="auto">--optimize</code> and without <code dir="auto">--force</code>. <code dir="auto">route_init_to_next</code> reads it, and <code dir="auto">cached_recipe_node</code> sets it to <code dir="auto">None</code> when the entry has no command.</li>
+<li><code dir="auto">machine_profile</code> and <code dir="auto">optimization</code> are <code dir="auto">None</code> until <code dir="auto">optimize_node</code> runs. The <code dir="auto">status</code> of <code dir="auto">optimization</code> is <code dir="auto">accepted</code>, <code dir="auto">no gain</code>, <code dir="auto">not confirmed</code>, <code dir="auto">not measured</code>, <code dir="auto">checked</code>, <code dir="auto">skipped</code> or <code dir="auto">error</code>. See <a href="/atesor/docs/architecture/optimize/">Performance mode internals</a>.</li>
+<li><code dir="auto">tests_run</code> and <code dir="auto">subgraph_outcome</code> are declared, but no code on <code dir="auto">main</code> sets them.</li>
+</ul>
+<p>The state also uses these dataclasses: <code dir="auto">CommandResult</code>, <code dir="auto">ErrorRecord</code>, <code dir="auto">FixAttempt</code>, <code dir="auto">ArchSpecificCode</code>, <code dir="auto">BuildPhase</code>, <code dir="auto">BuildPlan</code>, <code dir="auto">DependencyInfo</code>, <code dir="auto">TaskPhase</code>, <code dir="auto">TaskPlan</code>, <code dir="auto">BuildSystemInfo</code> and <code dir="auto">PackageAnalysis</code>. The <a href="/atesor/docs/architecture/llm-layer/">LLM layer</a> page describes <code dir="auto">PackageAnalysis</code>.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="how-does-the-state-count-attempts">How does the state count attempts?</h2><a class="sl-anchor-link" href="#how-does-the-state-count-attempts"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “How does the state count attempts?”</span></a></div>
+<p><code dir="auto">add_error(error)</code> is the only place that increments <code dir="auto">attempt_count</code>. It also appends the record to <code dir="auto">error_history</code> and copies its message, category and severity into the <code dir="auto">last_error*</code> fields. So an attempt is one recorded error, not one fix.</p>
+<p>These events record an error and use one attempt:</p>
+<ul>
+<li>A build command that fails after all recovery heuristics.</li>
+<li>A wrong-architecture verdict from <code dir="auto">verify_node</code>.</li>
+<li>A scout failure that uses the fallback plan.</li>
+<li>A fixer response that is not valid.</li>
+<li>A clone that fails in <code dir="auto">init_node</code>.</li>
+<li>An exception that <code dir="auto">@agent_node</code> catches.</li>
+</ul>
+<p><code dir="auto">max_attempts</code> is 5 by default. The <code dir="auto">--max-attempts</code> (<code dir="auto">-m</code>) flag changes it.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-is-the-error-taxonomy">What is the error taxonomy?</h2><a class="sl-anchor-link" href="#what-is-the-error-taxonomy"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What is the error taxonomy?”</span></a></div>
+<p><code dir="auto">ErrorCategory</code> has 14 values. <code dir="auto">classify_error(message)</code> assigns one category from the lower-case error text. It checks pattern groups in a fixed order, and the first match wins.</p>
+<table>
+<thead>
+<tr>
+<th>Order</th>
+<th>Category</th>
+<th>Example patterns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code dir="auto">RATE_LIMIT</code></td>
+<td><code dir="auto">rate limit</code>, <code dir="auto">too many requests</code>, <code dir="auto">429</code>, <code dir="auto">quota exceeded</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code dir="auto">DEPENDENCY</code></td>
+<td>package manager lock messages, for example <code dir="auto">unable to lock database</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code dir="auto">DISK_SPACE</code></td>
+<td><code dir="auto">no space left</code>, <code dir="auto">virtual memory exhausted</code>, <code dir="auto">exit 137</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td><code dir="auto">NETWORK</code></td>
+<td>exit status 124, <code dir="auto">timed out</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code dir="auto">CONFIGURATION</code></td>
+<td><code dir="auto">repository '...' not found</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td><code dir="auto">NETWORK</code></td>
+<td><code dir="auto">could not read username</code>, <code dir="auto">authentication failed</code>, <code dir="auto">connection</code>, <code dir="auto">unreachable</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td><code dir="auto">CONFIGURATION</code></td>
+<td>a stale <code dir="auto">config.guess</code> or <code dir="auto">config.sub</code> that does not know <code dir="auto">riscv64</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td><code dir="auto">ARCHITECTURE</code></td>
+<td><code dir="auto">immintrin.h</code>, <code dir="auto">cpuid.h</code>, <code dir="auto">unsupported architecture</code>, <code dir="auto">-march=native</code>, <code dir="auto">invalid instruction mnemonic</code>, <code dir="auto">sse</code>, <code dir="auto">avx</code>, <code dir="auto">neon</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td><code dir="auto">LINKING</code></td>
+<td><code dir="auto">relocation truncated to fit</code>, <code dir="auto">r_riscv_hi20</code>, <code dir="auto">__atomic_load_</code>, <code dir="auto">undefined reference</code>, <code dir="auto">cannot find -l</code></td>
+</tr>
+<tr>
+<td>10</td>
+<td><code dir="auto">DEPENDENCY</code></td>
+<td><code dir="auto">cmake error</code> with <code dir="auto">could not find &lt;name&gt;</code></td>
+</tr>
+<tr>
+<td>11</td>
+<td><code dir="auto">DEPENDENCY</code></td>
+<td><code dir="auto">no package '&lt;name&gt;' found</code>, <code dir="auto">unable to locate package</code>, <code dir="auto">has no installation candidate</code></td>
+</tr>
+<tr>
+<td>12</td>
+<td><code dir="auto">MISSING_TOOLS</code></td>
+<td><code dir="auto">command not found</code>, <code dir="auto">cmake: not found</code></td>
+</tr>
+<tr>
+<td>13</td>
+<td><code dir="auto">CONFIGURATION</code></td>
+<td><code dir="auto">possibly undefined macro</code>, <code dir="auto">autoreconf: error</code></td>
+</tr>
+<tr>
+<td>14</td>
+<td><code dir="auto">CONFIGURATION</code></td>
+<td><code dir="auto">configure</code> with <code dir="auto">syntax error</code></td>
+</tr>
+<tr>
+<td>15</td>
+<td><code dir="auto">COMPILATION</code></td>
+<td>Rust <code dir="auto">error[E0000]</code> codes, <code dir="auto">could not compile</code>, <code dir="auto">undeclared</code>, <code dir="auto">implicit declaration</code></td>
+</tr>
+<tr>
+<td>16</td>
+<td><code dir="auto">CONFIGURATION</code></td>
+<td><code dir="auto">configure: error</code>, <code dir="auto">no rule to make target</code>, <code dir="auto">no required module provides</code>, <code dir="auto">inconsistent vendoring</code></td>
+</tr>
+<tr>
+<td>17</td>
+<td><code dir="auto">DEPENDENCY</code></td>
+<td><code dir="auto">cannot find</code>, <code dir="auto">not found</code>, <code dir="auto">no such file</code>, <code dir="auto">module not found</code></td>
+</tr>
+<tr>
+<td>18</td>
+<td><code dir="auto">PERMISSION</code></td>
+<td><code dir="auto">permission denied</code>, <code dir="auto">access denied</code>, <code dir="auto">forbidden</code></td>
+</tr>
+<tr>
+<td>19</td>
+<td><code dir="auto">DISK_SPACE</code></td>
+<td>a line that is only <code dir="auto">killed</code></td>
+</tr>
+<tr>
+<td>20</td>
+<td><code dir="auto">CONFIGURATION</code></td>
+<td>Python exception names, for example <code dir="auto">keyerror</code></td>
+</tr>
+<tr>
+<td>21</td>
+<td><code dir="auto">CONFIGURATION</code></td>
+<td><code dir="auto">empty repository</code></td>
+</tr>
+<tr>
+<td>22</td>
+<td><code dir="auto">MISSING_TOOLS</code></td>
+<td><code dir="auto">go.mod requires go &gt;=</code>, <code dir="auto">requires rust version</code></td>
+</tr>
+<tr>
+<td>23</td>
+<td><code dir="auto">UNKNOWN</code></td>
+<td>no match</td>
+</tr>
+</tbody>
+</table>
+<p>The other 3 categories are <code dir="auto">LICENSE_INCOMPATIBLE</code>, <code dir="auto">REQUIRES_HARDWARE</code> and <code dir="auto">ARCHITECTURE_IMPOSSIBLE</code>. No code path on <code dir="auto">main</code> sets them. They exist for the severity and escalation checks.</p>
+<aside aria-label="Note" class="starlight-aside starlight-aside--note"><p class="starlight-aside__title" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" class="starlight-aside__icon"><path d="M12 11a1 1 0 0 0-1 1v4a1 1 0 0 0 2 0v-4a1 1 0 0 0-1-1Zm.38-3.92a1 1 0 0 0-.76 0 1 1 0 0 0-.33.21 1.15 1.15 0 0 0-.21.33 1 1 0 0 0 .21 1.09c.097.088.209.16.33.21A1 1 0 0 0 13 8a1.05 1.05 0 0 0-.29-.71 1 1 0 0 0-.33-.21ZM12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 18a8 8 0 1 1 0-16.001A8 8 0 0 1 12 20Z"/></svg>Note</p><div class="starlight-aside__content"><p>The builder reports a failed command as <code dir="auto">Build command failed: &lt;command&gt; (exit &lt;code&gt;) - &lt;output&gt;</code>. An OOM kill (out-of-memory kill) therefore contains <code dir="auto">exit 137</code>, which matches <code dir="auto">DISK_SPACE</code>. <code dir="auto">DISK_SPACE</code> is a fundamental blocker, so the supervisor escalates the run the next time it routes. The builder tries a serialized retry before it records that error. See <a href="/atesor/docs/architecture/recovery-heuristics/">Recovery heuristics</a>.</p></div></aside>
+<div class="sl-heading-wrapper level-h2"><h2 id="how-does-atesor-infer-severity">How does Atesor infer severity?</h2><a class="sl-anchor-link" href="#how-does-atesor-infer-severity"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “How does Atesor infer severity?”</span></a></div>
+<p><code dir="auto">FailureSeverity</code> has 3 values: <code dir="auto">low</code>, <code dir="auto">medium</code> and <code dir="auto">high</code>. <code dir="auto">create_error_record()</code> calls <code dir="auto">infer_failure_severity(category, command, message)</code> when the caller gives no severity. The function checks these rules in this order:</p>
+<ol>
+<li>The command starts with <code dir="auto">which </code>: <code dir="auto">low</code>.</li>
+<li>The category is <code dir="auto">LICENSE_INCOMPATIBLE</code>, <code dir="auto">REQUIRES_HARDWARE</code>, <code dir="auto">ARCHITECTURE_IMPOSSIBLE</code>, <code dir="auto">PERMISSION</code> or <code dir="auto">DISK_SPACE</code>: <code dir="auto">high</code>.</li>
+<li>The command contains <code dir="auto">git clone</code>, <code dir="auto">git pull</code>, <code dir="auto">apt-get update</code>, <code dir="auto">apt update</code>, <code dir="auto">apk update</code> or <code dir="auto">apk add</code>: <code dir="auto">high</code>.</li>
+<li>The category is <code dir="auto">CONFIGURATION</code>, <code dir="auto">DEPENDENCY</code>, <code dir="auto">COMPILATION</code>, <code dir="auto">LINKING</code>, <code dir="auto">NETWORK</code>, <code dir="auto">RATE_LIMIT</code>, <code dir="auto">MISSING_TOOLS</code> or <code dir="auto">ARCHITECTURE</code>: <code dir="auto">medium</code>.</li>
+<li>The message contains <code dir="auto">not found</code> and <code dir="auto">which </code>: <code dir="auto">low</code>.</li>
+<li>All other errors: <code dir="auto">medium</code>.</li>
+</ol>
+<p><code dir="auto">init_node</code> sets <code dir="auto">high</code> explicitly for a failed clone. The routing functions read the category, not the severity. Atesor writes the severity to the error record, the escalation report and the final terminal output.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="when-does-a-run-escalate">When does a run escalate?</h2><a class="sl-anchor-link" href="#when-does-a-run-escalate"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “When does a run escalate?”</span></a></div>
+<p><code dir="auto">should_escalate(state)</code> returns <code dir="auto">(True, reason)</code> for the first check that matches:</p>
+<ol>
+<li><code dir="auto">attempt_count</code> is <code dir="auto">max_attempts</code> or more: <code dir="auto">Maximum attempts (N) reached</code>.</li>
+<li>The run is in an error loop: <code dir="auto">Stuck in error loop with no progress</code>.</li>
+<li><code dir="auto">last_error_category</code> is <code dir="auto">LICENSE_INCOMPATIBLE</code>, <code dir="auto">REQUIRES_HARDWARE</code>, <code dir="auto">ARCHITECTURE_IMPOSSIBLE</code>, <code dir="auto">PERMISSION</code> or <code dir="auto">DISK_SPACE</code>: <code dir="auto">Fundamental blocker: &lt;category&gt;</code>.</li>
+<li><code dir="auto">api_cost_usd</code> is more than 1.0: <code dir="auto">API cost limit ($1.0) exceeded</code>.</li>
+</ol>
+<p><code dir="auto">route_supervisor_to_next</code> calls <code dir="auto">should_escalate()</code> after it checks for <code dir="auto">SUCCESS</code> and <code dir="auto">ESCALATED</code>. A <code dir="auto">SUCCESS</code> therefore always goes to <code dir="auto">finish_node</code>, also at the attempt or cost limit. The subgraph routing functions also stop at <code dir="auto">max_attempts</code>. The <a href="/atesor/docs/architecture/overview/">overview</a> shows the full order of checks.</p>
+<p>The LLM calls of the optimizer agent also add to <code dir="auto">api_cost_usd</code>. They run in <code dir="auto">optimize_node</code>, after <code dir="auto">finish_node</code>, so no escalation check follows them.</p>
+<p><code dir="auto">is_in_error_loop()</code> compares the last 3 records in <code dir="auto">error_history</code>. Each record gets a signature: its category plus one normalized error line. The function picks the first line that contains a marker such as <code dir="auto">error</code>, <code dir="auto">fatal</code> or <code dir="auto">undefined reference</code>. When no line has a marker, it picks the first line. It then replaces paths with <code dir="auto">&lt;path&gt;</code>, line and column numbers with <code dir="auto">:&lt;n&gt;</code>, hex values with <code dir="auto">&lt;hex&gt;</code>, and other numbers with <code dir="auto">&lt;n&gt;</code>. The run is in a loop when the 3 signatures are the same.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="which-helper-methods-change-the-state">Which helper methods change the state?</h2><a class="sl-anchor-link" href="#which-helper-methods-change-the-state"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Which helper methods change the state?”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">add_error(error)</code></td>
+<td>Appends to <code dir="auto">error_history</code>, keeps the last 200, sets the <code dir="auto">last_error*</code> fields, adds 1 to <code dir="auto">attempt_count</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">add_fix_attempt(fix)</code></td>
+<td>Appends a <code dir="auto">FixAttempt</code>. The builder later marks it as a success.</td>
+</tr>
+<tr>
+<td><code dir="auto">log_api_call(cost, tokens_in, tokens_out, calls)</code></td>
+<td>Adds calls, cost and tokens.</td>
+</tr>
+<tr>
+<td><code dir="auto">log_scripted_op(operation)</code></td>
+<td>Adds 1 to <code dir="auto">scripted_ops_count</code> and writes an audit event.</td>
+</tr>
+<tr>
+<td><code dir="auto">log_event(type, data)</code></td>
+<td>Appends to <code dir="auto">audit_trail</code> and keeps the last 2000 events.</td>
+</tr>
+<tr>
+<td><code dir="auto">cache_command_result()</code>, <code dir="auto">get_cached_command_result()</code>, <code dir="auto">forget_command_result()</code></td>
+<td>Manage <code dir="auto">command_results_cache</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">add_build_artifact(filepath, type, architecture)</code></td>
+<td>Appends to <code dir="auto">build_artifacts</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">is_verified_success</code></td>
+<td>True only for <code dir="auto">SUCCESS</code> with the verdict <code dir="auto">verified</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">to_dict()</code>, <code dir="auto">save_to_json(path)</code></td>
+<td>Serialize the state. Enums become their values.</td>
+</tr>
+</tbody>
+</table>
+<p>The caps of 200 errors and 2000 audit events keep a long escalated run from growing the state JSON without limit.</p>
+<p><code dir="auto">state.py</code> also has <code dir="auto">get_next_action_recommendation(state)</code>. <code dir="auto">tests/test_state.py</code> uses it, but the graph routing does not call it.</p>
+</div><footer class="sl-flex astro-ddtxxk7k"><div class="meta sl-flex astro-ddtxxk7k"><a href="https://github.com/eclipse-atesor/project-website/edit/main/site/src/content/docs/docs/architecture/agent-state.md" class="sl-flex print:hidden astro-qlekgd3o"><svg aria-hidden="true" class="astro-qlekgd3o astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.2em;"><path d="M22 7.24a1 1 0 0 0-.29-.71l-4.24-4.24a1 1 0 0 0-1.1-.22 1 1 0 0 0-.32.22l-2.83 2.83L2.29 16.05a1 1 0 0 0-.29.71V21a1 1 0 0 0 1 1h4.24a1 1 0 0 0 .76-.29l10.87-10.93L21.71 8c.1-.1.17-.2.22-.33a1 1 0 0 0 0-.24v-.14l.07-.05ZM6.83 20H4v-2.83l9.93-9.93 2.83 2.83L6.83 20ZM18.17 8.66l-2.83-2.83 1.42-1.41 2.82 2.82-1.41 1.42Z"/></svg>Edit this page on GitHub</a></div><div class="pagination-links print:hidden astro-b5raizh3" dir="ltr"><a href="/atesor/docs/architecture/overview/" rel="prev" class="astro-b5raizh3"><svg aria-hidden="true" class="astro-b5raizh3 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg><span class="astro-b5raizh3">Previous<br class="astro-b5raizh3"><span class="link-title astro-b5raizh3">Architecture overview</span></span></a><a href="/atesor/docs/architecture/scripted-ops/" rel="next" class="astro-b5raizh3"><svg aria-hidden="true" class="astro-b5raizh3 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg><span class="astro-b5raizh3">Next<br class="astro-b5raizh3"><span class="link-title astro-b5raizh3">Scripted operations</span></span></a></div></footer><footer class="ef-footer astro-pnsvry7h" aria-label="Eclipse Foundation"><div class="ef-top astro-pnsvry7h"><a class="ef-logo astro-pnsvry7h" href="https://www.eclipse.org" rel="noopener"><svg role="img" aria-label="Eclipse Foundation" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 281.5 90.7">
+  <path fill="#f06c02" d="M265.7,84l-8.7-11h-2.7v17.7h3.3v-12l9.3,12h2.1v-17.7h-3.3v11ZM233.3,75.7c4.2,0,5.8,3.3,5.8,6.3s-1.6,6-5.8,6-5.7-3.1-5.8-6,1.7-6.3,5.8-6.3ZM233.3,72.7c-6.1,0-9.1,4.7-9.1,9.3s2.9,9.1,9.1,9.1,9-4.6,9.1-9.2-3-9.3-9.1-9.3ZM212.1,90.7v-17.7h-3.3v17.7h3.3ZM188.5,90.7h3.3v-14.7h5.6v-3h-14.6v3h5.6v14.7ZM169.6,84.2h-6.6l3.3-7.6,3.3,7.6ZM172.4,90.7h3.6l-7.9-17.7h-3.6l-8,17.7h3.6l1.5-3.3h9.3l1.5,3.3ZM134.4,76.1h3.6c3.9,0,5.5,2.8,5.5,5.5,0,2.8-1.5,5.8-5.5,5.8h-3.6v-11.4ZM138.1,73h-6.9v17.7h6.9c6.2,0,8.9-4.5,8.9-9s-2.8-8.7-8.9-8.7h0ZM115.7,84l-8.7-11h-2.7v17.7h3.3v-12l9.3,12h2.1v-17.7h-3.3v11ZM88.2,73v10.2c0,3-1.6,4.9-4.3,4.9s-4.6-1.7-4.6-4.9v-10.1h-3.3v10.1c0,5.3,3.6,7.9,7.9,7.9s7.7-2.7,7.7-7.9v-10.1h-3.3ZM55.2,75.7c4.2,0,5.8,3.3,5.8,6.3,0,3-1.6,6-5.8,6s-5.7-3.1-5.8-6,1.7-6.3,5.8-6.3h0ZM55.2,72.7c-6.1,0-9.1,4.7-9.1,9.3s2.9,9.1,9.1,9.1,9-4.6,9.1-9.2-3-9.3-9.1-9.3h0ZM25.5,90.7v-6.5h8.9v-3.1h-8.9v-4.8h9.4v-3.2h-12.7v17.6h3.3Z"/>
+  <path fill="currentColor" d="M269.4,54.4h-22.2v-8.9h21.4v-6.9h-21.4v-9.1h22.2v-7.2h-29.6v39.5h29.6v-7.3ZM229.4,28.8c-3-6.1-9.4-7.8-15.5-7.8s-15.3,3.4-15.3,11.5,7.4,11,15.5,12c5.2.6,9.1,2.1,9.1,5.8s-4.4,5.9-9.1,5.9-9.4-1.9-11.1-6.3l-6.2,3.2c2.9,7.2,9.1,9.7,17.2,9.7s16.6-3.8,16.6-12.6-7.7-11.6-15.9-12.6c-4.7-.6-8.8-1.5-8.8-5s2.6-5.2,8.2-5.2,8,2.2,9.4,4.4l5.9-3ZM176,22.2c-6.2,0-12.4,0-18.6,0v39.5h7.4v-11.6h11.2c19.4,0,19.3-27.9,0-27.9h0ZM164.9,29.3h11.2c9.5,0,9.5,14,0,14h-11.2v-14ZM146.9,61.8V22.2h-7.4v39.5h7.4ZM102.9,22.2v39.5h27.8v-6.9h-20.3V22.2h-7.5ZM90.7,51.7c-2.7,2.5-6.2,4-9.9,4-9.8,0-13.5-6.8-13.6-13.4s4.1-13.7,13.6-13.7c3.5,0,7,1.3,9.5,3.7l5-4.8c-3.8-3.9-9.1-6-14.5-6-14.3,0-21,10.5-20.9,20.8,0,10.3,6.3,20.3,20.9,20.3,5.6.1,11-2,15-5.9l-5.1-5.1ZM51.7,54.4h-22.2v-8.9h21.4v-6.9h-21.4v-9.1h22.2v-7.2h-29.5v39.5h29.6v-7.3Z"/>
+  <path fill="#f06c02" d="M9.8,18.2C18.8,4.1,37-.8,52.1,5.9l-1-.7C35.6-4.6,15.1-.2,5.3,15.3-4.6,30.7-.2,51.2,15.3,61.1l1.1.6C3.8,50.8.8,32.3,9.8,18.2Z"/>
+  <path fill="currentColor" d="M272.2,26.1h0c0-2.5,2.1-4.6,4.6-4.6s4.6,2.1,4.6,4.6h0c0,2.5-2.1,4.6-4.6,4.6s-4.6-2.1-4.6-4.6ZM280.8,26.1h0c0-2.2-1.8-4.1-4-4.1s-4.1,1.8-4.1,4.1h0c0,2.2,1.7,4,3.9,4.1,0,0,0,0,.1,0,2.2,0,4.1-1.8,4.1-4,0,0,0,0,0,0h0ZM274.8,23.6h2.3c1.1,0,1.9.5,1.9,1.6,0,.7-.4,1.3-1.1,1.5l1.2,1.7h-1.4l-1-1.5h-.7v1.5h-1.1v-4.7ZM277,25.9c.5,0,.8-.3.8-.7s-.3-.7-.8-.7h-1v1.3h1Z"/>
+</svg></a><a class="ef-incubation astro-pnsvry7h" href="https://www.eclipse.org/projects/handbook/#incubation" rel="noopener"><span class="egg astro-pnsvry7h"><img src="/atesor/assets/incubation.png" alt="Eclipse Foundation incubation phase" width="22" height="29" loading="lazy" class="astro-pnsvry7h"></span><span class="ef-incubation-text astro-pnsvry7h"><strong class="astro-pnsvry7h">Incubating</strong><span class="astro-pnsvry7h">Eclipse Development Process</span></span></a></div><p class="astro-pnsvry7h">Eclipse Atesor™ is an open source project of the <a href="https://projects.eclipse.org/projects/openhw" rel="noopener" class="astro-pnsvry7h">OpenHW Group</a>, hosted by the Eclipse Foundation. Copyright © Eclipse Foundation AISBL. All Rights Reserved.</p><p class="astro-pnsvry7h">Eclipse Atesor, Atesor, Eclipse, and the Eclipse logo are trademarks of Eclipse Foundation AISBL. Eclipse Atesor source code is licensed under the <a href="https://github.com/eclipse-atesor/atesor/blob/main/LICENSE" rel="noopener" class="astro-pnsvry7h">MIT License</a>.</p><ul class="ef-links astro-pnsvry7h"><li class="astro-pnsvry7h"><a href="https://www.eclipse.org" rel="noopener" class="astro-pnsvry7h">Eclipse Foundation</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/privacy/" rel="noopener" class="astro-pnsvry7h">Privacy policy</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/terms-of-use/" rel="noopener" class="astro-pnsvry7h">Terms of use</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/compliance/" rel="noopener" class="astro-pnsvry7h">Compliance</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/" rel="noopener" class="astro-pnsvry7h">Legal resources</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/security/" rel="noopener" class="astro-pnsvry7h">Report a vulnerability</a></li></ul></footer></div></div></main></div></div></div></div></body></html>

@@ -1,0 +1,14 @@
+{
+  "name": "Eclipse Atesor",
+  "short_name": "Atesor",
+  "description": "Agentic framework that ports software to RISC-V. Native riscv64 builds, automatic repair, verified binaries and a replayable recipe for each package.",
+  "start_url": "/atesor/",
+  "scope": "/atesor/",
+  "display": "browser",
+  "background_color": "#111316",
+  "theme_color": "#111316",
+  "icons": [
+    { "src": "/atesor/brand/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/atesor/brand/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

@@ -1,0 +1,68 @@
+---
+title: Eclipse Atesor™ documentation
+description: Documentation for Eclipse Atesor, an open-source agentic framework that ports software to RISC-V and verifies every binary.
+tableOfContents: false
+head:
+  - tag: title
+    content: Eclipse Atesor™ documentation
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+Eclipse Atesor™ is an open-source agentic framework that ports software to RISC-V. It builds each package natively on riscv64, repairs what breaks, checks that every binary is real riscv64 code, and writes a recipe that a person or a CI job can replay.
+
+These docs take you from your first port to the internals. Read them in order, or go to the part you need.
+
+## Start here
+
+<CardGrid>
+  <LinkCard
+    title="What is Atesor"
+    description="What Atesor does, who it is for, and what a run gives back."
+    href="/atesor/docs/introduction/what-is-atesor/"
+  />
+  <LinkCard
+    title="Install"
+    description="Install the .deb package or run from source, then build a sandbox."
+    href="/atesor/docs/getting-started/install/"
+  />
+  <LinkCard
+    title="Your first port"
+    description="Port zlib to riscv64 and read the recipe that Atesor writes."
+    href="/atesor/docs/getting-started/first-port/"
+  />
+  <LinkCard
+    title="Troubleshooting"
+    description="Known failures, what Atesor does about each one, and what you can do."
+    href="/atesor/docs/guides/troubleshooting/"
+  />
+</CardGrid>
+
+## The parts of these docs
+
+<CardGrid>
+  <Card title="Introduction">
+    The idea, the flow from repository URL to recipe, the terms, and the current limits.
+  </Card>
+  <Card title="Getting Started">
+    Requirements, install, LLM provider setup, the first port, and the output files.
+  </Card>
+  <Card title="Guides">
+    Sandboxes, native RISC-V machines, performance mode, the recipe cache, batch runs, cost control and troubleshooting.
+  </Card>
+  <Card title="Architecture">
+    The state graph, the shared state, the scripted layer, recovery heuristics, verification, the LLM layer and performance mode internals.
+  </Card>
+  <Card title="Reference">
+    Every CLI flag, environment variable, exit code, output file and supported build system.
+  </Card>
+  <Card title="Contributing and Project">
+    Development setup, tests, extension points, releases, roadmap, governance, and the story of the name.
+  </Card>
+</CardGrid>
+
+## Get help
+
+- Ask on the [atesor-dev mailing list](https://accounts.eclipse.org/mailing-list/atesor-dev).
+- Report a bug or a package that fails in [GitHub issues](https://github.com/eclipse-atesor/atesor/issues).
+- Download ported packages from the [package index](/atesor/downloads/).

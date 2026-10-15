@@ -1,0 +1,156 @@
+---
+import CodeBlock from './CodeBlock.astro';
+import Icon from './Icon.astro';
+import { project } from '../data/content';
+import { url } from '../lib/url';
+
+/**
+ * Install in a few commands. Commands match the docs pages
+ * getting-started/install and getting-started/first-port. zlib needs
+ * --force, because the bundled recipe cache already has an entry for it.
+ */
+type Seg = { t: string; c?: string };
+
+/** Colour a shell line: first word is the command, -flags are flags,
+ *  URLs and quoted strings are strings. */
+const tok = (line: string): Seg[] => {
+  const out: Seg[] = [];
+  line.split(/(\s+)/).forEach((w, i) => {
+    if (/^\s+$/.test(w) || w === '') return out.push({ t: w });
+    if (i === 0 || (i === 2 && out[0]?.t === 'sudo')) return out.push({ t: w, c: 'cmd' });
+    if (w.startsWith('-')) return out.push({ t: w, c: 'flag' });
+    if (w.startsWith('http') || w.startsWith('./') || w.startsWith('~') || w.startsWith('/'))
+      return out.push({ t: w, c: 'str' });
+    if (w === '&&') return out.push({ t: w });
+    out.push({ t: w });
+  });
+  return out;
+};
+const block = (cmds: string[]) => ({ lines: cmds.map(tok), raw: cmds.join('\n') });
+
+const deb = block([
+  'sudo apt-get install ./atesor-ai_0.2.0_amd64.deb',
+  'mkdir -p ~/.config/atesor-ai',
+  'cp /opt/atesor-ai/app/.env-example ~/.config/atesor-ai/.env',
+  'atesor-ai --setup-only',
+  'atesor-ai --repo https://github.com/madler/zlib --force',
+]);
+
+const src = block([
+  `git clone ${project.urls.repo}`,
+  'cd atesor && pip install -r requirements.txt',
+  'cp .env-example .env',
+  'python3 main.py --setup-only',
+  'python3 main.py --repo https://github.com/madler/zlib --force',
+]);
+---
+
+<section class="ins" aria-labelledby="ins-title">
+  <div class="container-x">
+    <div class="ins-head">
+      <h2 id="ins-title" class="h2">Install</h2>
+      <p class="lede">
+        You need Docker with riscv64 emulation and one LLM API key: Gemini, OpenAI, OpenRouter or
+        Anthropic.
+      </p>
+    </div>
+
+    <div class="ins-grid">
+      <div class="ins-col">
+        <h3>Debian or Ubuntu package</h3>
+        <p>
+          Download <code>atesor-ai_0.2.0_amd64.deb</code> from the{' '}
+          <a href={project.urls.latestRelease} rel="noopener" target="_blank">v0.2.0 release</a>.
+        </p>
+        <CodeBlock lines={deb.lines} raw={deb.raw} />
+      </div>
+      <div class="ins-col">
+        <h3>From source</h3>
+        <p>Python 3.10 or later, in a virtual environment.</p>
+        <CodeBlock lines={src.lines} raw={src.raw} />
+      </div>
+    </div>
+
+    <p class="ins-foot">
+      <a href={url('/docs/getting-started/requirements/')}>
+        Read more about requirements and installation
+        <Icon name="arrowRight" size={14} />
+      </a>
+    </p>
+  </div>
+</section>
+
+<style>
+  .ins {
+    padding-block: clamp(4rem, 8vw, 6.5rem);
+    background: var(--color-bg-raised);
+    border-block: 1px solid var(--color-border);
+  }
+
+  .ins-head {
+    max-width: 44rem;
+  }
+
+  .ins-head .h2 {
+    margin: 0;
+  }
+
+  .ins-head .lede {
+    margin: 0.9rem 0 0;
+  }
+
+  .ins-grid {
+    display: grid;
+    gap: 2rem;
+    margin-top: 2.25rem;
+  }
+
+  @media (min-width: 960px) {
+    .ins-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+
+  .ins-col {
+    min-width: 0;
+  }
+
+  .ins-col h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .ins-col p {
+    margin: 0.35rem 0 0.9rem;
+    font-size: 0.925rem;
+    color: var(--color-text-dim);
+  }
+
+  .ins code,
+  .ins-col p code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+  }
+
+  .ins a {
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .ins a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .ins-foot {
+    margin: 2rem 0 0;
+  }
+
+  .ins-foot a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+</style>

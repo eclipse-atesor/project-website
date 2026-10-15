@@ -1,0 +1,121 @@
+/* ==========================================================================
+   Eclipse Atesor docs theme (Starlight)
+   Brand palette: granodiorite, chalk and Egyptian blue. See BRAND.md.
+   Starlight names its scale for the dark theme: --sl-color-white is the
+   strongest text colour and --sl-color-black the page ground, in both themes.
+   ========================================================================== */
+
+:root {
+  --sl-font: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --sl-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono',
+    monospace;
+
+  /* Dark theme (Starlight default) */
+  --sl-color-accent-low: #18214a;
+  --sl-color-accent: #6f8cff;
+  --sl-color-accent-high: #c9d4ff;
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #eceeef;
+  --sl-color-gray-2: #c6cbd1;
+  --sl-color-gray-3: #9ba3ad;
+  --sl-color-gray-4: #616973;
+  --sl-color-gray-5: #3a4047;
+  --sl-color-gray-6: #23272c;
+  --sl-color-black: #16191c;
+
+  --atesor-verified: #3fbf88;
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: #dbe3ff;
+  --sl-color-accent: #2142b0;
+  --sl-color-accent-high: #15296e;
+  --sl-color-white: #16191c;
+  --sl-color-gray-1: #23272c;
+  --sl-color-gray-2: #3a4047;
+  --sl-color-gray-3: #555d66;
+  --sl-color-gray-4: #8a929b;
+  --sl-color-gray-5: #c6cbd1;
+  --sl-color-gray-6: #e8eaec;
+  --sl-color-gray-7: #f3f4f5;
+  --sl-color-black: #ffffff;
+
+  --atesor-verified: #2e9b6f;
+}
+
+/* The logo sits next to the title; keep it the size of the title's cap height. */
+.site-title img {
+  height: 1.9rem;
+  width: auto;
+}
+
+/* Code font for machine-adjacent tokens in tables, as on the landing page. */
+.sl-markdown-content table code {
+  white-space: nowrap;
+}
+
+/* Brand page (docs/project/brand): preview tiles. Tile grounds are fixed,
+   because each file is made for one kind of background. */
+.brand-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: 1rem;
+  margin-block: 1rem 0.5rem;
+}
+
+.brand-grid.wide {
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+}
+
+.sl-markdown-content .brand-tile {
+  margin: 0;
+  display: grid;
+  grid-template-rows: 9.5rem auto;
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.sl-markdown-content .brand-tile img {
+  margin: 0;
+  place-self: center;
+  max-width: 85%;
+  max-height: 8rem;
+  width: auto;
+  height: auto;
+}
+
+.brand-tile.light img,
+.brand-tile.dark img,
+.brand-tile.photo img {
+  padding: 0.75rem;
+}
+
+.brand-tile.light { background: linear-gradient(#f2f2ef, #f2f2ef) top / 100% 9.5rem no-repeat; }
+.brand-tile.dark { background: linear-gradient(#111316, #111316) top / 100% 9.5rem no-repeat; }
+.brand-tile.photo { background: linear-gradient(#16191c, #16191c) top / 100% 9.5rem no-repeat; }
+/* The favicon switches colour with the system theme, so its tile does too. */
+.brand-tile.auto { background: var(--sl-color-gray-6); }
+.brand-tile.light img,
+.brand-tile.dark img,
+.brand-tile.photo img,
+.brand-tile.auto img {
+  padding: 0.75rem;
+}
+
+.sl-markdown-content .brand-tile figcaption {
+  margin: 0;
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.7rem 0.9rem 0.8rem;
+  border-top: 1px solid var(--sl-color-hairline);
+  background: var(--sl-color-bg);
+  font-size: var(--sl-text-sm);
+  line-height: 1.4;
+}
+
+.brand-tile figcaption span {
+  color: var(--sl-color-gray-3);
+  font-size: var(--sl-text-xs);
+}

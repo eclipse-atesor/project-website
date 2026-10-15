@@ -1,0 +1,407 @@
+<!DOCTYPE html><html lang="en" dir="ltr" data-theme="dark" data-has-toc data-has-sidebar class="astro-g5ptsecz"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Read the output | Eclipse Atesor™</title><link rel="canonical" href="https://eclipse.dev/atesor/docs/getting-started/read-the-output/"/><link rel="sitemap" href="/atesor/sitemap-index.xml"/><link rel="apple-touch-icon" href="/atesor/apple-touch-icon.png"/><link rel="manifest" href="/atesor/site.webmanifest"/><link rel="alternate" type="text/plain" title="llms.txt" href="/atesor/llms.txt"/><link rel="shortcut icon" href="/atesor/favicon.svg" type="image/svg+xml"/><meta name="generator" content="Astro v7.3.8"/><meta name="generator" content="Starlight v0.42.6"/><meta property="og:title" content="Read the output"/><meta property="og:type" content="article"/><meta property="og:url" content="https://eclipse.dev/atesor/docs/getting-started/read-the-output/"/><meta property="og:locale" content="en"/><meta property="og:description" content="The files that an Atesor run writes (recipe, report, state snapshot, patches, zip package and logs), where they are, and which one to open first."/><meta property="og:site_name" content="Eclipse Atesor™"/><meta name="twitter:card" content="summary_large_image"/><meta name="description" content="The files that an Atesor run writes (recipe, report, state snapshot, patches, zip package and logs), where they are, and which one to open first."/><meta property="og:image" content="https://eclipse.dev/atesor/brand/og-image.png"/><meta name="twitter:image" content="https://eclipse.dev/atesor/brand/og-image.png"/><script>
+	window.StarlightThemeProvider = (() => {
+		const storedTheme =
+			typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+		const theme =
+			storedTheme ||
+			(window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+		document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+		return {
+			updatePickers(theme = storedTheme || 'auto') {
+				document.querySelectorAll('starlight-theme-select').forEach((picker) => {
+					const select = picker.querySelector('select');
+					if (select) select.value = theme;
+					/** @type {HTMLTemplateElement | null} */
+					const tmpl = document.querySelector(`#theme-icons`);
+					const newIcon = tmpl && tmpl.content.querySelector('.' + theme);
+					if (newIcon) {
+						const oldIcon = picker.querySelector('svg.label-icon');
+						if (oldIcon) {
+							oldIcon.replaceChildren(...newIcon.cloneNode(true).childNodes);
+						}
+					}
+				});
+			},
+		};
+	})();
+</script><template id="theme-icons"><svg aria-hidden="true" class="light astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M5 12a1 1 0 0 0-1-1H3a1 1 0 0 0 0 2h1a1 1 0 0 0 1-1Zm.64 5-.71.71a1 1 0 0 0 0 1.41 1 1 0 0 0 1.41 0l.71-.71A1 1 0 0 0 5.64 17ZM12 5a1 1 0 0 0 1-1V3a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1Zm5.66 2.34a1 1 0 0 0 .7-.29l.71-.71a1 1 0 1 0-1.41-1.41l-.66.71a1 1 0 0 0 0 1.41 1 1 0 0 0 .66.29Zm-12-.29a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.71-.71a1.004 1.004 0 1 0-1.43 1.41l.73.71ZM21 11h-1a1 1 0 0 0 0 2h1a1 1 0 0 0 0-2Zm-2.64 6A1 1 0 0 0 17 18.36l.71.71a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.76-.66ZM12 6.5a5.5 5.5 0 1 0 5.5 5.5A5.51 5.51 0 0 0 12 6.5Zm0 9a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm0 3.5a1 1 0 0 0-1 1v1a1 1 0 0 0 2 0v-1a1 1 0 0 0-1-1Z"/></svg><svg aria-hidden="true" class="dark astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.64 13a1 1 0 0 0-1.05-.14 8.049 8.049 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05Zm-9.5 6.69A8.14 8.14 0 0 1 7.08 5.22v.27a10.15 10.15 0 0 0 10.14 10.14 9.784 9.784 0 0 0 2.1-.22 8.11 8.11 0 0 1-7.18 4.32v-.04Z"/></svg><svg aria-hidden="true" class="auto astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg></template><link rel="stylesheet" href="/atesor/_astro/print.ehPL0gv-.css" media="print"><link rel="stylesheet" href="/atesor/_astro/index.CxIBpmSu.css"><style>@layer starlight.components{svg:where(.astro-hkc32dio){color:var(--sl-icon-color);font-size:var(--sl-icon-size,1em);width:1em;height:1em;overflow:visible}}
+</style><script type="module" src="/atesor/_astro/page.cNngjUgL.js"></script></head><body class="astro-g5ptsecz"><a class="sl-skip-link astro-qb7clj6f" href="#_top">Skip to content</a><div class="page sl-flex astro-yntsjkba"><header class="header astro-yntsjkba"><div class="header astro-by6fddyj"><div class="title-wrapper sl-flex astro-by6fddyj"><a href="/atesor/" class="site-title sl-flex astro-6rvad3va"><img class="light:sl-hidden print:hidden astro-6rvad3va" alt src="/atesor/_astro/atesor-mark-dark.CIOkFVI-.svg" width="512" height="512"><img class="dark:sl-hidden print:block astro-6rvad3va" alt src="/atesor/_astro/atesor-mark.BhUamroi.svg" width="512" height="512"><span class="astro-6rvad3va" translate="no">Eclipse Atesor™</span></a></div><div class="sl-flex print:hidden astro-by6fddyj"><site-search class="astro-by6fddyj astro-b5kgnn7o" data-translations="{&quot;placeholder&quot;:&quot;Search&quot;}"><button data-open-modal disabled aria-label="Search" aria-keyshortcuts="Control+K" class="astro-b5kgnn7o"><svg aria-hidden="true" class="astro-b5kgnn7o astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.71 20.29 18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/></svg><span class="sl-hidden md:sl-block astro-b5kgnn7o" aria-hidden="true">Search</span><kbd class="sl-hidden md:sl-flex astro-b5kgnn7o" style="display: none;"><kbd class="astro-b5kgnn7o">Ctrl</kbd><kbd class="astro-b5kgnn7o">K</kbd></kbd></button><dialog style="padding:0" aria-label="Search" class="astro-b5kgnn7o"><div class="dialog-frame sl-flex astro-b5kgnn7o"><button data-close-modal class="sl-flex md:sl-hidden astro-b5kgnn7o">Cancel</button><div class="search-container astro-b5kgnn7o"><div id="starlight__search" class="astro-b5kgnn7o"></div></div></div></dialog></site-search><script>
+	(() => {
+		const openBtn = document.querySelector('button[data-open-modal]');
+		const shortcut = openBtn?.querySelector('kbd');
+		if (!openBtn || !(shortcut instanceof HTMLElement)) return;
+		const platformKey = shortcut.querySelector('kbd');
+		if (platformKey && /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
+			platformKey.textContent = '⌘';
+			openBtn.setAttribute('aria-keyshortcuts', 'Meta+K');
+		}
+		shortcut.style.display = '';
+	})();
+</script><script type="module" src="/atesor/_astro/Search.astro_astro_type_script_index_0_lang.BtDwG4cY.js"></script></div><div class="sl-hidden md:sl-flex print:hidden right-group astro-by6fddyj"><div class="sl-flex social-icons astro-by6fddyj"><a href="https://github.com/eclipse-atesor/atesor" rel="me" class="sl-flex astro-n2mnl6yq"><span class="sr-only astro-n2mnl6yq">Source on GitHub</span><svg aria-hidden="true" class="astro-n2mnl6yq astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/></svg></a></div><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-2z5xp7gb"><span class="sr-only astro-2z5xp7gb">Select theme</span><svg aria-hidden="true" class="icon label-icon astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-2z5xp7gb"><option value="dark" class="astro-2z5xp7gb">Dark</option><option value="light" class="astro-2z5xp7gb">Light</option><option value="auto" selected class="astro-2z5xp7gb">Auto</option></select><svg aria-hidden="true" class="icon caret astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script><script type="module">var e=`starlight-theme`,t=e=>e===`auto`||e===`dark`||e===`light`?e:`auto`,n=()=>t(typeof localStorage<`u`&&localStorage.getItem(e));function r(t){typeof localStorage<`u`&&localStorage.setItem(e,t===`light`||t===`dark`?t:``)}var i=()=>matchMedia(`(prefers-color-scheme: light)`).matches?`light`:`dark`;function a(e){StarlightThemeProvider.updatePickers(e),document.documentElement.dataset.theme=e===`auto`?i():e,r(e)}matchMedia(`(prefers-color-scheme: light)`).addEventListener(`change`,()=>{n()===`auto`&&a(`auto`)});var o=class extends HTMLElement{constructor(){super(),a(n()),this.querySelector(`select`)?.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&a(t(e.currentTarget.value))})}};customElements.define(`starlight-theme-select`,o);</script><script type="module">var e=class extends HTMLElement{constructor(){super();let e=this.querySelector(`select`);e&&(e.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&(window.location.pathname=e.currentTarget.value)}),window.addEventListener(`pageshow`,t=>{if(!t.persisted)return;let n=e.querySelector(`option[selected]`)?.index;n!==e.selectedIndex&&(e.selectedIndex=n??0)}))}};customElements.define(`starlight-lang-select`,e);</script></div></div></header><nav class="sidebar print:hidden astro-yntsjkba" aria-label="Main"><button popovertarget="starlight__sidebar" class="sl-menu-button sl-flex md:sl-hidden print:hidden astro-r2osgdlg"><svg aria-hidden="true" class="open-menu astro-r2osgdlg astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M3 8h18a1 1 0 1 0 0-2H3a1 1 0 0 0 0 2Zm18 8H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Zm0-5H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Z"/></svg><svg aria-hidden="true" class="close-menu astro-r2osgdlg astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="m13.41 12 6.3-6.29a1.004 1.004 0 1 0-1.42-1.42L12 10.59l-6.29-6.3a1.004 1.004 0 0 0-1.42 1.42l6.3 6.29-6.3 6.29a1 1 0 0 0 0 1.42.998.998 0 0 0 1.42 0l6.29-6.3 6.29 6.3a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.42L13.41 12Z"/></svg><span class="sr-only astro-r2osgdlg">Menu</span></button><script type="module">var e=class extends HTMLElement{constructor(){super();let e=matchMedia(`(min-width: 50em)`),t=()=>{this.popover=e.matches?null:`auto`};t(),e.addEventListener(`change`,()=>t()),this.addEventListener(`toggle`,({newState:e})=>this.trapFocus(e===`open`))}trapFocus(e){document.querySelectorAll(`.main-frame, .sl-skip-link`).forEach(t=>{t.toggleAttribute(`inert`,e)})}};customElements.define(`sl-sidebar-pane`,e);</script><sl-sidebar-pane popover id="starlight__sidebar" class="sidebar-pane astro-yntsjkba"><div class="sidebar-content sl-flex astro-yntsjkba"><sl-sidebar-state-persist data-hash="12ijkg5" class="astro-ipdry5cl"><script aria-hidden="true">
+		(() => {
+			try {
+				if (!matchMedia('(min-width: 50em)').matches) return;
+				/** @type {HTMLElement | null} */
+				const target = document.querySelector('sl-sidebar-state-persist');
+				const state = JSON.parse(sessionStorage.getItem('sl-sidebar-state') || '0');
+				if (!target || !state || target.dataset.hash !== state.hash) return;
+				window._starlightScrollRestore = state.scroll;
+				customElements.define(
+					'sl-sidebar-restore',
+					class SidebarRestore extends HTMLElement {
+						connectedCallback() {
+							try {
+								const idx = parseInt(this.dataset.index || '');
+								const details = this.closest('details');
+								if (details && typeof state.open[idx] === 'boolean') details.open = state.open[idx];
+							} catch {}
+						}
+					}
+				);
+			} catch {}
+		})();
+	</script><ul class="top-level astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/" class="large astro-rmhv4bp6"><span class="astro-rmhv4bp6">Overview</span></a></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Introduction</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="0"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/what-is-atesor/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">What is Atesor</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/how-it-works/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">How it works</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/concepts/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Concepts</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/limitations/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Limitations</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Getting Started</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="1"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/requirements/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Requirements</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/install/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Install Atesor</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/configure-llm/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Configure the LLM provider</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/first-port/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Your first port</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/read-the-output/" aria-current="page" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Read the output</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Guides</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="2"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/sandboxes/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Sandboxes</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/native-riscv/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Native RISC-V machine</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/recipe-cache/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Recipe cache</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/batch-runs/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Batch runs</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/cost-control/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Cost control</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/troubleshooting/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Troubleshooting</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/optimize/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Performance mode</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Architecture</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="3"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/overview/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Architecture overview</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/agent-state/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Agent state</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/scripted-ops/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Scripted operations</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/recovery-heuristics/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Recovery heuristics</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/verification/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Verification</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/llm-layer/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">LLM layer</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/optimize/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Performance mode internals</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Reference</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="4"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/cli/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Command-line options</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/environment-variables/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Environment variables</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/exit-codes/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Exit codes</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/output-files/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Output files</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/build-systems/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Build systems</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Contributing</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="5"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/development-setup/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Development setup</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/tests/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Tests and checks</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/add-a-platform/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Add a platform</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/add-a-heuristic/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Add a recovery heuristic</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/few-shot-examples/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Few-shot examples</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/docs/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Change the docs</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Project</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="6"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/releases/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Releases</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/roadmap/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Roadmap</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/governance/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Governance</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/name/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">About the name</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/brand/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Brand and logos</span></a></li></ul></details></li></ul><script aria-hidden="true">
+		(() => {
+			const scroller = document.getElementById('starlight__sidebar');
+			if (!window._starlightScrollRestore || !scroller) return;
+			scroller.scrollTop = window._starlightScrollRestore;
+			delete window._starlightScrollRestore;
+		})();
+	</script></sl-sidebar-state-persist><div class="md:sl-hidden"><div class="mobile-preferences sl-flex astro-p4azlveh"><div class="social-icons astro-p4azlveh"><a href="https://github.com/eclipse-atesor/atesor" rel="me" class="sl-flex astro-n2mnl6yq"><span class="sr-only astro-n2mnl6yq">Source on GitHub</span><svg aria-hidden="true" class="astro-n2mnl6yq astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/></svg></a></div><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-2z5xp7gb"><span class="sr-only astro-2z5xp7gb">Select theme</span><svg aria-hidden="true" class="icon label-icon astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-2z5xp7gb"><option value="dark" class="astro-2z5xp7gb">Dark</option><option value="light" class="astro-2z5xp7gb">Light</option><option value="auto" selected class="astro-2z5xp7gb">Auto</option></select><svg aria-hidden="true" class="icon caret astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script></div></div></div></sl-sidebar-pane></nav><div class="main-frame astro-yntsjkba"><script type="module">var e=document.getElementById(`starlight__sidebar`),t=e?.querySelector(`sl-sidebar-state-persist`),n=`sl-sidebar-state`,r=()=>{let r=[],i=t?.dataset.hash||``;try{let e=sessionStorage.getItem(n),t=JSON.parse(e||`{}`);Array.isArray(t.open)&&t.hash===i&&(r=t.open)}catch{}return{hash:i,open:r,scroll:e?.scrollTop||0}},i=e=>{try{sessionStorage.setItem(n,JSON.stringify(e))}catch{}},a=()=>i(r()),o=(e,t)=>{let n=r();n.open[t]=e,i(n)};t?.addEventListener(`click`,e=>{if(!(e.target instanceof Element))return;let t=e.target.closest(`summary`)?.closest(`details`);if(!t)return;let n=t.querySelector(`sl-sidebar-restore`),r=parseInt(n?.dataset.index||``);isNaN(r)||o(!t.open,r)}),addEventListener(`visibilitychange`,()=>{document.visibilityState===`hidden`&&a()});</script><div class="lg:sl-flex astro-lrzkfocr"><aside class="right-sidebar-container print:hidden astro-lrzkfocr"><div class="right-sidebar astro-lrzkfocr"><div class="lg:sl-hidden astro-qok35upx"><mobile-starlight-toc data-min-h="2" data-max-h="3" class="astro-66cqc7ze"><nav aria-labelledby="starlight__on-this-page--mobile" class="astro-66cqc7ze"><details id="starlight__mobile-toc" class="astro-66cqc7ze"><summary id="starlight__on-this-page--mobile" class="sl-flex astro-66cqc7ze"><span class="toggle sl-flex astro-66cqc7ze">On this page<svg aria-hidden="true" class="caret astro-66cqc7ze astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></span><span class="display-current astro-66cqc7ze"></span></summary><div class="dropdown astro-66cqc7ze"><ul class="isMobile astro-jugkfwgx" style="--depth: 0;"><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#_top" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Overview</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#where-are-the-output-files" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Where are the output files?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#which-file-should-i-open-first" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Which file should I open first?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-recipe" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the recipe?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-report" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the report?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-state-snapshot" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the state snapshot?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-patches-folder" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the patches folder?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-zip-package" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the zip package?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-debug-log" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the debug log?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-llm-call-log" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the LLM call log?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#related-pages" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Related pages</span></a></li></ul></div></details></nav></mobile-starlight-toc><script type="module" src="/atesor/_astro/MobileTableOfContents.astro_astro_type_script_index_0_lang.C3fM4Kra.js"></script></div><div class="right-sidebar-panel sl-hidden lg:sl-block astro-qok35upx"><div class="sl-container astro-qok35upx"><starlight-toc data-min-h="2" data-max-h="3"><nav aria-labelledby="starlight__on-this-page"><h2 id="starlight__on-this-page">On this page</h2><ul class="astro-jugkfwgx" style="--depth: 0;"><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#_top" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Overview</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#where-are-the-output-files" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Where are the output files?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#which-file-should-i-open-first" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Which file should I open first?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-recipe" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the recipe?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-report" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the report?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-state-snapshot" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the state snapshot?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-patches-folder" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the patches folder?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-zip-package" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the zip package?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-debug-log" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the debug log?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-is-in-the-llm-call-log" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What is in the LLM call log?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#related-pages" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Related pages</span></a></li></ul></nav></starlight-toc><script type="module" src="/atesor/_astro/TableOfContents.astro_astro_type_script_index_0_lang.BpJaGz7G.js"></script></div></div></div></aside><div class="main-pane astro-lrzkfocr"><main data-pagefind-body class="astro-g5ptsecz" lang="en" dir="ltr"><div class="content-panel astro-a7po4psb"><div class="sl-container astro-a7po4psb"><h1 id="_top" class="astro-bebwqqxs">Read the output</h1></div></div><div class="content-panel astro-a7po4psb"><div class="sl-container astro-a7po4psb"><div class="sl-markdown-content"><p>Each Eclipse Atesor™ run writes a set of files: a recipe, a build report, a state snapshot, patches, logs and, on request, a zip package. This page tells where each file is, what it contains, and which file to open first for each result.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="where-are-the-output-files">Where are the output files?</h2><a class="sl-anchor-link" href="#where-are-the-output-files"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Where are the output files?”</span></a></div>
+<p>Atesor writes to a workspace folder and a data folder:</p>
+<table>
+<thead>
+<tr>
+<th>Install</th>
+<th>Workspace folder</th>
+<th>Data folder</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Source checkout</td>
+<td><code dir="auto">workspace/</code> in the checkout</td>
+<td><code dir="auto">data/</code> in the checkout</td>
+</tr>
+<tr>
+<td><code dir="auto">.deb</code> package</td>
+<td><code dir="auto">~/.local/share/atesor-ai/workspace/</code></td>
+<td><code dir="auto">~/.local/share/atesor-ai/data/</code></td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_HOME</code> set</td>
+<td><code dir="auto">$ATESOR_HOME/workspace/</code></td>
+<td><code dir="auto">$ATESOR_HOME/data/</code></td>
+</tr>
+</tbody>
+</table>
+<p>When <code dir="auto">XDG_DATA_HOME</code> is set, the <code dir="auto">.deb</code> package uses <code dir="auto">$XDG_DATA_HOME/atesor-ai/</code> in place of <code dir="auto">~/.local/share/atesor-ai/</code>. On the native target, the workspace folder is <code dir="auto">workspace-native/</code> in place of <code dir="auto">workspace/</code>.</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Folder</th>
+<th>Written when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">&lt;repo&gt;_recipe.md</code></td>
+<td><code dir="auto">workspace/output/</code></td>
+<td>A run ends with <code dir="auto">SUCCESS</code>, or a cache hit</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;repo&gt;_report_&lt;YYYYMMDD_HHMMSS&gt;.md</code></td>
+<td><code dir="auto">workspace/output/</code></td>
+<td>The agent graph finishes, with any result</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;repo&gt;_state_&lt;YYYYMMDD_HHMMSS&gt;.json</code></td>
+<td><code dir="auto">workspace/output/</code></td>
+<td>The agent graph finishes, with any result</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;repo&gt;_patches_&lt;YYYYMMDD_HHMMSS&gt;/</code></td>
+<td><code dir="auto">workspace/output/</code></td>
+<td>The run applied one patch or more</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;owner&gt;-&lt;repo&gt;-&lt;YYYYMMDD-HHMMSS&gt;-&lt;platform&gt;.zip</code></td>
+<td><code dir="auto">workspace/packages/</code></td>
+<td><code dir="auto">--package</code> and a <code dir="auto">SUCCESS</code> result</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;repo&gt;.opt/accepted/</code></td>
+<td><code dir="auto">repos/</code> in the work directory of the native machine</td>
+<td><code dir="auto">--optimize</code> and an accepted tune</td>
+</tr>
+<tr>
+<td><code dir="auto">machine_profile_&lt;target&gt;.json</code></td>
+<td><code dir="auto">workspace/output/</code></td>
+<td>A <code dir="auto">--probe</code> run</td>
+</tr>
+<tr>
+<td><code dir="auto">agent_&lt;repo&gt;.log</code></td>
+<td><code dir="auto">workspace/logs/</code></td>
+<td>Each run with <code dir="auto">--repo</code></td>
+</tr>
+<tr>
+<td><code dir="auto">agent-call_&lt;repo&gt;.log</code></td>
+<td><code dir="auto">workspace/logs/</code></td>
+<td>Each LLM call</td>
+</tr>
+<tr>
+<td><code dir="auto">recipe_cache.json</code></td>
+<td>data folder</td>
+<td>A verified port</td>
+</tr>
+<tr>
+<td><code dir="auto">examples/*.json</code></td>
+<td>data folder</td>
+<td>A verified port</td>
+</tr>
+</tbody>
+</table>
+<p><code dir="auto">&lt;repo&gt;</code> is the package name that Atesor takes from the URL, for example <code dir="auto">zlib</code>. <code dir="auto">&lt;target&gt;</code> is <code dir="auto">native</code> or <code dir="auto">qemu</code>.</p>
+<p>Atesor accepts a tune only on the native target. There, the <code dir="auto">&lt;repo&gt;.opt</code> folder is on the machine, and Atesor removes it at the end of the run. With <code dir="auto">--package</code>, Atesor first copies the accepted artifacts into the zip, under <code dir="auto">optimized/</code>.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="which-file-should-i-open-first">Which file should I open first?</h2><a class="sl-anchor-link" href="#which-file-should-i-open-first"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Which file should I open first?”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>Result</th>
+<th>Exit code</th>
+<th>Open first</th>
+<th>Then</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Verified port</td>
+<td>0</td>
+<td>The recipe</td>
+<td>The “Artifact Verification” section of the report</td>
+</tr>
+<tr>
+<td>Not verified</td>
+<td>3</td>
+<td>The “Artifact Verification” section of the report, and its reason</td>
+<td>The “Recommendations” section</td>
+</tr>
+<tr>
+<td>Failure or escalation</td>
+<td>1</td>
+<td>The “Error Resolution History” section of the report</td>
+<td><code dir="auto">context_cache.escalation_report</code> in the state snapshot, then <code dir="auto">agent_&lt;repo&gt;.log</code>, then <code dir="auto">agent-call_&lt;repo&gt;.log</code></td>
+</tr>
+<tr>
+<td>Packaging failure</td>
+<td>2</td>
+<td><code dir="auto">agent_&lt;repo&gt;.log</code>, at the <code dir="auto">Packaging failed</code> line</td>
+<td>The build succeeded. Only the zip step failed.</td>
+</tr>
+<tr>
+<td>Performance mode result</td>
+<td>The same as the port</td>
+<td>The <code dir="auto">Performance Mode (--optimize)</code> section of the report</td>
+<td><code dir="auto">optimized/</code> in the zip, with <code dir="auto">--package</code></td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-is-in-the-recipe">What is in the recipe?</h2><a class="sl-anchor-link" href="#what-is-in-the-recipe"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What is in the recipe?”</span></a></div>
+<p>The recipe, <code dir="auto">&lt;repo&gt;_recipe.md</code>, is the guide to build the package again on riscv64. The summarizer LLM writes it at the end of a successful run, from the build steps, the fixes and the verification verdict. The prompt asks the LLM for these sections, in this order:</p>
+<ol>
+<li><code dir="auto">## Executive Summary</code>: the status and a short verdict on portability.</li>
+<li><code dir="auto">## Prerequisites</code>: the package install commands for the sandbox distribution.</li>
+<li><code dir="auto">## Build Instructions</code>: the build commands, one code block for each step.</li>
+<li><code dir="auto">## Architecture Notes</code>: the architecture-specific changes that the package needed.</li>
+<li><code dir="auto">## Verification</code>: how to check that the binaries are riscv64, with <code dir="auto">file</code> or <code dir="auto">readelf -h</code>.</li>
+<li><code dir="auto">## Known Issues &amp; Recommendations</code>: remaining problems and ideas to send upstream.</li>
+</ol>
+<p>If the summarizer call fails, Atesor writes a short recipe with the build steps and the verification verdict.</p>
+<p>The file name has no time stamp. A new successful run or a cache hit writes a new recipe file in its place. On a cache hit, Atesor writes the stored recipe text. For an old cache entry without stored text, it writes a recipe from the cache fields, with a note to run again with <code dir="auto">--force</code>.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-is-in-the-report">What is in the report?</h2><a class="sl-anchor-link" href="#what-is-in-the-report"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What is in the report?”</span></a></div>
+<p>The report, <code dir="auto">&lt;repo&gt;_report_&lt;YYYYMMDD_HHMMSS&gt;.md</code>, has these sections. Atesor leaves out the architecture, patch and error sections when they have no data. The two performance mode sections appear only with <code dir="auto">--optimize</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Executive Summary</td>
+<td>The status, the target (<code dir="auto">qemu</code> or <code dir="auto">native</code>), the repository and the time</td>
+</tr>
+<tr>
+<td>Metrics</td>
+<td>The duration, the attempts, the API calls, the scripted operations, the LLM tokens and the cost</td>
+</tr>
+<tr>
+<td>Artifact Verification</td>
+<td>The verdict, its reason, the source commit, the counts, and up to 20 files of each kind</td>
+</tr>
+<tr>
+<td>Package Tests (not gating)</td>
+<td>The result, the command, the exit code, the duration and the output tail</td>
+</tr>
+<tr>
+<td>Machine Profile</td>
+<td>The result of the machine probe</td>
+</tr>
+<tr>
+<td><code dir="auto">Performance Mode (--optimize)</code></td>
+<td>The <code dir="auto">Optimized</code> answer (<code dir="auto">YES</code>, <code dir="auto">NO</code>, or <code dir="auto">NOT TIMED</code> under QEMU), the reason, the machine, the package, the baseline, the workload, one row for each tune, and the workload source code</td>
+</tr>
+<tr>
+<td>Build System Analysis</td>
+<td>The build system, the build phases with their commands, and the dependencies</td>
+</tr>
+<tr>
+<td>Architecture-Specific Code</td>
+<td>The first 5 findings of the architecture scan</td>
+</tr>
+<tr>
+<td>Patches Applied</td>
+<td>Each patch, cut at 500 characters</td>
+</tr>
+<tr>
+<td>Error Resolution History</td>
+<td>Each error, with its category</td>
+</tr>
+<tr>
+<td>Recommendations</td>
+<td>The next steps for this result</td>
+</tr>
+</tbody>
+</table>
+<p>The status of a successful run is <code dir="auto">SUCCESS (riscv64 output verified)</code> or <code dir="auto">SUCCESS, NOT VERIFIED (no riscv64 output proven)</code>. The counts table of the verification has three columns: riscv64 outputs, outputs for another architecture, and committed files for another architecture. Committed files never decide the verdict.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-is-in-the-state-snapshot">What is in the state snapshot?</h2><a class="sl-anchor-link" href="#what-is-in-the-state-snapshot"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What is in the state snapshot?”</span></a></div>
+<p>The state snapshot, <code dir="auto">&lt;repo&gt;_state_&lt;YYYYMMDD_HHMMSS&gt;.json</code>, is the full <code dir="auto">AgentState</code> of the run. Start with these fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">build_status</code></td>
+<td><code dir="auto">SUCCESS</code>, <code dir="auto">FAILED</code> or <code dir="auto">ESCALATED</code> at the end of a run</td>
+</tr>
+<tr>
+<td><code dir="auto">artifact_verification</code></td>
+<td>The verdict (<code dir="auto">verified</code>, <code dir="auto">wrong_arch</code> or <code dir="auto">unverified</code>), the reason and the evidence</td>
+</tr>
+<tr>
+<td><code dir="auto">package_tests</code></td>
+<td>The result of the package’s own tests</td>
+</tr>
+<tr>
+<td><code dir="auto">error_history</code></td>
+<td>Each error, with its category, severity, command and message</td>
+</tr>
+<tr>
+<td><code dir="auto">fixes_attempted</code></td>
+<td>Each fix, with its strategy, its changes and its success</td>
+</tr>
+<tr>
+<td><code dir="auto">build_plan</code></td>
+<td>The build plan with its phases and commands</td>
+</tr>
+<tr>
+<td><code dir="auto">package_analysis</code></td>
+<td>The analysis from <code dir="auto">analyst_node</code></td>
+</tr>
+<tr>
+<td><code dir="auto">context_cache.escalation_report</code></td>
+<td>The escalation report, after an escalation</td>
+</tr>
+<tr>
+<td><code dir="auto">api_cost_usd</code>, <code dir="auto">api_tokens_in</code>, <code dir="auto">api_tokens_out</code></td>
+<td>The LLM cost and the tokens</td>
+</tr>
+<tr>
+<td><code dir="auto">audit_trail</code></td>
+<td>The events of each agent, in order</td>
+</tr>
+<tr>
+<td><code dir="auto">optimization</code></td>
+<td>The performance mode result, with one record for each tune. Only with <code dir="auto">--optimize</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">machine_profile</code></td>
+<td>The machine probe. Only with <code dir="auto">--optimize</code>.</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-is-in-the-patches-folder">What is in the patches folder?</h2><a class="sl-anchor-link" href="#what-is-in-the-patches-folder"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What is in the patches folder?”</span></a></div>
+<p>The folder <code dir="auto">&lt;repo&gt;_patches_&lt;YYYYMMDD_HHMMSS&gt;/</code> holds one file for each patch that the fixer applied: <code dir="auto">patch_1.patch</code>, <code dir="auto">patch_2.patch</code> and so on. In a run from a cached recipe (<code dir="auto">--optimize</code>), it also holds each cached patch that applied. It holds only patch actions. Commands that the fixer ran and files that it created are in <code dir="auto">fixes_attempted</code> in the state snapshot, as <code dir="auto">Executed: &lt;command&gt;</code> and <code dir="auto">Created file: &lt;path&gt;</code> lines.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-is-in-the-zip-package">What is in the zip package?</h2><a class="sl-anchor-link" href="#what-is-in-the-zip-package"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What is in the zip package?”</span></a></div>
+<p>With <code dir="auto">--package</code>, a successful run writes a zip file to <code dir="auto">workspace/packages/</code>. The name is <code dir="auto">&lt;owner&gt;-&lt;repo&gt;-&lt;YYYYMMDD-HHMMSS&gt;-&lt;platform&gt;.zip</code> in lower case, for example <code dir="auto">madler-zlib-&lt;YYYYMMDD-HHMMSS&gt;-alpine.zip</code>. The platform is <code dir="auto">alpine</code> or <code dir="auto">debian</code>, also for <code dir="auto">--platform ubuntu</code>. On the native target, the name ends in <code dir="auto">-native.zip</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Entry</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">build_recipe.md</code></td>
+<td>The recipe</td>
+</tr>
+<tr>
+<td><code dir="auto">manifest.json</code></td>
+<td>The metadata of the package: schema version 2, or 3 with <code dir="auto">--optimize</code></td>
+</tr>
+<tr>
+<td><code dir="auto">agent_&lt;repo&gt;.log</code></td>
+<td>The debug log, if present</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;repo&gt;.log</code></td>
+<td>The batch log, only in a batch run</td>
+</tr>
+<tr>
+<td><code dir="auto">optimized/</code></td>
+<td>The riscv64 artifacts of the accepted tune, only with <code dir="auto">--optimize</code> and an accepted tune</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;repo&gt;/</code></td>
+<td>The source tree with the build outputs, without <code dir="auto">.git</code> and without symbolic links</td>
+</tr>
+</tbody>
+</table>
+<p>The main keys of the manifest are:</p>
+<ul>
+<li><code dir="auto">verification</code>: the status, the reason, the source commit, the counts and the ABI warnings.</li>
+<li><code dir="auto">artifacts</code>: each verified riscv64 output, with its type, architecture and size. An output inside the zipped tree also has its SHA-256 and <code dir="auto">in_zip: true</code>. An output installed outside the tree, such as in <code dir="auto">/usr/local/bin</code>, has <code dir="auto">in_zip: false</code>.</li>
+<li><code dir="auto">package_tests</code>: the status, the framework, the command, the exit code and the duration.</li>
+<li><code dir="auto">repo_url</code>, <code dir="auto">platform</code>, <code dir="auto">created_at</code> and the names of the files in the zip.</li>
+<li><code dir="auto">machine</code> and <code dir="auto">optimization</code>, only in schema version 3: the machine probe, the performance mode result, each tune with its verdict, and a SHA-256 for each file in <code dir="auto">optimized/</code>.</li>
+</ul>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-is-in-the-debug-log">What is in the debug log?</h2><a class="sl-anchor-link" href="#what-is-in-the-debug-log"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What is in the debug log?”</span></a></div>
+<p><code dir="auto">agent_&lt;repo&gt;.log</code> has every log line of the run at the <code dir="auto">DEBUG</code> level, with the time, the level and the module name. It shows each command, each routing decision and each recovery heuristic. After an escalation, it also contains the escalation report. Without <code dir="auto">--verbose</code>, the console shows only errors from this log.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-is-in-the-llm-call-log">What is in the LLM call log?</h2><a class="sl-anchor-link" href="#what-is-in-the-llm-call-log"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What is in the LLM call log?”</span></a></div>
+<p><code dir="auto">agent-call_&lt;repo&gt;.log</code> has one entry for each LLM response, also for each retry after an answer that was not valid. A call that fails with an error has no entry in this log. The debug log records it. Each entry has these lines:</p>
+<div class="expressive-code"><link rel="stylesheet" href="/atesor/_astro/ec.w36nc.css"><script type="module" src="/atesor/_astro/ec.0vx5m.js"></script><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="text"><code><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">CALL: call_&lt;id&gt;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">TIMESTAMP: &lt;time&gt;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">AGENT: &lt;role&gt;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">MODEL: &lt;model&gt;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">COST: $&lt;cost&gt;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">TOKENS: in=&lt;input tokens&gt; out=&lt;output tokens&gt;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">METADATA: &lt;JSON&gt;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">--- PROMPT ---</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">&lt;the first 10000 characters of the prompt&gt;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">--- RESPONSE ---</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">&lt;the first 10000 characters of the response&gt;</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="CALL: call_<id>TIMESTAMP: <time>AGENT: <role>MODEL: <model>COST: $<cost>TOKENS: in=<input tokens> out=<output tokens>METADATA: <JSON>--- PROMPT ---<the first 10000 characters of the prompt>--- RESPONSE ---<the first 10000 characters of the response>"><div></div></button></div></figure></div>
+<p>Use this log to see what an agent received and what it answered. A call with <code dir="auto">TOKENS: in=0 out=0</code> means that the provider reported no usage, so the cost of that call is unknown.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="related-pages">Related pages</h2><a class="sl-anchor-link" href="#related-pages"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Related pages”</span></a></div>
+<ul>
+<li><a href="/atesor/docs/reference/output-files/">Output files</a>: the full reference of every file and field.</li>
+<li><a href="/atesor/docs/reference/exit-codes/">Exit codes</a>: each code and its meaning.</li>
+<li><a href="/atesor/docs/guides/troubleshooting/">Troubleshooting</a>: what to do after a failure.</li>
+</ul>
+</div><footer class="sl-flex astro-ddtxxk7k"><div class="meta sl-flex astro-ddtxxk7k"><a href="https://github.com/eclipse-atesor/project-website/edit/main/site/src/content/docs/docs/getting-started/read-the-output.md" class="sl-flex print:hidden astro-qlekgd3o"><svg aria-hidden="true" class="astro-qlekgd3o astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.2em;"><path d="M22 7.24a1 1 0 0 0-.29-.71l-4.24-4.24a1 1 0 0 0-1.1-.22 1 1 0 0 0-.32.22l-2.83 2.83L2.29 16.05a1 1 0 0 0-.29.71V21a1 1 0 0 0 1 1h4.24a1 1 0 0 0 .76-.29l10.87-10.93L21.71 8c.1-.1.17-.2.22-.33a1 1 0 0 0 0-.24v-.14l.07-.05ZM6.83 20H4v-2.83l9.93-9.93 2.83 2.83L6.83 20ZM18.17 8.66l-2.83-2.83 1.42-1.41 2.82 2.82-1.41 1.42Z"/></svg>Edit this page on GitHub</a></div><div class="pagination-links print:hidden astro-b5raizh3" dir="ltr"><a href="/atesor/docs/getting-started/first-port/" rel="prev" class="astro-b5raizh3"><svg aria-hidden="true" class="astro-b5raizh3 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg><span class="astro-b5raizh3">Previous<br class="astro-b5raizh3"><span class="link-title astro-b5raizh3">Your first port</span></span></a><a href="/atesor/docs/guides/sandboxes/" rel="next" class="astro-b5raizh3"><svg aria-hidden="true" class="astro-b5raizh3 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg><span class="astro-b5raizh3">Next<br class="astro-b5raizh3"><span class="link-title astro-b5raizh3">Sandboxes</span></span></a></div></footer><footer class="ef-footer astro-pnsvry7h" aria-label="Eclipse Foundation"><div class="ef-top astro-pnsvry7h"><a class="ef-logo astro-pnsvry7h" href="https://www.eclipse.org" rel="noopener"><svg role="img" aria-label="Eclipse Foundation" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 281.5 90.7">
+  <path fill="#f06c02" d="M265.7,84l-8.7-11h-2.7v17.7h3.3v-12l9.3,12h2.1v-17.7h-3.3v11ZM233.3,75.7c4.2,0,5.8,3.3,5.8,6.3s-1.6,6-5.8,6-5.7-3.1-5.8-6,1.7-6.3,5.8-6.3ZM233.3,72.7c-6.1,0-9.1,4.7-9.1,9.3s2.9,9.1,9.1,9.1,9-4.6,9.1-9.2-3-9.3-9.1-9.3ZM212.1,90.7v-17.7h-3.3v17.7h3.3ZM188.5,90.7h3.3v-14.7h5.6v-3h-14.6v3h5.6v14.7ZM169.6,84.2h-6.6l3.3-7.6,3.3,7.6ZM172.4,90.7h3.6l-7.9-17.7h-3.6l-8,17.7h3.6l1.5-3.3h9.3l1.5,3.3ZM134.4,76.1h3.6c3.9,0,5.5,2.8,5.5,5.5,0,2.8-1.5,5.8-5.5,5.8h-3.6v-11.4ZM138.1,73h-6.9v17.7h6.9c6.2,0,8.9-4.5,8.9-9s-2.8-8.7-8.9-8.7h0ZM115.7,84l-8.7-11h-2.7v17.7h3.3v-12l9.3,12h2.1v-17.7h-3.3v11ZM88.2,73v10.2c0,3-1.6,4.9-4.3,4.9s-4.6-1.7-4.6-4.9v-10.1h-3.3v10.1c0,5.3,3.6,7.9,7.9,7.9s7.7-2.7,7.7-7.9v-10.1h-3.3ZM55.2,75.7c4.2,0,5.8,3.3,5.8,6.3,0,3-1.6,6-5.8,6s-5.7-3.1-5.8-6,1.7-6.3,5.8-6.3h0ZM55.2,72.7c-6.1,0-9.1,4.7-9.1,9.3s2.9,9.1,9.1,9.1,9-4.6,9.1-9.2-3-9.3-9.1-9.3h0ZM25.5,90.7v-6.5h8.9v-3.1h-8.9v-4.8h9.4v-3.2h-12.7v17.6h3.3Z"/>
+  <path fill="currentColor" d="M269.4,54.4h-22.2v-8.9h21.4v-6.9h-21.4v-9.1h22.2v-7.2h-29.6v39.5h29.6v-7.3ZM229.4,28.8c-3-6.1-9.4-7.8-15.5-7.8s-15.3,3.4-15.3,11.5,7.4,11,15.5,12c5.2.6,9.1,2.1,9.1,5.8s-4.4,5.9-9.1,5.9-9.4-1.9-11.1-6.3l-6.2,3.2c2.9,7.2,9.1,9.7,17.2,9.7s16.6-3.8,16.6-12.6-7.7-11.6-15.9-12.6c-4.7-.6-8.8-1.5-8.8-5s2.6-5.2,8.2-5.2,8,2.2,9.4,4.4l5.9-3ZM176,22.2c-6.2,0-12.4,0-18.6,0v39.5h7.4v-11.6h11.2c19.4,0,19.3-27.9,0-27.9h0ZM164.9,29.3h11.2c9.5,0,9.5,14,0,14h-11.2v-14ZM146.9,61.8V22.2h-7.4v39.5h7.4ZM102.9,22.2v39.5h27.8v-6.9h-20.3V22.2h-7.5ZM90.7,51.7c-2.7,2.5-6.2,4-9.9,4-9.8,0-13.5-6.8-13.6-13.4s4.1-13.7,13.6-13.7c3.5,0,7,1.3,9.5,3.7l5-4.8c-3.8-3.9-9.1-6-14.5-6-14.3,0-21,10.5-20.9,20.8,0,10.3,6.3,20.3,20.9,20.3,5.6.1,11-2,15-5.9l-5.1-5.1ZM51.7,54.4h-22.2v-8.9h21.4v-6.9h-21.4v-9.1h22.2v-7.2h-29.5v39.5h29.6v-7.3Z"/>
+  <path fill="#f06c02" d="M9.8,18.2C18.8,4.1,37-.8,52.1,5.9l-1-.7C35.6-4.6,15.1-.2,5.3,15.3-4.6,30.7-.2,51.2,15.3,61.1l1.1.6C3.8,50.8.8,32.3,9.8,18.2Z"/>
+  <path fill="currentColor" d="M272.2,26.1h0c0-2.5,2.1-4.6,4.6-4.6s4.6,2.1,4.6,4.6h0c0,2.5-2.1,4.6-4.6,4.6s-4.6-2.1-4.6-4.6ZM280.8,26.1h0c0-2.2-1.8-4.1-4-4.1s-4.1,1.8-4.1,4.1h0c0,2.2,1.7,4,3.9,4.1,0,0,0,0,.1,0,2.2,0,4.1-1.8,4.1-4,0,0,0,0,0,0h0ZM274.8,23.6h2.3c1.1,0,1.9.5,1.9,1.6,0,.7-.4,1.3-1.1,1.5l1.2,1.7h-1.4l-1-1.5h-.7v1.5h-1.1v-4.7ZM277,25.9c.5,0,.8-.3.8-.7s-.3-.7-.8-.7h-1v1.3h1Z"/>
+</svg></a><a class="ef-incubation astro-pnsvry7h" href="https://www.eclipse.org/projects/handbook/#incubation" rel="noopener"><span class="egg astro-pnsvry7h"><img src="/atesor/assets/incubation.png" alt="Eclipse Foundation incubation phase" width="22" height="29" loading="lazy" class="astro-pnsvry7h"></span><span class="ef-incubation-text astro-pnsvry7h"><strong class="astro-pnsvry7h">Incubating</strong><span class="astro-pnsvry7h">Eclipse Development Process</span></span></a></div><p class="astro-pnsvry7h">Eclipse Atesor™ is an open source project of the <a href="https://projects.eclipse.org/projects/openhw" rel="noopener" class="astro-pnsvry7h">OpenHW Group</a>, hosted by the Eclipse Foundation. Copyright © Eclipse Foundation AISBL. All Rights Reserved.</p><p class="astro-pnsvry7h">Eclipse Atesor, Atesor, Eclipse, and the Eclipse logo are trademarks of Eclipse Foundation AISBL. Eclipse Atesor source code is licensed under the <a href="https://github.com/eclipse-atesor/atesor/blob/main/LICENSE" rel="noopener" class="astro-pnsvry7h">MIT License</a>.</p><ul class="ef-links astro-pnsvry7h"><li class="astro-pnsvry7h"><a href="https://www.eclipse.org" rel="noopener" class="astro-pnsvry7h">Eclipse Foundation</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/privacy/" rel="noopener" class="astro-pnsvry7h">Privacy policy</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/terms-of-use/" rel="noopener" class="astro-pnsvry7h">Terms of use</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/compliance/" rel="noopener" class="astro-pnsvry7h">Compliance</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/" rel="noopener" class="astro-pnsvry7h">Legal resources</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/security/" rel="noopener" class="astro-pnsvry7h">Report a vulnerability</a></li></ul></footer></div></div></main></div></div></div></div></body></html>

@@ -1,0 +1,77 @@
+# Eclipse Atesor
+
+> Eclipse Atesor is an open-source agentic framework that ports software to RISC-V. It builds each package natively on riscv64, repairs what breaks, checks that every binary is real riscv64 code, and writes a recipe that a person or a CI job can replay.
+
+Atesor is an Eclipse Foundation project in incubation, under the OpenHW Group. It is licensed under MIT.
+It supports C, C++ and Go build systems, builds in Alpine (musl) and Debian/Ubuntu (glibc) riscv64 sandboxes under QEMU,
+and can also build on a real riscv64 machine over SSH. Performance mode (`--optimize`) builds tuned variants of a
+verified port and checks them; on real riscv64 hardware it accepts a variant only when it measures faster twice.
+The verified build never changes. The command-line tool is `atesor-ai`.
+
+## Introduction
+
+- [What is Atesor](https://eclipse.dev/atesor/docs/introduction/what-is-atesor/): Eclipse Atesor ports software to RISC-V. It builds each package natively on riscv64, repairs failures, verifies each binary and writes a recipe.
+- [How it works](https://eclipse.dev/atesor/docs/introduction/how-it-works/): The path from a repository URL to a verified riscv64 build and a recipe, the optional performance mode, and why Atesor runs scripts before an LLM call.
+- [Concepts](https://eclipse.dev/atesor/docs/introduction/concepts/): A glossary of the terms that the Atesor docs use, such as sandbox, target, recipe cache, verification, escalation, tune and workload.
+- [Limitations](https://eclipse.dev/atesor/docs/introduction/limitations/): What Atesor does not do today, what QEMU emulation cannot tell you, and the fixed limits on attempts, cost, time and file counts.
+
+## Getting Started
+
+- [Requirements](https://eclipse.dev/atesor/docs/getting-started/requirements/): What your host needs before you install Atesor. Linux, Docker, riscv64 emulation through binfmt_misc, Python 3.10 or newer, and one LLM API key.
+- [Install Atesor](https://eclipse.dev/atesor/docs/getting-started/install/): Install Atesor from the .deb package or from source, then build the riscv64 sandbox image for Alpine or Debian.
+- [Configure the LLM provider](https://eclipse.dev/atesor/docs/getting-started/configure-llm/): Select Gemini, OpenAI, OpenRouter or Anthropic for Atesor, set the API key, put the .env file in the right folder, and see the model of each agent.
+- [Your first port](https://eclipse.dev/atesor/docs/getting-started/first-port/): Port zlib to riscv64 with Atesor. The command to run, what Atesor does at each stage, and where it writes the recipe, the report and the logs.
+- [Read the output](https://eclipse.dev/atesor/docs/getting-started/read-the-output/): The files that an Atesor run writes (recipe, report, state snapshot, patches, zip package and logs), where they are, and which one to open first.
+
+## Guides
+
+- [Sandboxes](https://eclipse.dev/atesor/docs/guides/sandboxes/): The Alpine (musl) and Debian/Ubuntu (glibc) riscv64 sandboxes, how to select one with --platform, and how Atesor builds or pulls their images.
+- [Native RISC-V machine](https://eclipse.dev/atesor/docs/guides/native-riscv/): Build on your own riscv64 hardware with --target native: machine requirements, SSH and podman setup, the 11 preflight rungs, settings and safety rules.
+- [Recipe cache](https://eclipse.dev/atesor/docs/guides/recipe-cache/): What the recipe cache stores, how Atesor keys and writes it, how a cache hit replays a recipe without a build, and how to bypass or clear it.
+- [Batch runs](https://eclipse.dev/atesor/docs/guides/batch-runs/): Port many packages in parallel with batch_test.py, one container per worker, and how the CI workflows run batches and publish the monthly builds.
+- [Cost control](https://eclipse.dev/atesor/docs/guides/cost-control/): The $1.00 per-package cost cap, how Atesor counts real tokens and cost, free-tier models, deterministic fallbacks, and where to see the cost of a run.
+- [Troubleshooting](https://eclipse.dev/atesor/docs/guides/troubleshooting/): Common failures by symptom, with the error categories, what Atesor fixes by itself, what an escalation or a not-verified result means, and what you can do.
+- [Performance mode](https://eclipse.dev/atesor/docs/guides/optimize/): How --optimize builds faster variants of a verified port, checks that they give the same results, and measures them on native riscv64 hardware.
+
+## Architecture
+
+- [Architecture overview](https://eclipse.dev/atesor/docs/architecture/overview/): The LangGraph state graph in src/graph.py, with its 13 nodes, 9 routing functions, the build-verify-fix subgraph, finish, performance mode and escalation.
+- [Agent state](https://eclipse.dev/atesor/docs/architecture/agent-state/): The AgentState dataclass in src/state.py, its field groups, the error taxonomy, severity inference and the escalation checks.
+- [Scripted operations](https://eclipse.dev/atesor/docs/architecture/scripted-ops/): The deterministic layer in src/scripted_ops.py and src/evidence.py that clones, detects the build system, extracts dependencies and scans for arch code.
+- [Recovery heuristics](https://eclipse.dev/atesor/docs/architecture/recovery-heuristics/): The 23 LLM-free heuristics in the Atesor builder, 7 rewrites before a command and 16 recovery retries after a failure, with trigger, action and limit.
+- [Verification](https://eclipse.dev/atesor/docs/architecture/verification/): How Atesor proves a riscv64 result from ELF headers, ranks the build outputs, reports "not verified" with exit code 3, and runs package tests.
+- [LLM layer](https://eclipse.dev/atesor/docs/architecture/llm-layer/): Providers and models, JSON validation with fallbacks, prompts and knowledge, the analyst, the fixer, the optimizer agent, few-shot memory and the LLM audit log.
+- [Performance mode internals](https://eclipse.dev/atesor/docs/architecture/optimize/): How --optimize works inside: the optimize_node hook, the machine probe, the baseline tree, workloads, tunes, PGO, the gates and the timing protocol.
+
+## Reference
+
+- [Command-line options](https://eclipse.dev/atesor/docs/reference/cli/): Every option of atesor-ai and main.py, with its argument, default and effect, plus the processing order, example commands and the .deb launcher.
+- [Environment variables](https://eclipse.dev/atesor/docs/reference/environment-variables/): Every environment variable that Atesor reads, with its default, what it controls and the file that reads it, plus the .env load order.
+- [Exit codes](https://eclipse.dev/atesor/docs/reference/exit-codes/): Every exit code that atesor-ai and main.py return, what each code means, and which code paths return it, including code 3 for not verified.
+- [Output files](https://eclipse.dev/atesor/docs/reference/output-files/): Every file and folder that an Atesor run writes, with its location, format and main fields, from the recipe to performance mode results, the zip and the caches.
+- [Build systems](https://eclipse.dev/atesor/docs/reference/build-systems/): The build systems that Atesor detects, the marker files it looks for, the default build and test commands, and the support level of each one.
+
+## Contributing
+
+- [Development setup](https://eclipse.dev/atesor/docs/contributing/development-setup/): Prepare a source checkout of Atesor for development, from the clone and the Python dependencies to a first port that runs from source.
+- [Tests and checks](https://eclipse.dev/atesor/docs/contributing/tests/): Run the Atesor test suite and the lint and format checks, see what CI runs, and find which test file guards which part of the code.
+- [Add a platform](https://eclipse.dev/atesor/docs/contributing/add-a-platform/): Add a sandbox platform profile to Atesor, with its Dockerfile, the PlatformProfile entry, the CLI and batch settings and the tests to add.
+- [Add a recovery heuristic](https://eclipse.dev/atesor/docs/contributing/add-a-heuristic/): Add an LLM-free recovery step to the Atesor builder in src/graph.py, follow the pattern of the existing steps, and test it without Docker.
+- [Few-shot examples](https://eclipse.dev/atesor/docs/contributing/few-shot-examples/): The Atesor few-shot example store in data/examples, with one file per agent, the schema, how runs add examples, the cap of 100 and manual examples.
+- [Change the docs](https://eclipse.dev/atesor/docs/contributing/docs/): Where the Atesor documentation pages live, how to view a change on your computer, and the writing rules that each page follows.
+
+## Project
+
+- [Releases](https://eclipse.dev/atesor/docs/project/releases/): The two kinds of Atesor release on GitHub, the atesor-ai application package and the monthly package builds, and how to check a download.
+- [Roadmap](https://eclipse.dev/atesor/docs/project/roadmap/): The planned work for Atesor as the files on the main branch state it, and how to follow new work.
+- [Governance](https://eclipse.dev/atesor/docs/project/governance/): How the Atesor project is governed as an Eclipse Foundation incubation project under the OpenHW Group, and how to contribute and communicate.
+- [About the name](https://eclipse.dev/atesor/docs/project/name/): Atesor is the word Rosetta read right to left, with one t dropped. The page explains where the name comes from and what the logo shows.
+- [Brand and logos](https://eclipse.dev/atesor/docs/project/brand/): The Eclipse Atesor logo files, what each one is for, the colours, and the rules for the name and the mark.
+
+## Optional
+
+- [Full docs as one file](https://eclipse.dev/atesor/llms-full.txt): every docs page in Markdown.
+- [Source code](https://github.com/eclipse-atesor/atesor): the Atesor repository on GitHub.
+- [Releases](https://github.com/eclipse-atesor/atesor/releases): the .deb package and the monthly package builds.
+- [Package index](https://eclipse.dev/atesor/downloads/): every published riscv64 package with its recipe.
+- [Project page](https://projects.eclipse.org/projects/openhw.atesor): governance and committers at the Eclipse Foundation.

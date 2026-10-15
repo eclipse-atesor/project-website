@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-labelledby="t">
+  <title id="t">Eclipse Atesor mark, for dark backgrounds</title>
+  <desc>A stone with one cut corner. Inside it, one line runs right to left, turns, and reverses on each of three rows, then ends in a solid pad: source in, native riscv64 binary out.</desc>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke="#ECEEEF">
+    <path d="M160 72H440V440H72V160Z" stroke-width="26"/>
+    <circle cx="352" cy="180" r="16" stroke-width="10"/>
+    <path d="M336 180H174L150 204V232L174 256H338L362 280V308L338 332H164" stroke-width="26"/>
+  </g>
+  <circle cx="164" cy="332" r="24" fill="#8CA3FF"/>
+</svg>

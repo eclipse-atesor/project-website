@@ -1,29 +1,29 @@
 ---
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
-import StatBand from '../components/StatBand.astro';
-import Problem from '../components/Problem.astro';
-import Pipeline from '../components/Pipeline.astro';
-import Pillars from '../components/Pillars.astro';
-import Features from '../components/Features.astro';
-import Quickstart from '../components/Quickstart.astro';
-import Outputs from '../components/Outputs.astro';
-import Community from '../components/Community.astro';
+import Steps from '../components/Steps.astro';
+import Recipe from '../components/Recipe.astro';
+import Packages from '../components/Packages.astro';
+import Install from '../components/Install.astro';
+import OpenProject from '../components/OpenProject.astro';
 import { project } from '../data/content';
+
+/*
+ * One short read, in the order a visitor asks: what is it, how does a port
+ * run, what do I get back, has it worked, how do I start, who runs it.
+ * Detail lives in /docs; each section links to its page there.
+ */
 ---
 
 <Base
   title="Agentic framework for RISC-V software porting"
-  description={project.summary}
+  description={project.descriptor}
   ogPath="/"
 >
   <Hero />
-  <StatBand />
-  <Problem />
-  <Pipeline />
-  <Pillars />
-  <Features />
-  <Quickstart />
-  <Outputs />
-  <Community />
+  <Steps />
+  <Recipe />
+  <Packages />
+  <Install />
+  <OpenProject />
 </Base>

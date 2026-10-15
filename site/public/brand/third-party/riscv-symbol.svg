@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="3.5 9 158.1 157.4" width="158" height="157" role="img" aria-label="RISC-V">
+  <!-- The RV symbol from the official RISC-V International file
+       RISC-V_Horizontal_Color.svg (riscv.org brand page): the first two
+       paths and the original colours, unchanged; the wordmark is left out.
+       RISC-V and the RISC-V logo are registered trademarks of RISC-V
+       International. -->
+  <style>.st0{fill:#E6AC2C;} .st1{fill:#2C356D;}</style>
+  <path class="st0" d="M91.6,58.2c0,22.9-13.9,43.7-40.9,48.6l38.1,45.1l3.4-4.8L161,49.9V9H49.3C77.7,11.7,91.6,35.3,91.6,58.2z"></path>
+  <path class="st1" d="M13.2,85.9h26.4C59,85.9,68.7,72,68.7,58.2c0-13.9-9.7-27.1-29.1-27.1H3.5v135.3h67.3L13.2,97.1V85.9z M111,159.5l50.6-70.8v77.7H106L111,159.5z"></path>
+</svg>

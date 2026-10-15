@@ -28,6 +28,12 @@ const ALLOWED = [
   'LangGraph', 'LangChain', 'LangSmith', 'AgentState', 'StateGraph',
   'PackageAnalysis', 'BuildPlan', 'TaskPlan', 'JavaScript', 'TypeScript',
   'YouTube', 'LinkedIn', 'JKube', 'RISCV', 'PyPI', 'McKinsey',
+  // Class and option names that the docs quote from the Atesor source.
+  'AgentRole', 'AgentMemory', 'ArchSpecificCode', 'ArtifactScanner', 'BatchMode',
+  'BuildPhase', 'BuildSystemInfo', 'CommandResult', 'DependencyInfo', 'ErrorCategory',
+  'ErrorRecord', 'FailureSeverity', 'FixAttempt', 'KeyboardInterrupt', 'LLMCallOutcome',
+  'PlatformProfile', 'ScriptedOperations', 'TaskPhase', 'MachineProfile',
+  'TestHarnessKitOnThisHost', 'BenchmarkAtesor', 'SiFive',
 ];
 
 const file = process.argv[2];

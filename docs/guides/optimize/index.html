@@ -1,0 +1,522 @@
+<!DOCTYPE html><html lang="en" dir="ltr" data-theme="dark" data-has-toc data-has-sidebar class="astro-g5ptsecz"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Performance mode | Eclipse Atesor™</title><link rel="canonical" href="https://eclipse.dev/atesor/docs/guides/optimize/"/><link rel="sitemap" href="/atesor/sitemap-index.xml"/><link rel="apple-touch-icon" href="/atesor/apple-touch-icon.png"/><link rel="manifest" href="/atesor/site.webmanifest"/><link rel="alternate" type="text/plain" title="llms.txt" href="/atesor/llms.txt"/><link rel="shortcut icon" href="/atesor/favicon.svg" type="image/svg+xml"/><meta name="generator" content="Astro v7.3.8"/><meta name="generator" content="Starlight v0.42.6"/><meta property="og:title" content="Performance mode"/><meta property="og:type" content="article"/><meta property="og:url" content="https://eclipse.dev/atesor/docs/guides/optimize/"/><meta property="og:locale" content="en"/><meta property="og:description" content="How --optimize builds faster variants of a verified port, checks that they give the same results, and measures them on native riscv64 hardware."/><meta property="og:site_name" content="Eclipse Atesor™"/><meta name="twitter:card" content="summary_large_image"/><meta name="description" content="How --optimize builds faster variants of a verified port, checks that they give the same results, and measures them on native riscv64 hardware."/><meta property="og:image" content="https://eclipse.dev/atesor/brand/og-image.png"/><meta name="twitter:image" content="https://eclipse.dev/atesor/brand/og-image.png"/><script>
+	window.StarlightThemeProvider = (() => {
+		const storedTheme =
+			typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+		const theme =
+			storedTheme ||
+			(window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+		document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+		return {
+			updatePickers(theme = storedTheme || 'auto') {
+				document.querySelectorAll('starlight-theme-select').forEach((picker) => {
+					const select = picker.querySelector('select');
+					if (select) select.value = theme;
+					/** @type {HTMLTemplateElement | null} */
+					const tmpl = document.querySelector(`#theme-icons`);
+					const newIcon = tmpl && tmpl.content.querySelector('.' + theme);
+					if (newIcon) {
+						const oldIcon = picker.querySelector('svg.label-icon');
+						if (oldIcon) {
+							oldIcon.replaceChildren(...newIcon.cloneNode(true).childNodes);
+						}
+					}
+				});
+			},
+		};
+	})();
+</script><template id="theme-icons"><svg aria-hidden="true" class="light astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M5 12a1 1 0 0 0-1-1H3a1 1 0 0 0 0 2h1a1 1 0 0 0 1-1Zm.64 5-.71.71a1 1 0 0 0 0 1.41 1 1 0 0 0 1.41 0l.71-.71A1 1 0 0 0 5.64 17ZM12 5a1 1 0 0 0 1-1V3a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1Zm5.66 2.34a1 1 0 0 0 .7-.29l.71-.71a1 1 0 1 0-1.41-1.41l-.66.71a1 1 0 0 0 0 1.41 1 1 0 0 0 .66.29Zm-12-.29a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.71-.71a1.004 1.004 0 1 0-1.43 1.41l.73.71ZM21 11h-1a1 1 0 0 0 0 2h1a1 1 0 0 0 0-2Zm-2.64 6A1 1 0 0 0 17 18.36l.71.71a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.76-.66ZM12 6.5a5.5 5.5 0 1 0 5.5 5.5A5.51 5.51 0 0 0 12 6.5Zm0 9a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm0 3.5a1 1 0 0 0-1 1v1a1 1 0 0 0 2 0v-1a1 1 0 0 0-1-1Z"/></svg><svg aria-hidden="true" class="dark astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.64 13a1 1 0 0 0-1.05-.14 8.049 8.049 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05Zm-9.5 6.69A8.14 8.14 0 0 1 7.08 5.22v.27a10.15 10.15 0 0 0 10.14 10.14 9.784 9.784 0 0 0 2.1-.22 8.11 8.11 0 0 1-7.18 4.32v-.04Z"/></svg><svg aria-hidden="true" class="auto astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg></template><link rel="stylesheet" href="/atesor/_astro/print.ehPL0gv-.css" media="print"><link rel="stylesheet" href="/atesor/_astro/index.CxIBpmSu.css"><style>@layer starlight.components{svg:where(.astro-hkc32dio){color:var(--sl-icon-color);font-size:var(--sl-icon-size,1em);width:1em;height:1em;overflow:visible}}
+</style><script type="module" src="/atesor/_astro/page.cNngjUgL.js"></script></head><body class="astro-g5ptsecz"><a class="sl-skip-link astro-qb7clj6f" href="#_top">Skip to content</a><div class="page sl-flex astro-yntsjkba"><header class="header astro-yntsjkba"><div class="header astro-by6fddyj"><div class="title-wrapper sl-flex astro-by6fddyj"><a href="/atesor/" class="site-title sl-flex astro-6rvad3va"><img class="light:sl-hidden print:hidden astro-6rvad3va" alt src="/atesor/_astro/atesor-mark-dark.CIOkFVI-.svg" width="512" height="512"><img class="dark:sl-hidden print:block astro-6rvad3va" alt src="/atesor/_astro/atesor-mark.BhUamroi.svg" width="512" height="512"><span class="astro-6rvad3va" translate="no">Eclipse Atesor™</span></a></div><div class="sl-flex print:hidden astro-by6fddyj"><site-search class="astro-by6fddyj astro-b5kgnn7o" data-translations="{&quot;placeholder&quot;:&quot;Search&quot;}"><button data-open-modal disabled aria-label="Search" aria-keyshortcuts="Control+K" class="astro-b5kgnn7o"><svg aria-hidden="true" class="astro-b5kgnn7o astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.71 20.29 18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/></svg><span class="sl-hidden md:sl-block astro-b5kgnn7o" aria-hidden="true">Search</span><kbd class="sl-hidden md:sl-flex astro-b5kgnn7o" style="display: none;"><kbd class="astro-b5kgnn7o">Ctrl</kbd><kbd class="astro-b5kgnn7o">K</kbd></kbd></button><dialog style="padding:0" aria-label="Search" class="astro-b5kgnn7o"><div class="dialog-frame sl-flex astro-b5kgnn7o"><button data-close-modal class="sl-flex md:sl-hidden astro-b5kgnn7o">Cancel</button><div class="search-container astro-b5kgnn7o"><div id="starlight__search" class="astro-b5kgnn7o"></div></div></div></dialog></site-search><script>
+	(() => {
+		const openBtn = document.querySelector('button[data-open-modal]');
+		const shortcut = openBtn?.querySelector('kbd');
+		if (!openBtn || !(shortcut instanceof HTMLElement)) return;
+		const platformKey = shortcut.querySelector('kbd');
+		if (platformKey && /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
+			platformKey.textContent = '⌘';
+			openBtn.setAttribute('aria-keyshortcuts', 'Meta+K');
+		}
+		shortcut.style.display = '';
+	})();
+</script><script type="module" src="/atesor/_astro/Search.astro_astro_type_script_index_0_lang.BtDwG4cY.js"></script></div><div class="sl-hidden md:sl-flex print:hidden right-group astro-by6fddyj"><div class="sl-flex social-icons astro-by6fddyj"><a href="https://github.com/eclipse-atesor/atesor" rel="me" class="sl-flex astro-n2mnl6yq"><span class="sr-only astro-n2mnl6yq">Source on GitHub</span><svg aria-hidden="true" class="astro-n2mnl6yq astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/></svg></a></div><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-2z5xp7gb"><span class="sr-only astro-2z5xp7gb">Select theme</span><svg aria-hidden="true" class="icon label-icon astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-2z5xp7gb"><option value="dark" class="astro-2z5xp7gb">Dark</option><option value="light" class="astro-2z5xp7gb">Light</option><option value="auto" selected class="astro-2z5xp7gb">Auto</option></select><svg aria-hidden="true" class="icon caret astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script><script type="module">var e=`starlight-theme`,t=e=>e===`auto`||e===`dark`||e===`light`?e:`auto`,n=()=>t(typeof localStorage<`u`&&localStorage.getItem(e));function r(t){typeof localStorage<`u`&&localStorage.setItem(e,t===`light`||t===`dark`?t:``)}var i=()=>matchMedia(`(prefers-color-scheme: light)`).matches?`light`:`dark`;function a(e){StarlightThemeProvider.updatePickers(e),document.documentElement.dataset.theme=e===`auto`?i():e,r(e)}matchMedia(`(prefers-color-scheme: light)`).addEventListener(`change`,()=>{n()===`auto`&&a(`auto`)});var o=class extends HTMLElement{constructor(){super(),a(n()),this.querySelector(`select`)?.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&a(t(e.currentTarget.value))})}};customElements.define(`starlight-theme-select`,o);</script><script type="module">var e=class extends HTMLElement{constructor(){super();let e=this.querySelector(`select`);e&&(e.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&(window.location.pathname=e.currentTarget.value)}),window.addEventListener(`pageshow`,t=>{if(!t.persisted)return;let n=e.querySelector(`option[selected]`)?.index;n!==e.selectedIndex&&(e.selectedIndex=n??0)}))}};customElements.define(`starlight-lang-select`,e);</script></div></div></header><nav class="sidebar print:hidden astro-yntsjkba" aria-label="Main"><button popovertarget="starlight__sidebar" class="sl-menu-button sl-flex md:sl-hidden print:hidden astro-r2osgdlg"><svg aria-hidden="true" class="open-menu astro-r2osgdlg astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M3 8h18a1 1 0 1 0 0-2H3a1 1 0 0 0 0 2Zm18 8H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Zm0-5H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Z"/></svg><svg aria-hidden="true" class="close-menu astro-r2osgdlg astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="m13.41 12 6.3-6.29a1.004 1.004 0 1 0-1.42-1.42L12 10.59l-6.29-6.3a1.004 1.004 0 0 0-1.42 1.42l6.3 6.29-6.3 6.29a1 1 0 0 0 0 1.42.998.998 0 0 0 1.42 0l6.29-6.3 6.29 6.3a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.42L13.41 12Z"/></svg><span class="sr-only astro-r2osgdlg">Menu</span></button><script type="module">var e=class extends HTMLElement{constructor(){super();let e=matchMedia(`(min-width: 50em)`),t=()=>{this.popover=e.matches?null:`auto`};t(),e.addEventListener(`change`,()=>t()),this.addEventListener(`toggle`,({newState:e})=>this.trapFocus(e===`open`))}trapFocus(e){document.querySelectorAll(`.main-frame, .sl-skip-link`).forEach(t=>{t.toggleAttribute(`inert`,e)})}};customElements.define(`sl-sidebar-pane`,e);</script><sl-sidebar-pane popover id="starlight__sidebar" class="sidebar-pane astro-yntsjkba"><div class="sidebar-content sl-flex astro-yntsjkba"><sl-sidebar-state-persist data-hash="12ijkg5" class="astro-ipdry5cl"><script aria-hidden="true">
+		(() => {
+			try {
+				if (!matchMedia('(min-width: 50em)').matches) return;
+				/** @type {HTMLElement | null} */
+				const target = document.querySelector('sl-sidebar-state-persist');
+				const state = JSON.parse(sessionStorage.getItem('sl-sidebar-state') || '0');
+				if (!target || !state || target.dataset.hash !== state.hash) return;
+				window._starlightScrollRestore = state.scroll;
+				customElements.define(
+					'sl-sidebar-restore',
+					class SidebarRestore extends HTMLElement {
+						connectedCallback() {
+							try {
+								const idx = parseInt(this.dataset.index || '');
+								const details = this.closest('details');
+								if (details && typeof state.open[idx] === 'boolean') details.open = state.open[idx];
+							} catch {}
+						}
+					}
+				);
+			} catch {}
+		})();
+	</script><ul class="top-level astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/" class="large astro-rmhv4bp6"><span class="astro-rmhv4bp6">Overview</span></a></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Introduction</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="0"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/what-is-atesor/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">What is Atesor</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/how-it-works/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">How it works</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/concepts/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Concepts</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/limitations/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Limitations</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Getting Started</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="1"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/requirements/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Requirements</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/install/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Install Atesor</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/configure-llm/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Configure the LLM provider</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/first-port/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Your first port</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/read-the-output/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Read the output</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Guides</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="2"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/sandboxes/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Sandboxes</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/native-riscv/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Native RISC-V machine</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/recipe-cache/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Recipe cache</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/batch-runs/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Batch runs</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/cost-control/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Cost control</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/troubleshooting/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Troubleshooting</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/optimize/" aria-current="page" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Performance mode</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Architecture</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="3"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/overview/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Architecture overview</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/agent-state/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Agent state</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/scripted-ops/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Scripted operations</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/recovery-heuristics/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Recovery heuristics</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/verification/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Verification</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/llm-layer/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">LLM layer</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/optimize/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Performance mode internals</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Reference</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="4"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/cli/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Command-line options</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/environment-variables/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Environment variables</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/exit-codes/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Exit codes</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/output-files/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Output files</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/build-systems/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Build systems</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Contributing</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="5"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/development-setup/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Development setup</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/tests/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Tests and checks</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/add-a-platform/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Add a platform</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/add-a-heuristic/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Add a recovery heuristic</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/few-shot-examples/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Few-shot examples</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/docs/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Change the docs</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Project</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="6"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/releases/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Releases</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/roadmap/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Roadmap</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/governance/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Governance</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/name/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">About the name</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/brand/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Brand and logos</span></a></li></ul></details></li></ul><script aria-hidden="true">
+		(() => {
+			const scroller = document.getElementById('starlight__sidebar');
+			if (!window._starlightScrollRestore || !scroller) return;
+			scroller.scrollTop = window._starlightScrollRestore;
+			delete window._starlightScrollRestore;
+		})();
+	</script></sl-sidebar-state-persist><div class="md:sl-hidden"><div class="mobile-preferences sl-flex astro-p4azlveh"><div class="social-icons astro-p4azlveh"><a href="https://github.com/eclipse-atesor/atesor" rel="me" class="sl-flex astro-n2mnl6yq"><span class="sr-only astro-n2mnl6yq">Source on GitHub</span><svg aria-hidden="true" class="astro-n2mnl6yq astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/></svg></a></div><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-2z5xp7gb"><span class="sr-only astro-2z5xp7gb">Select theme</span><svg aria-hidden="true" class="icon label-icon astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-2z5xp7gb"><option value="dark" class="astro-2z5xp7gb">Dark</option><option value="light" class="astro-2z5xp7gb">Light</option><option value="auto" selected class="astro-2z5xp7gb">Auto</option></select><svg aria-hidden="true" class="icon caret astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script></div></div></div></sl-sidebar-pane></nav><div class="main-frame astro-yntsjkba"><script type="module">var e=document.getElementById(`starlight__sidebar`),t=e?.querySelector(`sl-sidebar-state-persist`),n=`sl-sidebar-state`,r=()=>{let r=[],i=t?.dataset.hash||``;try{let e=sessionStorage.getItem(n),t=JSON.parse(e||`{}`);Array.isArray(t.open)&&t.hash===i&&(r=t.open)}catch{}return{hash:i,open:r,scroll:e?.scrollTop||0}},i=e=>{try{sessionStorage.setItem(n,JSON.stringify(e))}catch{}},a=()=>i(r()),o=(e,t)=>{let n=r();n.open[t]=e,i(n)};t?.addEventListener(`click`,e=>{if(!(e.target instanceof Element))return;let t=e.target.closest(`summary`)?.closest(`details`);if(!t)return;let n=t.querySelector(`sl-sidebar-restore`),r=parseInt(n?.dataset.index||``);isNaN(r)||o(!t.open,r)}),addEventListener(`visibilitychange`,()=>{document.visibilityState===`hidden`&&a()});</script><div class="lg:sl-flex astro-lrzkfocr"><aside class="right-sidebar-container print:hidden astro-lrzkfocr"><div class="right-sidebar astro-lrzkfocr"><div class="lg:sl-hidden astro-qok35upx"><mobile-starlight-toc data-min-h="2" data-max-h="3" class="astro-66cqc7ze"><nav aria-labelledby="starlight__on-this-page--mobile" class="astro-66cqc7ze"><details id="starlight__mobile-toc" class="astro-66cqc7ze"><summary id="starlight__on-this-page--mobile" class="sl-flex astro-66cqc7ze"><span class="toggle sl-flex astro-66cqc7ze">On this page<svg aria-hidden="true" class="caret astro-66cqc7ze astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></span><span class="display-current astro-66cqc7ze"></span></summary><div class="dropdown astro-66cqc7ze"><ul class="isMobile astro-jugkfwgx" style="--depth: 0;"><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#_top" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Overview</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-do-i-need" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What do I need?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#how-do-i-run-it" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">How do I run it?</span></a><ul class="isMobile astro-jugkfwgx" style="--depth: 1;"><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#rules-for---probe" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Rules for --probe</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#rules-for-the-cpu-model" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Rules for the CPU model</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#performance-mode-and-the-recipe-cache" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Performance mode and the recipe cache</span></a></li></ul></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-happens-during-a-run" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What happens during a run?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#which-tunes-does-atesor-try" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Which tunes does Atesor try?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#how-does-atesor-judge-a-tune" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">How does Atesor judge a tune?</span></a><ul class="isMobile astro-jugkfwgx" style="--depth: 1;"><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#which-workload-does-atesor-time" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Which workload does Atesor time?</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#the-gates" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">The gates</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#the-measurement-native-only" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">The measurement (native only)</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#the-second-check-and-the-acceptance" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">The second check and the acceptance</span></a></li></ul></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-do-i-get-back" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What do I get back?</span></a><ul class="isMobile astro-jugkfwgx" style="--depth: 1;"><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#the-console" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">The console</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#files-and-records" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Files and records</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#native-and-qemu" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Native and QEMU</span></a></li></ul></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-are-the-limits" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What are the limits?</span></a></li></ul></div></details></nav></mobile-starlight-toc><script type="module" src="/atesor/_astro/MobileTableOfContents.astro_astro_type_script_index_0_lang.C3fM4Kra.js"></script></div><div class="right-sidebar-panel sl-hidden lg:sl-block astro-qok35upx"><div class="sl-container astro-qok35upx"><starlight-toc data-min-h="2" data-max-h="3"><nav aria-labelledby="starlight__on-this-page"><h2 id="starlight__on-this-page">On this page</h2><ul class="astro-jugkfwgx" style="--depth: 0;"><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#_top" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Overview</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-do-i-need" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What do I need?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#how-do-i-run-it" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">How do I run it?</span></a><ul class="astro-jugkfwgx" style="--depth: 1;"><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#rules-for---probe" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Rules for --probe</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#rules-for-the-cpu-model" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Rules for the CPU model</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#performance-mode-and-the-recipe-cache" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Performance mode and the recipe cache</span></a></li></ul></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-happens-during-a-run" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What happens during a run?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#which-tunes-does-atesor-try" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Which tunes does Atesor try?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#how-does-atesor-judge-a-tune" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">How does Atesor judge a tune?</span></a><ul class="astro-jugkfwgx" style="--depth: 1;"><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#which-workload-does-atesor-time" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Which workload does Atesor time?</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#the-gates" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">The gates</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#the-measurement-native-only" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">The measurement (native only)</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#the-second-check-and-the-acceptance" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">The second check and the acceptance</span></a></li></ul></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-do-i-get-back" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What do I get back?</span></a><ul class="astro-jugkfwgx" style="--depth: 1;"><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#the-console" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">The console</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#files-and-records" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Files and records</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#native-and-qemu" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">Native and QEMU</span></a></li></ul></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-are-the-limits" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What are the limits?</span></a></li></ul></nav></starlight-toc><script type="module" src="/atesor/_astro/TableOfContents.astro_astro_type_script_index_0_lang.BpJaGz7G.js"></script></div></div></div></aside><div class="main-pane astro-lrzkfocr"><main data-pagefind-body class="astro-g5ptsecz" lang="en" dir="ltr"><div class="content-panel astro-a7po4psb"><div class="sl-container astro-a7po4psb"><h1 id="_top" class="astro-bebwqqxs">Performance mode</h1></div></div><div class="content-panel astro-a7po4psb"><div class="sl-container astro-a7po4psb"><div class="sl-markdown-content"><p>Performance mode (<code dir="auto">--optimize</code>) builds faster variants of a verified port for the machine that runs Eclipse Atesor™. Atesor checks each variant and measures it against the verified build. Use it on a native riscv64 machine to find out if other compiler or toolchain settings make the package faster on that machine.</p>
+<p>Each variant is a “tune”: the same build with other compiler or toolchain settings. The verified build always stays the result of the port. An accepted tune is an extra output, and only a measurement on real riscv64 hardware can accept it.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-do-i-need">What do I need?</h2><a class="sl-anchor-link" href="#what-do-i-need"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What do I need?”</span></a></div>
+<ul>
+<li><strong>A verified port.</strong> Performance mode runs after the finish step of the port. A port that is not verified gets the status <code dir="auto">skipped</code>. A port that fails goes to escalation, and performance mode does not run.</li>
+<li><strong>A native machine for a time measurement.</strong> Use <code dir="auto">--target native</code>. On the QEMU target, Atesor builds and checks the tunes, but it measures no time and never accepts a tune. See <a href="/atesor/docs/guides/native-riscv/">Native RISC-V machine</a> for the setup of the machine.</li>
+<li><strong>A quiet machine.</strong> Set the cpufreq governor of the board to <code dir="auto">performance</code>. Atesor never changes a board setting. It warns when the governor is different, when other work uses the CPUs, and when other Atesor containers run on the machine.</li>
+<li><strong>clang for the compiler tune.</strong> Only <code dir="auto">Dockerfile.native</code> installs a clang (<code dir="auto">clang-19</code>, with <code dir="auto">lld-19</code>, <code dir="auto">llvm-19</code> and <code dir="auto">libclang-rt-19-dev</code>). The Alpine image and the QEMU images have no clang, so they get no compiler tune. A native image that you built from an older checkout has no clang. Build it again one time with <code dir="auto">python3 main.py --target native --setup-only --rebuild</code>.</li>
+<li><strong>An LLM API key</strong>, as for a port. The optimizer agent (an LLM) proposes a program run or writes a harness, which is a small driver program for a library. A harness comes from the models of the builder role, with a 240-second time limit. A program run comes from the models of the planner role. When no model of the role answers in time, the models of the other role get the question one time.</li>
+<li><strong>Time.</strong> The default time limit is one hour, after the port.</li>
+</ul>
+<p>The LLM calls of performance mode add to the API calls, tokens and cost of the run. Each workload round costs at least one LLM request. The $1.00 cost cap does not stop performance mode: the supervisor checks the cap, and performance mode runs after the finish step. The module’s own Go benchmarks and the package tests need no LLM call. See <a href="/atesor/docs/guides/cost-control/">Cost control</a>.</p>
+<aside aria-label="Note" class="starlight-aside starlight-aside--note"><p class="starlight-aside__title" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" class="starlight-aside__icon"><path d="M12 11a1 1 0 0 0-1 1v4a1 1 0 0 0 2 0v-4a1 1 0 0 0-1-1Zm.38-3.92a1 1 0 0 0-.76 0 1 1 0 0 0-.33.21 1.15 1.15 0 0 0-.21.33 1 1 0 0 0 .21 1.09c.097.088.209.16.33.21A1 1 0 0 0 13 8a1.05 1.05 0 0 0-.29-.71 1 1 0 0 0-.33-.21ZM12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 18a8 8 0 1 1 0-16.001A8 8 0 0 1 12 20Z"/></svg>Note</p><div class="starlight-aside__content"><p>Performance mode is on <code dir="auto">main</code> since 2026-10-15. The v0.2.0 <code dir="auto">.deb</code> package (2026-10-01) does not include it. Run it from a source checkout with <code dir="auto">python3 main.py</code> until the next release. See <a href="/atesor/docs/getting-started/install/">Install Atesor</a>.</p></div></aside>
+<div class="sl-heading-wrapper level-h2"><h2 id="how-do-i-run-it">How do I run it?</h2><a class="sl-anchor-link" href="#how-do-i-run-it"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “How do I run it?”</span></a></div>
+<div class="expressive-code"><link rel="stylesheet" href="/atesor/_astro/ec.w36nc.css"><script type="module" src="/atesor/_astro/ec.0vx5m.js"></script><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">python3</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">main.py</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">--probe</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">--target</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">native</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">python3</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">main.py</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">--target</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">native</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">--repo</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">https://github.com/madler/zlib</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">--optimize</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">--package</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="python3 main.py --probe --target nativepython3 main.py --target native --repo https://github.com/madler/zlib --optimize --package"><div></div></button></div></figure></div>
+<p>The first command shows what the machine supports and the settings that follow from it. The second command ports the package, then runs performance mode. To build and check the tunes under QEMU, give a QEMU CPU model:</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">python3</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">main.py</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">--repo</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">https://github.com/madler/zlib</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">--optimize</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">--emulate-cpu</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">rva22u64</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="python3 main.py --repo https://github.com/madler/zlib --optimize --emulate-cpu rva22u64"><div></div></button></div></figure></div>
+<table>
+<thead>
+<tr>
+<th>Flag or variable</th>
+<th>Default</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">--optimize</code></td>
+<td>off</td>
+<td>After a verified port, build, check and measure tunes.</td>
+</tr>
+<tr>
+<td><code dir="auto">--probe</code></td>
+<td>off</td>
+<td>Probe the machine, print the result, save it to <code dir="auto">machine_profile_&lt;native|qemu&gt;.json</code> in the output directory, then exit.</td>
+</tr>
+<tr>
+<td><code dir="auto">--emulate-cpu MODEL</code></td>
+<td>not set (QEMU <code dir="auto">max</code> CPU)</td>
+<td>The <code dir="auto">QEMU_CPU</code> model for <code dir="auto">--optimize</code> and <code dir="auto">--probe</code> on the QEMU target.</td>
+</tr>
+<tr>
+<td><code dir="auto">--target</code></td>
+<td><code dir="auto">qemu</code></td>
+<td>Use <code dir="auto">native</code> for a time measurement.</td>
+</tr>
+<tr>
+<td><code dir="auto">--force</code></td>
+<td>off</td>
+<td>With <code dir="auto">--optimize</code>, ignore the cached recipe and plan again.</td>
+</tr>
+<tr>
+<td><code dir="auto">--package</code></td>
+<td>off</td>
+<td>Also put the accepted artifacts in the zip, under <code dir="auto">optimized/</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_OPTIMIZE_BUDGET</code></td>
+<td><code dir="auto">3600</code></td>
+<td>The time limit of performance mode, in seconds. A value that is not a number gives 3600.</td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_QEMU_CPU</code></td>
+<td>not set</td>
+<td>The environment form of <code dir="auto">--emulate-cpu</code>. The flag wins.</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h3"><h3 id="rules-for---probe">Rules for <code dir="auto">--probe</code></h3><a class="sl-anchor-link" href="#rules-for---probe"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Rules for --probe”</span></a></div>
+<ul>
+<li><code dir="auto">--probe</code> runs alone. With <code dir="auto">--repo</code>, Atesor stops with an error and exit code 1.</li>
+<li><code dir="auto">--probe</code> needs the sandbox, but no API key. On the native target, the preflight runs first.</li>
+<li>The output has the lines <code dir="auto">Machine:</code>, <code dir="auto">ISA label:</code>, <code dir="auto">Extensions:</code>, <code dir="auto">Vector:</code>, <code dir="auto">Core:</code>, <code dir="auto">Misaligned:</code>, <code dir="auto">CPUs:</code>, <code dir="auto">Kernel/libc:</code>, <code dir="auto">Sources:</code>, <code dir="auto">Governor:</code> and one <code dir="auto">Compiler:</code> line for each compiler. Then it shows the settings: <code dir="auto">Flags:</code>, <code dir="auto">Go:</code> and <code dir="auto">Rust:</code>.</li>
+<li>On the native target, the last line is <code dir="auto">QEMU model:</code>. It gives an <code dir="auto">--emulate-cpu</code> value that models your board under QEMU. This value needs QEMU 9.0 or later.</li>
+</ul>
+<div class="sl-heading-wrapper level-h3"><h3 id="rules-for-the-cpu-model">Rules for the CPU model</h3><a class="sl-anchor-link" href="#rules-for-the-cpu-model"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Rules for the CPU model”</span></a></div>
+<ul>
+<li>A model must start with a letter. It can contain letters, digits and <code dir="auto">_ . , = + -</code>, up to 512 characters. Else Atesor stops with <code dir="auto">is not a QEMU CPU model</code> and exit code 1.</li>
+<li>The model <code dir="auto">max</code>, with or without extra properties, counts as no model. Atesor then builds no ISA tune, because no real board has that extension set.</li>
+<li>On the native target, Atesor ignores <code dir="auto">--emulate-cpu</code> and gives a warning: on the console with <code dir="auto">--probe</code>, and in the report with <code dir="auto">--optimize</code>. It also ignores <code dir="auto">ATESOR_QEMU_CPU</code>.</li>
+<li>Without <code dir="auto">--optimize</code> or <code dir="auto">--probe</code>, Atesor ignores the model.</li>
+</ul>
+<div class="sl-heading-wrapper level-h3"><h3 id="performance-mode-and-the-recipe-cache">Performance mode and the recipe cache</h3><a class="sl-anchor-link" href="#performance-mode-and-the-recipe-cache"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Performance mode and the recipe cache”</span></a></div>
+<p><code dir="auto">--optimize</code> needs a real build tree, so it skips the recipe cache fast path. When the cache has a verified recipe of the package, that recipe becomes the build plan. At the start of the run, the console then shows a <code dir="auto">Recipe:</code> line that says <code dir="auto">from the cache</code>.</p>
+<ul>
+<li><code dir="auto">cached_recipe_node</code> turns the cached build plan into the plan and applies the cached patches first. The analyst and the scout make no LLM call.</li>
+<li>When the build fails anyway, for example because the source changed, the fixer and the normal planning loop take over.</li>
+<li><code dir="auto">--force</code> makes Atesor plan again.</li>
+</ul>
+<p>Performance mode never changes the exit code of the port. An error in performance mode goes into the report. <code dir="auto">batch_test.py</code> has no option for performance mode, so a batch run never optimizes.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-happens-during-a-run">What happens during a run?</h2><a class="sl-anchor-link" href="#what-happens-during-a-run"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What happens during a run?”</span></a></div>
+<p>The console shows performance mode as its own step, <code dir="auto">optimize_node</code>, with the status <code dir="auto">OPTIMIZING</code>, after <code dir="auto">finish_node</code>. Atesor prints one line for each part of the work. The full internals are in <a href="/atesor/docs/architecture/optimize/">Performance mode internals</a>.</p>
+<ol>
+<li><strong>Machine probe.</strong> Atesor reads the ISA extensions (test instructions, <code dir="auto">riscv_hwprobe</code> and <code dir="auto">/proc/cpuinfo</code>), the core, the speed of misaligned memory access, the CPUs, the cpufreq governor, and the compilers with the flags that they accept. A probe that fails stops performance mode with the status <code dir="auto">error</code>.</li>
+<li><strong>Machine check (native only).</strong> Each CPU that the sandbox may use runs 10 zlib round trips of 8 MiB, all CPUs at the same time. Unchanged code must give the data back. When it does not, Atesor stops before it builds anything, because no time measurement on that machine is reliable.</li>
+<li><strong>Package type.</strong> The artifacts of the verified build give the language (C/C++, Go or Rust) and the type: a library, programs, or both. Programs in test, example and benchmark folders do not count as programs of the package.</li>
+<li><strong>Baseline.</strong> Atesor builds the verified build again in a copy, <code dir="auto">&lt;repo&gt;.opt/base</code>. It compares each tune with this copy, so only the change of the tune counts. When the code of the copy is different from the verified build, Atesor warns that the build is not reproducible.</li>
+<li><strong>Workload.</strong> Atesor selects a workload that does the same fixed work in every run.</li>
+<li><strong>Tunes.</strong> Atesor makes the list of tunes from the probe and the language. It skips a tune that the build already has.</li>
+<li><strong>Rebuild.</strong> Each tune builds in a fresh copy of the patched tree, <code dir="auto">&lt;repo&gt;.opt/&lt;id&gt;</code>, with the commands of the verified build. A tune build does not repeat package installs, install steps, source control steps, or writes outside the tree.</li>
+<li><strong>Gates.</strong> Each tune must pass three correctness checks.</li>
+<li><strong>Measurement (native only).</strong> Atesor times each tune against the baseline.</li>
+<li><strong>Profile-guided optimization.</strong> After the list, Atesor tries profile-guided optimization (PGO) on top of the best tune.</li>
+<li><strong>Second check (native only).</strong> A faster tune must win again in a second check before Atesor accepts it.</li>
+<li><strong>Finish.</strong> The verified tree never changes. Atesor copies the riscv64 artifacts of the accepted tune to <code dir="auto">&lt;repo&gt;.opt/accepted</code> and removes the other trees.</li>
+</ol>
+<div class="sl-heading-wrapper level-h2"><h2 id="which-tunes-does-atesor-try">Which tunes does Atesor try?</h2><a class="sl-anchor-link" href="#which-tunes-does-atesor-try"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Which tunes does Atesor try?”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>Language</th>
+<th>Technique</th>
+<th>What the tune changes</th>
+<th>When Atesor builds it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C/C++</td>
+<td><code dir="auto">core tuning</code></td>
+<td><code dir="auto">-mtune=&lt;core&gt;</code></td>
+<td>The probe knows the core, and GCC accepts a tune name for it.</td>
+</tr>
+<tr>
+<td>C/C++</td>
+<td><code dir="auto">machine ISA</code></td>
+<td><code dir="auto">-march=rv64gc_&lt;extensions&gt;</code>, with only the probed extensions</td>
+<td>The machine has one or more of Zicond, Zfa, Zfhmin, Zba, Zbb and Zbs, and GCC accepts them.</td>
+</tr>
+<tr>
+<td>C/C++</td>
+<td><code dir="auto">vector ISA</code></td>
+<td><code dir="auto">-march=rv64gcv_&lt;extensions&gt;</code></td>
+<td>The machine has V, and GCC accepts it.</td>
+</tr>
+<tr>
+<td>C/C++</td>
+<td><code dir="auto">optimization level</code></td>
+<td><code dir="auto">-O3</code></td>
+<td>Not every source compile of the build uses <code dir="auto">-O3</code> already.</td>
+</tr>
+<tr>
+<td>C/C++</td>
+<td><code dir="auto">link-time optimization</code></td>
+<td><code dir="auto">-flto=auto -ffat-lto-objects</code></td>
+<td>GCC accepts both flags, and no source compile uses <code dir="auto">-flto</code> already.</td>
+</tr>
+<tr>
+<td>C/C++</td>
+<td><code dir="auto">compiler</code></td>
+<td>The newest probed clang, with its own <code dir="auto">-mtune</code>, <code dir="auto">-march</code> (with V) and <code dir="auto">-O3</code></td>
+<td>The probe finds a clang (<code dir="auto">clang</code>, or <code dir="auto">clang-19</code> to <code dir="auto">clang-22</code>) that emits bitmanip code.</td>
+</tr>
+<tr>
+<td>Go</td>
+<td><code dir="auto">machine ISA</code></td>
+<td><code dir="auto">GORISCV64=rva22u64</code> or <code dir="auto">GORISCV64=rva23u64</code></td>
+<td>The probe gives a level above <code dir="auto">rva20u64</code>, the default of Go.</td>
+</tr>
+<tr>
+<td>Rust</td>
+<td><code dir="auto">target CPU</code></td>
+<td><code dir="auto">RUSTFLAGS=-C target-cpu=&lt;cpu&gt;</code></td>
+<td>rustc knows the CPU of the core, and every feature that it adds is on the machine.</td>
+</tr>
+<tr>
+<td>Rust</td>
+<td><code dir="auto">machine ISA</code></td>
+<td><code dir="auto">RUSTFLAGS=-C target-feature=...</code> with the probed ones of <code dir="auto">+zba</code>, <code dir="auto">+zbb</code> and <code dir="auto">+zbs</code></td>
+<td>Instead of <code dir="auto">target CPU</code>, when that tune does not apply.</td>
+</tr>
+<tr>
+<td>Rust</td>
+<td><code dir="auto">link-time optimization</code></td>
+<td><code dir="auto">CARGO_PROFILE_RELEASE_LTO=fat</code> and <code dir="auto">CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1</code></td>
+<td>Always.</td>
+</tr>
+<tr>
+<td>C/C++ and Go</td>
+<td><code dir="auto">profile-guided optimization</code></td>
+<td>A profile from a training run, on top of the best tune</td>
+<td>C/C++ with a workload, and Go with a Go benchmark workload. Never Rust.</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Each GCC tune keeps the flags of the tune before it. The vector tune replaces the scalar <code dir="auto">-march</code>.</li>
+<li>When misaligned access is not <code dir="auto">fast</code>, each C/C++ tune also gets <code dir="auto">-mstrict-align</code>, if the compiler accepts it.</li>
+<li>The core table in <code dir="auto">src/machine.py</code> knows five cores: <code dir="auto">sifive-u74</code>, <code dir="auto">sifive-p550</code>, <code dir="auto">spacemit-x60</code>, <code dir="auto">thead-c906</code> and <code dir="auto">thead-c910</code>. An unknown core gets no core tuning.</li>
+<li>Under QEMU, ISA tunes need a named <code dir="auto">--emulate-cpu</code> model.</li>
+<li><code dir="auto">GORISCV64=rva23u64</code> needs Go 1.25 or later. <code dir="auto">rva22u64</code> needs Go 1.23 or later. A machine with Zba and Zbb but without Zbs can still get <code dir="auto">rva22u64</code> with Go 1.23 to 1.26, because these releases emit no Zbs instruction for it. Then the package tests decide.</li>
+<li>When the build sets <code dir="auto">RUSTFLAGS</code> itself, Atesor tries only the Rust LTO tune.</li>
+<li>Without GCC in the probe, Atesor tries no C/C++ tune.</li>
+<li>At most 7 tunes run: up to 6 from the list and one PGO tune.</li>
+</ul>
+<p>The flags of a C/C++ tune reach each compiler call through wrapper scripts in <code dir="auto">&lt;tree&gt;/.atesor/</code>, which <code dir="auto">CC</code>, <code dir="auto">CXX</code> and <code dir="auto">MAKEFLAGS</code> name. The wrapper adds the tune flags after the flags of the project, so the tune wins for repeated options such as <code dir="auto">-O</code> and <code dir="auto">-march</code>. Go and Rust tunes use environment variables.</p>
+<p>Example: <code dir="auto">tests/test_optimize.py</code> uses a test profile of a SiFive P550 core with Zba and Zbb, no Zbs, no V, and slow misaligned access. For that profile, the C/C++ list is:</p>
+<table>
+<thead>
+<tr>
+<th>Tune</th>
+<th>Technique</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">Tune-1</code></td>
+<td><code dir="auto">core tuning</code></td>
+<td><code dir="auto">-mtune=sifive-p550 -mstrict-align</code></td>
+</tr>
+<tr>
+<td><code dir="auto">Tune-2</code></td>
+<td><code dir="auto">machine ISA</code></td>
+<td><code dir="auto">-march=rv64gc_zba_zbb</code></td>
+</tr>
+<tr>
+<td><code dir="auto">Tune-3</code></td>
+<td><code dir="auto">optimization level</code></td>
+<td><code dir="auto">-O3</code></td>
+</tr>
+<tr>
+<td><code dir="auto">Tune-4</code></td>
+<td><code dir="auto">link-time optimization</code></td>
+<td><code dir="auto">-flto=auto -ffat-lto-objects</code></td>
+</tr>
+<tr>
+<td><code dir="auto">Tune-5</code></td>
+<td><code dir="auto">compiler</code></td>
+<td><code dir="auto">clang-19</code></td>
+</tr>
+</tbody>
+</table>
+<p>The same profile gives Go <code dir="auto">GORISCV64=rva22u64</code>, with a note about Zbs. It gives Rust <code dir="auto">-C target-cpu=sifive-p550</code>, then fat LTO.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="how-does-atesor-judge-a-tune">How does Atesor judge a tune?</h2><a class="sl-anchor-link" href="#how-does-atesor-judge-a-tune"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “How does Atesor judge a tune?”</span></a></div>
+<div class="sl-heading-wrapper level-h3"><h3 id="which-workload-does-atesor-time">Which workload does Atesor time?</h3><a class="sl-anchor-link" href="#which-workload-does-atesor-time"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Which workload does Atesor time?”</span></a></div>
+<p>A workload must do the same fixed work in every run, so its run time shows the speed of the build. Atesor tries these sources in order and uses the first one that passes its checks:</p>
+<ol>
+<li><strong>Go benchmarks.</strong> For a Go module, the benchmarks of the package that has the most benchmarks, with a fixed iteration count.</li>
+<li><strong>A program run.</strong> When the package builds its own programs, the optimizer agent proposes one command that runs a program on generated input.</li>
+<li><strong>A harness.</strong> For a library, or any Go module, the optimizer agent writes a harness against the public API: a C or C++ file, a Go benchmark <code dir="auto">BenchmarkAtesor</code>, or a Cargo example <code dir="auto">atesor_bench</code> for a Rust crate. A C/C++ harness links the library of the tree. With a shared library, <code dir="auto">ldd</code> must show that the harness loads the copy in the tree.</li>
+<li><strong>A test or example program</strong> of the package that calls its library. The optimizer agent proposes a run of it.</li>
+<li><strong>The package tests.</strong> They are a weak signal, because tests check correctness and do not model real use. Atesor never times Go tests, because <code dir="auto">go test</code> caches results.</li>
+</ol>
+<p>Each candidate runs on the baseline tree first. The checks are:</p>
+<ul>
+<li>The candidate must build and exit with 0. A run that exits with 0 and still writes to stderr also fails.</li>
+<li>A harness must print the same <code dir="auto">ATESOR-CHECK</code> line in two runs. A program run compares its whole output. Go benchmarks compare no output.</li>
+<li>On native hardware, one run must take 0.5 to 5 seconds. Atesor sets the iteration count of a harness or of Go benchmarks for about 2 seconds for each run. It scales the input of a program run instead, and a program run can take less than 0.5 seconds.</li>
+<li>The package tests run one time, on native hardware only, and only the 5-second limit applies.</li>
+<li>Under QEMU, one iteration is enough, because QEMU measures no time.</li>
+</ul>
+<p>When a check fails, the optimizer agent gets the error and tries again: 3 rounds, and up to 8 rounds while each round gives a new error. The rounds stop when less than 600 seconds of the time limit are left. The input is generated data of the kind <code dir="auto">binary</code>, <code dir="auto">text</code>, <code dir="auto">json</code> or <code dir="auto">csv</code>. The same seed always gives the same bytes. Atesor does not use benchmark suites that run for a fixed time, for example Google Benchmark or criterion, because their run time does not show the speed.</p>
+<div class="sl-heading-wrapper level-h3"><h3 id="the-gates">The gates</h3><a class="sl-anchor-link" href="#the-gates"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “The gates”</span></a></div>
+<ol>
+<li><strong>Artifacts.</strong> The artifacts must exist and be riscv64. For C/C++, the wrapper log must show compiler calls, so the flags reached the compiler. For Go, a binary must carry the <code dir="auto">GORISCV64</code> value of the tune. Code that is equal to the baseline gives the result <code dir="auto">no effect</code>.</li>
+<li><strong>Package tests.</strong> When the tests of the baseline pass, the tests of the tune must pass too. When the baseline tests did not pass, this gate does not decide. When the tests build an artifact again, Atesor puts back the build of the tune.</li>
+<li><strong>Workload output.</strong> The output of the workload must be equal to the output of the baseline, and a run must not change its input file.</li>
+</ol>
+<ul>
+<li>Gate 1 fails a tune that does not build a library of the package or the program that the workload times. Another missing artifact gives only a warning.</li>
+<li>Instructions from extensions that the machine lacks give a warning, not a failure, because runtime dispatch can contain them legitimately. Gates 2 and 3 decide.</li>
+<li>A tune with the same code as an earlier tune gets the result of that tune, without a new measurement.</li>
+</ul>
+<div class="sl-heading-wrapper level-h3"><h3 id="the-measurement-native-only">The measurement (native only)</h3><a class="sl-anchor-link" href="#the-measurement-native-only"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “The measurement (native only)”</span></a></div>
+<ol>
+<li>Atesor warms up both builds with 3 runs each. Then it times 10 baseline runs. These runs give the noise and the minimum detectable effect. For a workload with output to compare, the outputs of these runs must match.</li>
+<li>Atesor runs 20 rounds, or 40 rounds when 20 rounds cannot detect a 2% change. Each round runs the baseline and the tune in random order.</li>
+<li>Each run is pinned to one CPU, the highest-numbered CPU that the sandbox may use. Each run also gets a random environment padding, so a lucky stack address cannot favor one build.</li>
+<li>Atesor compares the time ratio of tune to baseline: the median of the ratios of the rounds, a 95% bootstrap interval, and a Mann-Whitney p-value.</li>
+<li>A tune is <code dir="auto">faster</code> when the upper bound of the interval is below 0.98 and p is below 0.05. It is <code dir="auto">slower</code> when the lower bound is above 1.02 and p is below 0.05. Else the result is <code dir="auto">no change</code>.</li>
+<li>Atesor discards a session as <code dir="auto">unstable</code> when the CPU frequency changes or the temperature reaches 75 °C.</li>
+</ol>
+<p>One measurement needs about 56 runs. A measurement that the remaining time cannot finish does not start. When the unchanged baseline fails 2 timing runs, Atesor times no more tunes, because the machine or the workload gives wrong results.</p>
+<div class="sl-heading-wrapper level-h3"><h3 id="the-second-check-and-the-acceptance">The second check and the acceptance</h3><a class="sl-anchor-link" href="#the-second-check-and-the-acceptance"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “The second check and the acceptance”</span></a></div>
+<p>A faster tune must win again in a second check:</p>
+<ul>
+<li><strong>C/C++.</strong> Atesor builds the tune again with <code dir="auto">-falign-functions=64</code>. It compares it with a baseline that has the same flag, so a gain from a lucky code layout cannot pass.</li>
+<li><strong>Rust.</strong> The same change through LLVM: <code dir="auto">-C llvm-args=-align-all-functions=6</code> in <code dir="auto">RUSTFLAGS</code>.</li>
+<li><strong>Go.</strong> A second measurement session.</li>
+</ul>
+<p>Atesor checks the faster tunes in order, the best time ratio first. The first tune that passes the second check is the accepted tune. A faster tune after it gets <code dir="auto">not checked</code>. A gain that did not hold, or that got no second check, is <code dir="auto">not confirmed</code>. After a tune is faster, Atesor runs a later tune only when the time limit still covers that tune and the second check.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-do-i-get-back">What do I get back?</h2><a class="sl-anchor-link" href="#what-do-i-get-back"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What do I get back?”</span></a></div>
+<div class="sl-heading-wrapper level-h3"><h3 id="the-console">The console</h3><a class="sl-anchor-link" href="#the-console"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “The console”</span></a></div>
+<p>During the step, each line starts with a key: <code dir="auto">Machine</code>, <code dir="auto">Health</code>, <code dir="auto">Package</code>, <code dir="auto">Baseline</code>, <code dir="auto">Workload</code>, <code dir="auto">Tune-&lt;n&gt;</code>, <code dir="auto">Check</code> or <code dir="auto">Result</code>. Indented lines under a key give the details, for example the lines that start with <code dir="auto">why:</code>, <code dir="auto">fix:</code> and <code dir="auto">note:</code>. This example from <code dir="auto">tests/test_optimize.py</code> shows a port that is not verified:</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="text"><code><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Result   : NO: performance mode was skipped</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#d6deeb;--1:#403f53">           </span></span><span style="--0:#d6deeb;--1:#403f53">why: the port is not verified, so there is no baseline</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="Result   : NO: performance mode was skipped           why: the port is not verified, so there is no baseline"><div></div></button></div></figure></div>
+<p>After the port summary, Atesor prints the answer in one line, then one line for each tune:</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="text"><code><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#d6deeb;--1:#403f53">   </span></span><span style="--0:#d6deeb;--1:#403f53">Optimized: &lt;answer&gt;</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#d6deeb;--1:#403f53">     </span></span><span style="--0:#d6deeb;--1:#403f53">Why: &lt;reason&gt;</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#d6deeb;--1:#403f53">     </span></span><span style="--0:#d6deeb;--1:#403f53">Fix: &lt;advice&gt;</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#d6deeb;--1:#403f53">     </span></span><span style="--0:#d6deeb;--1:#403f53">Tune-&lt;n&gt;  &lt;technique&gt;  &lt;value&gt;  &lt;result&gt;  &lt;- accepted</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#d6deeb;--1:#403f53">   </span></span><span style="--0:#d6deeb;--1:#403f53">Optimized files: /workspace/repos/&lt;repo&gt;.opt/accepted (with --package also in the zip under optimized/)</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="   Optimized: <answer>     Why: <reason>     Fix: <advice>     Tune-<n>  <technique>  <value>  <result>  <- accepted   Optimized files: /workspace/repos/<repo>.opt/accepted (with --package also in the zip under optimized/)"><div></div></button></div></figure></div>
+<p><code dir="auto">Why:</code> shows when Atesor accepts no tune. <code dir="auto">Fix:</code> shows when Atesor has advice. The answer is one of these:</p>
+<table>
+<thead>
+<tr>
+<th>Answer</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">YES: &lt;tune&gt; (&lt;settings&gt;) is &lt;n&gt;% faster than the verified build</code></td>
+<td><code dir="auto">accepted</code></td>
+</tr>
+<tr>
+<td><code dir="auto">NO: no tune was clearly faster than the verified build</code></td>
+<td><code dir="auto">no gain</code></td>
+</tr>
+<tr>
+<td><code dir="auto">NO: no faster tune was confirmed</code></td>
+<td><code dir="auto">not confirmed</code></td>
+</tr>
+<tr>
+<td><code dir="auto">NO: no tune could be timed</code></td>
+<td><code dir="auto">not measured</code></td>
+</tr>
+<tr>
+<td><code dir="auto">NOT TIMED: QEMU checks the builds and their output; only native hardware measures speed</code></td>
+<td><code dir="auto">checked</code></td>
+</tr>
+<tr>
+<td><code dir="auto">NO: performance mode was skipped</code></td>
+<td><code dir="auto">skipped</code></td>
+</tr>
+<tr>
+<td><code dir="auto">NO: performance mode stopped with an error</code></td>
+<td><code dir="auto">error</code></td>
+</tr>
+</tbody>
+</table>
+<p>For the status <code dir="auto">no gain</code> or <code dir="auto">not confirmed</code>, the answer also names the best timed tune in parentheses, after <code dir="auto">best:</code>.</p>
+<div class="sl-heading-wrapper level-h3"><h3 id="files-and-records">Files and records</h3><a class="sl-anchor-link" href="#files-and-records"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Files and records”</span></a></div>
+<ul>
+<li><strong>The report.</strong> <code dir="auto">&lt;repo&gt;_report_&lt;time&gt;.md</code> has a <code dir="auto">Machine Profile</code> section and a <code dir="auto">Performance Mode (--optimize)</code> section. The second section gives the answer, the status, the machine, the package, the baseline, the workload and the duration. Its table has the columns <code dir="auto">Tune</code>, <code dir="auto">Technique</code>, <code dir="auto">Settings</code>, <code dir="auto">Result</code>, <code dir="auto">Time ratio (95% CI)</code> and <code dir="auto">Details</code>. Then it lists the warnings, the notes and the source of the harness.</li>
+<li><strong>The state file.</strong> <code dir="auto">&lt;repo&gt;_state_&lt;time&gt;.json</code> has the fields <code dir="auto">optimization</code> and <code dir="auto">machine_profile</code>.</li>
+<li><strong>The accepted artifacts.</strong> They are in <code dir="auto">&lt;repo&gt;.opt/accepted</code>, next to the repository tree. On the native target, Atesor removes <code dir="auto">&lt;repo&gt;.opt</code> from the machine when the command ends. With <code dir="auto">--package</code>, Atesor first copies it to the local mirror.</li>
+<li><strong>The zip.</strong> With <code dir="auto">--package</code>, the zip has the accepted artifacts in <code dir="auto">optimized/</code>. The manifest has schema version 3, with the sections <code dir="auto">machine</code> and <code dir="auto">optimization</code>. A run without <code dir="auto">--optimize</code> writes schema version 2.</li>
+<li><strong>The recipe cache.</strong> A native result with a workload and the status <code dir="auto">accepted</code> or <code dir="auto">no gain</code> goes into the cache entry of the verified build, under <code dir="auto">optimizations</code>. The key is the core name of the machine, else its ISA label, so results from different boards stay apart. Atesor never makes a new cache entry for a result.</li>
+<li><strong>The machine profile.</strong> <code dir="auto">--probe</code> writes <code dir="auto">machine_profile_native.json</code> or <code dir="auto">machine_profile_qemu.json</code> to the output directory.</li>
+</ul>
+<p>See <a href="/atesor/docs/reference/output-files/">Output files</a> for the location of each file.</p>
+<div class="sl-heading-wrapper level-h3"><h3 id="native-and-qemu">Native and QEMU</h3><a class="sl-anchor-link" href="#native-and-qemu"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Native and QEMU”</span></a></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Native</th>
+<th>QEMU</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Probe</td>
+<td>The board</td>
+<td>The <code dir="auto">--emulate-cpu</code> model, else the QEMU <code dir="auto">max</code> CPU</td>
+</tr>
+<tr>
+<td>Machine check</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>ISA tunes</td>
+<td>Yes</td>
+<td>Only with a named <code dir="auto">--emulate-cpu</code> model</td>
+</tr>
+<tr>
+<td>Gates</td>
+<td>Yes</td>
+<td>Yes, on the emulated CPU</td>
+</tr>
+<tr>
+<td>Time measurement</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Accepted tune</td>
+<td>Yes</td>
+<td>Never</td>
+</tr>
+</tbody>
+</table>
+<p>Emulation speed says nothing about the speed of hardware, so a QEMU run only builds and checks the tunes. Under QEMU, a tune without a workload, or with a workload that has no output to compare, gets <code dir="auto">built</code> after gates 1 and 2.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-are-the-limits">What are the limits?</h2><a class="sl-anchor-link" href="#what-are-the-limits"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What are the limits?”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The port is not verified</td>
+<td><code dir="auto">skipped</code>: <code dir="auto">the port is not verified, so there is no baseline</code></td>
+</tr>
+<tr>
+<td>No tune applies to the machine and the build system</td>
+<td><code dir="auto">skipped</code></td>
+</tr>
+<tr>
+<td>The verified build has no repeatable command, or no artifact in the tree</td>
+<td><code dir="auto">skipped</code></td>
+</tr>
+<tr>
+<td>The machine probe fails</td>
+<td><code dir="auto">error</code></td>
+</tr>
+<tr>
+<td>The verified build does not build again in the copy</td>
+<td><code dir="auto">error</code></td>
+</tr>
+<tr>
+<td>The machine check gives wrong data</td>
+<td><code dir="auto">not measured</code>, with <code dir="auto">Fix: make the machine stable first (a lower CPU frequency, a memory test), then run again</code></td>
+</tr>
+<tr>
+<td>The time limit is below 300 seconds</td>
+<td><code dir="auto">not measured</code>, before any build</td>
+</tr>
+<tr>
+<td>No workload passes its checks on native hardware</td>
+<td><code dir="auto">not measured</code>, and Atesor builds no tune</td>
+</tr>
+<tr>
+<td>The verified build crashes while it runs the workload</td>
+<td>A <code dir="auto">port problem:</code> line, because the baseline has no tune flags</td>
+</tr>
+<tr>
+<td>The time limit ends before a second check</td>
+<td><code dir="auto">not confirmed</code>, with <code dir="auto">Fix: run again with a larger ATESOR_OPTIMIZE_BUDGET</code></td>
+</tr>
+</tbody>
+</table>
+<p>This example from <code dir="auto">tests/test_optimize.py</code> shows a machine check that failed:</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="text"><code><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Health   : 3 of 40 zlib round trips gave wrong data (CPU 0: 1, CPU 1: 2)</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="Health   : 3 of 40 zlib round trips gave wrong data (CPU 0: 1, CPU 1: 2)"><div></div></button></div></figure></div>
+<p>Other limits come from the code:</p>
+<ul>
+<li>Before each tune, Atesor checks the time limit. With less than 300 seconds left, it skips the tune. Each build has a limit of 1800 seconds, or the time that is left when that is shorter (at least 60 seconds).</li>
+<li>A harness may not use calls that make runs differ or reach outside the sandbox. Examples are <code dir="auto">system</code>, <code dir="auto">fork</code>, <code dir="auto">socket</code>, <code dir="auto">rand</code>, <code dir="auto">time</code> and <code dir="auto">clock_gettime</code> in C, <code dir="auto">os/exec</code>, <code dir="auto">net</code> and <code dir="auto">time.Now</code> in Go, and <code dir="auto">std::process::Command</code> and <code dir="auto">Instant::now</code> in Rust. A harness source must be 32,000 bytes or less.</li>
+<li>A program run uses a strict grammar. Each pipe stage starts with <code dir="auto">{bin}</code> or a helper such as <code dir="auto">cat</code>, <code dir="auto">gzip</code>, <code dir="auto">head</code>, <code dir="auto">sha256sum</code> or <code dir="auto">wc</code>. <code dir="auto">&lt;</code> reads only <code dir="auto">{input}</code> or <code dir="auto">/dev/null</code>, and <code dir="auto">&gt;</code> writes only <code dir="auto">{output}</code> or <code dir="auto">/dev/null</code>.</li>
+<li>A program run that takes more than 5 seconds with the smallest input (1 MiB) fails. The command must do less work for each byte.</li>
+<li>Instructions that the machine lacks give only a warning. A tune with such instructions can stop with <code dir="auto">SIGILL</code> in the package tests or in the workload run.</li>
+<li>Atesor never accepts a QEMU result, and never stores one in the recipe cache.</li>
+</ul>
+</div><footer class="sl-flex astro-ddtxxk7k"><div class="meta sl-flex astro-ddtxxk7k"><a href="https://github.com/eclipse-atesor/project-website/edit/main/site/src/content/docs/docs/guides/optimize.md" class="sl-flex print:hidden astro-qlekgd3o"><svg aria-hidden="true" class="astro-qlekgd3o astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.2em;"><path d="M22 7.24a1 1 0 0 0-.29-.71l-4.24-4.24a1 1 0 0 0-1.1-.22 1 1 0 0 0-.32.22l-2.83 2.83L2.29 16.05a1 1 0 0 0-.29.71V21a1 1 0 0 0 1 1h4.24a1 1 0 0 0 .76-.29l10.87-10.93L21.71 8c.1-.1.17-.2.22-.33a1 1 0 0 0 0-.24v-.14l.07-.05ZM6.83 20H4v-2.83l9.93-9.93 2.83 2.83L6.83 20ZM18.17 8.66l-2.83-2.83 1.42-1.41 2.82 2.82-1.41 1.42Z"/></svg>Edit this page on GitHub</a></div><div class="pagination-links print:hidden astro-b5raizh3" dir="ltr"><a href="/atesor/docs/guides/troubleshooting/" rel="prev" class="astro-b5raizh3"><svg aria-hidden="true" class="astro-b5raizh3 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg><span class="astro-b5raizh3">Previous<br class="astro-b5raizh3"><span class="link-title astro-b5raizh3">Troubleshooting</span></span></a><a href="/atesor/docs/architecture/overview/" rel="next" class="astro-b5raizh3"><svg aria-hidden="true" class="astro-b5raizh3 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg><span class="astro-b5raizh3">Next<br class="astro-b5raizh3"><span class="link-title astro-b5raizh3">Architecture overview</span></span></a></div></footer><footer class="ef-footer astro-pnsvry7h" aria-label="Eclipse Foundation"><div class="ef-top astro-pnsvry7h"><a class="ef-logo astro-pnsvry7h" href="https://www.eclipse.org" rel="noopener"><svg role="img" aria-label="Eclipse Foundation" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 281.5 90.7">
+  <path fill="#f06c02" d="M265.7,84l-8.7-11h-2.7v17.7h3.3v-12l9.3,12h2.1v-17.7h-3.3v11ZM233.3,75.7c4.2,0,5.8,3.3,5.8,6.3s-1.6,6-5.8,6-5.7-3.1-5.8-6,1.7-6.3,5.8-6.3ZM233.3,72.7c-6.1,0-9.1,4.7-9.1,9.3s2.9,9.1,9.1,9.1,9-4.6,9.1-9.2-3-9.3-9.1-9.3ZM212.1,90.7v-17.7h-3.3v17.7h3.3ZM188.5,90.7h3.3v-14.7h5.6v-3h-14.6v3h5.6v14.7ZM169.6,84.2h-6.6l3.3-7.6,3.3,7.6ZM172.4,90.7h3.6l-7.9-17.7h-3.6l-8,17.7h3.6l1.5-3.3h9.3l1.5,3.3ZM134.4,76.1h3.6c3.9,0,5.5,2.8,5.5,5.5,0,2.8-1.5,5.8-5.5,5.8h-3.6v-11.4ZM138.1,73h-6.9v17.7h6.9c6.2,0,8.9-4.5,8.9-9s-2.8-8.7-8.9-8.7h0ZM115.7,84l-8.7-11h-2.7v17.7h3.3v-12l9.3,12h2.1v-17.7h-3.3v11ZM88.2,73v10.2c0,3-1.6,4.9-4.3,4.9s-4.6-1.7-4.6-4.9v-10.1h-3.3v10.1c0,5.3,3.6,7.9,7.9,7.9s7.7-2.7,7.7-7.9v-10.1h-3.3ZM55.2,75.7c4.2,0,5.8,3.3,5.8,6.3,0,3-1.6,6-5.8,6s-5.7-3.1-5.8-6,1.7-6.3,5.8-6.3h0ZM55.2,72.7c-6.1,0-9.1,4.7-9.1,9.3s2.9,9.1,9.1,9.1,9-4.6,9.1-9.2-3-9.3-9.1-9.3h0ZM25.5,90.7v-6.5h8.9v-3.1h-8.9v-4.8h9.4v-3.2h-12.7v17.6h3.3Z"/>
+  <path fill="currentColor" d="M269.4,54.4h-22.2v-8.9h21.4v-6.9h-21.4v-9.1h22.2v-7.2h-29.6v39.5h29.6v-7.3ZM229.4,28.8c-3-6.1-9.4-7.8-15.5-7.8s-15.3,3.4-15.3,11.5,7.4,11,15.5,12c5.2.6,9.1,2.1,9.1,5.8s-4.4,5.9-9.1,5.9-9.4-1.9-11.1-6.3l-6.2,3.2c2.9,7.2,9.1,9.7,17.2,9.7s16.6-3.8,16.6-12.6-7.7-11.6-15.9-12.6c-4.7-.6-8.8-1.5-8.8-5s2.6-5.2,8.2-5.2,8,2.2,9.4,4.4l5.9-3ZM176,22.2c-6.2,0-12.4,0-18.6,0v39.5h7.4v-11.6h11.2c19.4,0,19.3-27.9,0-27.9h0ZM164.9,29.3h11.2c9.5,0,9.5,14,0,14h-11.2v-14ZM146.9,61.8V22.2h-7.4v39.5h7.4ZM102.9,22.2v39.5h27.8v-6.9h-20.3V22.2h-7.5ZM90.7,51.7c-2.7,2.5-6.2,4-9.9,4-9.8,0-13.5-6.8-13.6-13.4s4.1-13.7,13.6-13.7c3.5,0,7,1.3,9.5,3.7l5-4.8c-3.8-3.9-9.1-6-14.5-6-14.3,0-21,10.5-20.9,20.8,0,10.3,6.3,20.3,20.9,20.3,5.6.1,11-2,15-5.9l-5.1-5.1ZM51.7,54.4h-22.2v-8.9h21.4v-6.9h-21.4v-9.1h22.2v-7.2h-29.5v39.5h29.6v-7.3Z"/>
+  <path fill="#f06c02" d="M9.8,18.2C18.8,4.1,37-.8,52.1,5.9l-1-.7C35.6-4.6,15.1-.2,5.3,15.3-4.6,30.7-.2,51.2,15.3,61.1l1.1.6C3.8,50.8.8,32.3,9.8,18.2Z"/>
+  <path fill="currentColor" d="M272.2,26.1h0c0-2.5,2.1-4.6,4.6-4.6s4.6,2.1,4.6,4.6h0c0,2.5-2.1,4.6-4.6,4.6s-4.6-2.1-4.6-4.6ZM280.8,26.1h0c0-2.2-1.8-4.1-4-4.1s-4.1,1.8-4.1,4.1h0c0,2.2,1.7,4,3.9,4.1,0,0,0,0,.1,0,2.2,0,4.1-1.8,4.1-4,0,0,0,0,0,0h0ZM274.8,23.6h2.3c1.1,0,1.9.5,1.9,1.6,0,.7-.4,1.3-1.1,1.5l1.2,1.7h-1.4l-1-1.5h-.7v1.5h-1.1v-4.7ZM277,25.9c.5,0,.8-.3.8-.7s-.3-.7-.8-.7h-1v1.3h1Z"/>
+</svg></a><a class="ef-incubation astro-pnsvry7h" href="https://www.eclipse.org/projects/handbook/#incubation" rel="noopener"><span class="egg astro-pnsvry7h"><img src="/atesor/assets/incubation.png" alt="Eclipse Foundation incubation phase" width="22" height="29" loading="lazy" class="astro-pnsvry7h"></span><span class="ef-incubation-text astro-pnsvry7h"><strong class="astro-pnsvry7h">Incubating</strong><span class="astro-pnsvry7h">Eclipse Development Process</span></span></a></div><p class="astro-pnsvry7h">Eclipse Atesor™ is an open source project of the <a href="https://projects.eclipse.org/projects/openhw" rel="noopener" class="astro-pnsvry7h">OpenHW Group</a>, hosted by the Eclipse Foundation. Copyright © Eclipse Foundation AISBL. All Rights Reserved.</p><p class="astro-pnsvry7h">Eclipse Atesor, Atesor, Eclipse, and the Eclipse logo are trademarks of Eclipse Foundation AISBL. Eclipse Atesor source code is licensed under the <a href="https://github.com/eclipse-atesor/atesor/blob/main/LICENSE" rel="noopener" class="astro-pnsvry7h">MIT License</a>.</p><ul class="ef-links astro-pnsvry7h"><li class="astro-pnsvry7h"><a href="https://www.eclipse.org" rel="noopener" class="astro-pnsvry7h">Eclipse Foundation</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/privacy/" rel="noopener" class="astro-pnsvry7h">Privacy policy</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/terms-of-use/" rel="noopener" class="astro-pnsvry7h">Terms of use</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/compliance/" rel="noopener" class="astro-pnsvry7h">Compliance</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/" rel="noopener" class="astro-pnsvry7h">Legal resources</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/security/" rel="noopener" class="astro-pnsvry7h">Report a vulnerability</a></li></ul></footer></div></div></main></div></div></div></div></body></html>

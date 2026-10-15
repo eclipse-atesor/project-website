@@ -139,7 +139,8 @@ if [[ -f "$MANIFEST" ]]; then
   # Drop directories the removals emptied. Scoped to the published tree so an
   # unrelated empty top-level directory is never swept up (SEC-08).
   if [[ $DRY_RUN -eq 0 ]]; then
-    for d in "$REPO_ROOT/_astro" "$REPO_ROOT/assets" "$REPO_ROOT/downloads"; do
+    for d in "$REPO_ROOT/_astro" "$REPO_ROOT/assets" "$REPO_ROOT/downloads" \
+             "$REPO_ROOT/docs" "$REPO_ROOT/brand" "$REPO_ROOT/pagefind"; do
       [[ -d "$d" ]] && find "$d" -mindepth 0 -type d -empty -delete 2>/dev/null || true
     done
   fi

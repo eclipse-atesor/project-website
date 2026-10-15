@@ -1,0 +1,669 @@
+<!DOCTYPE html><html lang="en" dir="ltr" data-theme="dark" data-has-toc data-has-sidebar class="astro-g5ptsecz"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Environment variables | Eclipse Atesor™</title><link rel="canonical" href="https://eclipse.dev/atesor/docs/reference/environment-variables/"/><link rel="sitemap" href="/atesor/sitemap-index.xml"/><link rel="apple-touch-icon" href="/atesor/apple-touch-icon.png"/><link rel="manifest" href="/atesor/site.webmanifest"/><link rel="alternate" type="text/plain" title="llms.txt" href="/atesor/llms.txt"/><link rel="shortcut icon" href="/atesor/favicon.svg" type="image/svg+xml"/><meta name="generator" content="Astro v7.3.8"/><meta name="generator" content="Starlight v0.42.6"/><meta property="og:title" content="Environment variables"/><meta property="og:type" content="article"/><meta property="og:url" content="https://eclipse.dev/atesor/docs/reference/environment-variables/"/><meta property="og:locale" content="en"/><meta property="og:description" content="Every environment variable that Atesor reads, with its default, what it controls and the file that reads it, plus the .env load order."/><meta property="og:site_name" content="Eclipse Atesor™"/><meta name="twitter:card" content="summary_large_image"/><meta name="description" content="Every environment variable that Atesor reads, with its default, what it controls and the file that reads it, plus the .env load order."/><meta property="og:image" content="https://eclipse.dev/atesor/brand/og-image.png"/><meta name="twitter:image" content="https://eclipse.dev/atesor/brand/og-image.png"/><script>
+	window.StarlightThemeProvider = (() => {
+		const storedTheme =
+			typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+		const theme =
+			storedTheme ||
+			(window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+		document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+		return {
+			updatePickers(theme = storedTheme || 'auto') {
+				document.querySelectorAll('starlight-theme-select').forEach((picker) => {
+					const select = picker.querySelector('select');
+					if (select) select.value = theme;
+					/** @type {HTMLTemplateElement | null} */
+					const tmpl = document.querySelector(`#theme-icons`);
+					const newIcon = tmpl && tmpl.content.querySelector('.' + theme);
+					if (newIcon) {
+						const oldIcon = picker.querySelector('svg.label-icon');
+						if (oldIcon) {
+							oldIcon.replaceChildren(...newIcon.cloneNode(true).childNodes);
+						}
+					}
+				});
+			},
+		};
+	})();
+</script><template id="theme-icons"><svg aria-hidden="true" class="light astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M5 12a1 1 0 0 0-1-1H3a1 1 0 0 0 0 2h1a1 1 0 0 0 1-1Zm.64 5-.71.71a1 1 0 0 0 0 1.41 1 1 0 0 0 1.41 0l.71-.71A1 1 0 0 0 5.64 17ZM12 5a1 1 0 0 0 1-1V3a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1Zm5.66 2.34a1 1 0 0 0 .7-.29l.71-.71a1 1 0 1 0-1.41-1.41l-.66.71a1 1 0 0 0 0 1.41 1 1 0 0 0 .66.29Zm-12-.29a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.71-.71a1.004 1.004 0 1 0-1.43 1.41l.73.71ZM21 11h-1a1 1 0 0 0 0 2h1a1 1 0 0 0 0-2Zm-2.64 6A1 1 0 0 0 17 18.36l.71.71a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.76-.66ZM12 6.5a5.5 5.5 0 1 0 5.5 5.5A5.51 5.51 0 0 0 12 6.5Zm0 9a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm0 3.5a1 1 0 0 0-1 1v1a1 1 0 0 0 2 0v-1a1 1 0 0 0-1-1Z"/></svg><svg aria-hidden="true" class="dark astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.64 13a1 1 0 0 0-1.05-.14 8.049 8.049 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05Zm-9.5 6.69A8.14 8.14 0 0 1 7.08 5.22v.27a10.15 10.15 0 0 0 10.14 10.14 9.784 9.784 0 0 0 2.1-.22 8.11 8.11 0 0 1-7.18 4.32v-.04Z"/></svg><svg aria-hidden="true" class="auto astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg></template><link rel="stylesheet" href="/atesor/_astro/print.ehPL0gv-.css" media="print"><link rel="stylesheet" href="/atesor/_astro/index.CxIBpmSu.css"><style>@layer starlight.components{svg:where(.astro-hkc32dio){color:var(--sl-icon-color);font-size:var(--sl-icon-size,1em);width:1em;height:1em;overflow:visible}}
+</style><script type="module" src="/atesor/_astro/page.cNngjUgL.js"></script></head><body class="astro-g5ptsecz"><a class="sl-skip-link astro-qb7clj6f" href="#_top">Skip to content</a><div class="page sl-flex astro-yntsjkba"><header class="header astro-yntsjkba"><div class="header astro-by6fddyj"><div class="title-wrapper sl-flex astro-by6fddyj"><a href="/atesor/" class="site-title sl-flex astro-6rvad3va"><img class="light:sl-hidden print:hidden astro-6rvad3va" alt src="/atesor/_astro/atesor-mark-dark.CIOkFVI-.svg" width="512" height="512"><img class="dark:sl-hidden print:block astro-6rvad3va" alt src="/atesor/_astro/atesor-mark.BhUamroi.svg" width="512" height="512"><span class="astro-6rvad3va" translate="no">Eclipse Atesor™</span></a></div><div class="sl-flex print:hidden astro-by6fddyj"><site-search class="astro-by6fddyj astro-b5kgnn7o" data-translations="{&quot;placeholder&quot;:&quot;Search&quot;}"><button data-open-modal disabled aria-label="Search" aria-keyshortcuts="Control+K" class="astro-b5kgnn7o"><svg aria-hidden="true" class="astro-b5kgnn7o astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.71 20.29 18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/></svg><span class="sl-hidden md:sl-block astro-b5kgnn7o" aria-hidden="true">Search</span><kbd class="sl-hidden md:sl-flex astro-b5kgnn7o" style="display: none;"><kbd class="astro-b5kgnn7o">Ctrl</kbd><kbd class="astro-b5kgnn7o">K</kbd></kbd></button><dialog style="padding:0" aria-label="Search" class="astro-b5kgnn7o"><div class="dialog-frame sl-flex astro-b5kgnn7o"><button data-close-modal class="sl-flex md:sl-hidden astro-b5kgnn7o">Cancel</button><div class="search-container astro-b5kgnn7o"><div id="starlight__search" class="astro-b5kgnn7o"></div></div></div></dialog></site-search><script>
+	(() => {
+		const openBtn = document.querySelector('button[data-open-modal]');
+		const shortcut = openBtn?.querySelector('kbd');
+		if (!openBtn || !(shortcut instanceof HTMLElement)) return;
+		const platformKey = shortcut.querySelector('kbd');
+		if (platformKey && /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
+			platformKey.textContent = '⌘';
+			openBtn.setAttribute('aria-keyshortcuts', 'Meta+K');
+		}
+		shortcut.style.display = '';
+	})();
+</script><script type="module" src="/atesor/_astro/Search.astro_astro_type_script_index_0_lang.BtDwG4cY.js"></script></div><div class="sl-hidden md:sl-flex print:hidden right-group astro-by6fddyj"><div class="sl-flex social-icons astro-by6fddyj"><a href="https://github.com/eclipse-atesor/atesor" rel="me" class="sl-flex astro-n2mnl6yq"><span class="sr-only astro-n2mnl6yq">Source on GitHub</span><svg aria-hidden="true" class="astro-n2mnl6yq astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/></svg></a></div><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-2z5xp7gb"><span class="sr-only astro-2z5xp7gb">Select theme</span><svg aria-hidden="true" class="icon label-icon astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-2z5xp7gb"><option value="dark" class="astro-2z5xp7gb">Dark</option><option value="light" class="astro-2z5xp7gb">Light</option><option value="auto" selected class="astro-2z5xp7gb">Auto</option></select><svg aria-hidden="true" class="icon caret astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script><script type="module">var e=`starlight-theme`,t=e=>e===`auto`||e===`dark`||e===`light`?e:`auto`,n=()=>t(typeof localStorage<`u`&&localStorage.getItem(e));function r(t){typeof localStorage<`u`&&localStorage.setItem(e,t===`light`||t===`dark`?t:``)}var i=()=>matchMedia(`(prefers-color-scheme: light)`).matches?`light`:`dark`;function a(e){StarlightThemeProvider.updatePickers(e),document.documentElement.dataset.theme=e===`auto`?i():e,r(e)}matchMedia(`(prefers-color-scheme: light)`).addEventListener(`change`,()=>{n()===`auto`&&a(`auto`)});var o=class extends HTMLElement{constructor(){super(),a(n()),this.querySelector(`select`)?.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&a(t(e.currentTarget.value))})}};customElements.define(`starlight-theme-select`,o);</script><script type="module">var e=class extends HTMLElement{constructor(){super();let e=this.querySelector(`select`);e&&(e.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&(window.location.pathname=e.currentTarget.value)}),window.addEventListener(`pageshow`,t=>{if(!t.persisted)return;let n=e.querySelector(`option[selected]`)?.index;n!==e.selectedIndex&&(e.selectedIndex=n??0)}))}};customElements.define(`starlight-lang-select`,e);</script></div></div></header><nav class="sidebar print:hidden astro-yntsjkba" aria-label="Main"><button popovertarget="starlight__sidebar" class="sl-menu-button sl-flex md:sl-hidden print:hidden astro-r2osgdlg"><svg aria-hidden="true" class="open-menu astro-r2osgdlg astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M3 8h18a1 1 0 1 0 0-2H3a1 1 0 0 0 0 2Zm18 8H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Zm0-5H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Z"/></svg><svg aria-hidden="true" class="close-menu astro-r2osgdlg astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="m13.41 12 6.3-6.29a1.004 1.004 0 1 0-1.42-1.42L12 10.59l-6.29-6.3a1.004 1.004 0 0 0-1.42 1.42l6.3 6.29-6.3 6.29a1 1 0 0 0 0 1.42.998.998 0 0 0 1.42 0l6.29-6.3 6.29 6.3a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.42L13.41 12Z"/></svg><span class="sr-only astro-r2osgdlg">Menu</span></button><script type="module">var e=class extends HTMLElement{constructor(){super();let e=matchMedia(`(min-width: 50em)`),t=()=>{this.popover=e.matches?null:`auto`};t(),e.addEventListener(`change`,()=>t()),this.addEventListener(`toggle`,({newState:e})=>this.trapFocus(e===`open`))}trapFocus(e){document.querySelectorAll(`.main-frame, .sl-skip-link`).forEach(t=>{t.toggleAttribute(`inert`,e)})}};customElements.define(`sl-sidebar-pane`,e);</script><sl-sidebar-pane popover id="starlight__sidebar" class="sidebar-pane astro-yntsjkba"><div class="sidebar-content sl-flex astro-yntsjkba"><sl-sidebar-state-persist data-hash="12ijkg5" class="astro-ipdry5cl"><script aria-hidden="true">
+		(() => {
+			try {
+				if (!matchMedia('(min-width: 50em)').matches) return;
+				/** @type {HTMLElement | null} */
+				const target = document.querySelector('sl-sidebar-state-persist');
+				const state = JSON.parse(sessionStorage.getItem('sl-sidebar-state') || '0');
+				if (!target || !state || target.dataset.hash !== state.hash) return;
+				window._starlightScrollRestore = state.scroll;
+				customElements.define(
+					'sl-sidebar-restore',
+					class SidebarRestore extends HTMLElement {
+						connectedCallback() {
+							try {
+								const idx = parseInt(this.dataset.index || '');
+								const details = this.closest('details');
+								if (details && typeof state.open[idx] === 'boolean') details.open = state.open[idx];
+							} catch {}
+						}
+					}
+				);
+			} catch {}
+		})();
+	</script><ul class="top-level astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/" class="large astro-rmhv4bp6"><span class="astro-rmhv4bp6">Overview</span></a></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Introduction</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="0"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/what-is-atesor/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">What is Atesor</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/how-it-works/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">How it works</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/concepts/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Concepts</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/introduction/limitations/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Limitations</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Getting Started</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="1"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/requirements/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Requirements</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/install/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Install Atesor</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/configure-llm/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Configure the LLM provider</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/first-port/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Your first port</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/getting-started/read-the-output/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Read the output</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Guides</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="2"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/sandboxes/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Sandboxes</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/native-riscv/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Native RISC-V machine</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/recipe-cache/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Recipe cache</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/batch-runs/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Batch runs</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/cost-control/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Cost control</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/troubleshooting/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Troubleshooting</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/guides/optimize/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Performance mode</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Architecture</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="3"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/overview/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Architecture overview</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/agent-state/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Agent state</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/scripted-ops/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Scripted operations</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/recovery-heuristics/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Recovery heuristics</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/verification/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Verification</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/llm-layer/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">LLM layer</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/architecture/optimize/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Performance mode internals</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Reference</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="4"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/cli/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Command-line options</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/environment-variables/" aria-current="page" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Environment variables</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/exit-codes/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Exit codes</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/output-files/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Output files</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/reference/build-systems/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Build systems</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Contributing</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="5"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/development-setup/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Development setup</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/tests/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Tests and checks</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/add-a-platform/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Add a platform</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/add-a-heuristic/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Add a recovery heuristic</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/few-shot-examples/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Few-shot examples</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/contributing/docs/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Change the docs</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Project</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="6"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/releases/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Releases</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/roadmap/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Roadmap</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/governance/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Governance</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/name/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">About the name</span></a></li><li class="astro-rmhv4bp6"><a href="/atesor/docs/project/brand/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Brand and logos</span></a></li></ul></details></li></ul><script aria-hidden="true">
+		(() => {
+			const scroller = document.getElementById('starlight__sidebar');
+			if (!window._starlightScrollRestore || !scroller) return;
+			scroller.scrollTop = window._starlightScrollRestore;
+			delete window._starlightScrollRestore;
+		})();
+	</script></sl-sidebar-state-persist><div class="md:sl-hidden"><div class="mobile-preferences sl-flex astro-p4azlveh"><div class="social-icons astro-p4azlveh"><a href="https://github.com/eclipse-atesor/atesor" rel="me" class="sl-flex astro-n2mnl6yq"><span class="sr-only astro-n2mnl6yq">Source on GitHub</span><svg aria-hidden="true" class="astro-n2mnl6yq astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/></svg></a></div><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-2z5xp7gb"><span class="sr-only astro-2z5xp7gb">Select theme</span><svg aria-hidden="true" class="icon label-icon astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-2z5xp7gb"><option value="dark" class="astro-2z5xp7gb">Dark</option><option value="light" class="astro-2z5xp7gb">Light</option><option value="auto" selected class="astro-2z5xp7gb">Auto</option></select><svg aria-hidden="true" class="icon caret astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script></div></div></div></sl-sidebar-pane></nav><div class="main-frame astro-yntsjkba"><script type="module">var e=document.getElementById(`starlight__sidebar`),t=e?.querySelector(`sl-sidebar-state-persist`),n=`sl-sidebar-state`,r=()=>{let r=[],i=t?.dataset.hash||``;try{let e=sessionStorage.getItem(n),t=JSON.parse(e||`{}`);Array.isArray(t.open)&&t.hash===i&&(r=t.open)}catch{}return{hash:i,open:r,scroll:e?.scrollTop||0}},i=e=>{try{sessionStorage.setItem(n,JSON.stringify(e))}catch{}},a=()=>i(r()),o=(e,t)=>{let n=r();n.open[t]=e,i(n)};t?.addEventListener(`click`,e=>{if(!(e.target instanceof Element))return;let t=e.target.closest(`summary`)?.closest(`details`);if(!t)return;let n=t.querySelector(`sl-sidebar-restore`),r=parseInt(n?.dataset.index||``);isNaN(r)||o(!t.open,r)}),addEventListener(`visibilitychange`,()=>{document.visibilityState===`hidden`&&a()});</script><div class="lg:sl-flex astro-lrzkfocr"><aside class="right-sidebar-container print:hidden astro-lrzkfocr"><div class="right-sidebar astro-lrzkfocr"><div class="lg:sl-hidden astro-qok35upx"><mobile-starlight-toc data-min-h="2" data-max-h="3" class="astro-66cqc7ze"><nav aria-labelledby="starlight__on-this-page--mobile" class="astro-66cqc7ze"><details id="starlight__mobile-toc" class="astro-66cqc7ze"><summary id="starlight__on-this-page--mobile" class="sl-flex astro-66cqc7ze"><span class="toggle sl-flex astro-66cqc7ze">On this page<svg aria-hidden="true" class="caret astro-66cqc7ze astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></span><span class="display-current astro-66cqc7ze"></span></summary><div class="dropdown astro-66cqc7ze"><ul class="isMobile astro-jugkfwgx" style="--depth: 0;"><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#_top" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Overview</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#how-does-atesor-load-env-files" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">How does Atesor load .env files?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#llm-provider-and-keys" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">LLM provider and keys</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#models-and-llm-calls" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Models and LLM calls</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#cost" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Cost</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#target-and-native-machine" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Target and native machine</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#paths" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Paths</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#package-tests-and-run-time" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Package tests and run time</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#performance-mode" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Performance mode</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#logging-and-tracing" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Logging and tracing</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#ci-only" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">CI only</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#variables-that-the-launcher-sets" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Variables that the launcher sets</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#variables-in-the-sandbox-images" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Variables in the sandbox images</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#variables-that-performance-mode-sets-in-the-sandbox" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Variables that performance mode sets in the sandbox</span></a></li></ul></div></details></nav></mobile-starlight-toc><script type="module" src="/atesor/_astro/MobileTableOfContents.astro_astro_type_script_index_0_lang.C3fM4Kra.js"></script></div><div class="right-sidebar-panel sl-hidden lg:sl-block astro-qok35upx"><div class="sl-container astro-qok35upx"><starlight-toc data-min-h="2" data-max-h="3"><nav aria-labelledby="starlight__on-this-page"><h2 id="starlight__on-this-page">On this page</h2><ul class="astro-jugkfwgx" style="--depth: 0;"><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#_top" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Overview</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#how-does-atesor-load-env-files" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">How does Atesor load .env files?</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#llm-provider-and-keys" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">LLM provider and keys</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#models-and-llm-calls" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Models and LLM calls</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#cost" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Cost</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#target-and-native-machine" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Target and native machine</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#paths" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Paths</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#package-tests-and-run-time" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Package tests and run time</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#performance-mode" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Performance mode</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#logging-and-tracing" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Logging and tracing</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#ci-only" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">CI only</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#variables-that-the-launcher-sets" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Variables that the launcher sets</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#variables-in-the-sandbox-images" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Variables in the sandbox images</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#variables-that-performance-mode-sets-in-the-sandbox" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Variables that performance mode sets in the sandbox</span></a></li></ul></nav></starlight-toc><script type="module" src="/atesor/_astro/TableOfContents.astro_astro_type_script_index_0_lang.BpJaGz7G.js"></script></div></div></div></aside><div class="main-pane astro-lrzkfocr"><main data-pagefind-body class="astro-g5ptsecz" lang="en" dir="ltr"><div class="content-panel astro-a7po4psb"><div class="sl-container astro-a7po4psb"><h1 id="_top" class="astro-bebwqqxs">Environment variables</h1></div></div><div class="content-panel astro-a7po4psb"><div class="sl-container astro-a7po4psb"><div class="sl-markdown-content"><p>Eclipse Atesor™ reads its settings from environment variables and from <code dir="auto">.env</code> files. This page lists every variable that the code reads, with its default, what it controls, and the file that reads it. Some command-line flags set a variable for one run. Refer to <a href="/atesor/docs/reference/cli/">Command-line options</a>.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="how-does-atesor-load-env-files">How does Atesor load <code dir="auto">.env</code> files?</h2><a class="sl-anchor-link" href="#how-does-atesor-load-env-files"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “How does Atesor load .env files?”</span></a></div>
+<p><code dir="auto">main.py</code> loads the <code dir="auto">.env</code> files at start-up, before it imports the other modules. It loads them in this order:</p>
+<ol>
+<li>The first <code dir="auto">.env</code> that python-dotenv finds. A call to <code dir="auto">load_dotenv()</code> with no path starts the search in the directory of <code dir="auto">main.py</code>, then goes up through each parent directory. It does not start in the current directory.</li>
+<li><code dir="auto">$ATESOR_HOME/.env</code>, when <code dir="auto">ATESOR_HOME</code> has a value. A value from step 1 also counts.</li>
+<li><code dir="auto">$XDG_CONFIG_HOME/atesor-ai/.env</code>. The default is <code dir="auto">~/.config/atesor-ai/.env</code>.</li>
+<li><code dir="auto">$XDG_DATA_HOME/atesor-ai/.env</code>. The default is <code dir="auto">~/.local/share/atesor-ai/.env</code>.</li>
+</ol>
+<p>No file replaces a variable that already has a value. Thus a variable in the process environment wins over all files, and an earlier file wins over a later file.</p>
+<aside aria-label="Note" class="starlight-aside starlight-aside--note"><p class="starlight-aside__title" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" class="starlight-aside__icon"><path d="M12 11a1 1 0 0 0-1 1v4a1 1 0 0 0 2 0v-4a1 1 0 0 0-1-1Zm.38-3.92a1 1 0 0 0-.76 0 1 1 0 0 0-.33.21 1.15 1.15 0 0 0-.21.33 1 1 0 0 0 .21 1.09c.097.088.209.16.33.21A1 1 0 0 0 13 8a1.05 1.05 0 0 0-.29-.71 1 1 0 0 0-.33-.21ZM12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 18a8 8 0 1 1 0-16.001A8 8 0 0 1 12 20Z"/></svg>Note</p><div class="starlight-aside__content"><p>For the <code dir="auto">.deb</code> package, step 1 searches <code dir="auto">/opt/atesor-ai/app</code> and its parent directories, not your current directory. Put your <code dir="auto">.env</code> in <code dir="auto">~/.config/atesor-ai/</code>, or set the variables in the environment. The package installs the template at <code dir="auto">/opt/atesor-ai/app/.env-example</code>.</p></div></aside>
+<div class="sl-heading-wrapper level-h2"><h2 id="llm-provider-and-keys">LLM provider and keys</h2><a class="sl-anchor-link" href="#llm-provider-and-keys"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “LLM provider and keys”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>What it controls</th>
+<th>Read in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">LLM_PROVIDER</code></td>
+<td><code dir="auto">gemini</code></td>
+<td>The LLM provider: <code dir="auto">gemini</code>, <code dir="auto">openai</code>, <code dir="auto">openrouter</code> or <code dir="auto">anthropic</code>. Case does not matter.</td>
+<td><code dir="auto">src/models.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">GOOGLE_API_KEY</code></td>
+<td>none</td>
+<td>The API key for <code dir="auto">gemini</code>.</td>
+<td><code dir="auto">src/models.py</code>, Google SDK</td>
+</tr>
+<tr>
+<td><code dir="auto">OPENAI_API_KEY</code></td>
+<td>none</td>
+<td>The API key for <code dir="auto">openai</code>.</td>
+<td><code dir="auto">src/models.py</code>, OpenAI SDK</td>
+</tr>
+<tr>
+<td><code dir="auto">OPENROUTER_API_KEY</code></td>
+<td>none</td>
+<td>The API key for <code dir="auto">openrouter</code>. Atesor sends it to <code dir="auto">https://openrouter.ai/api/v1</code>.</td>
+<td><code dir="auto">src/models.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">ANTHROPIC_API_KEY</code></td>
+<td>none</td>
+<td>The API key for <code dir="auto">anthropic</code>.</td>
+<td><code dir="auto">src/models.py</code>, Anthropic SDK</td>
+</tr>
+<tr>
+<td><code dir="auto">GIT_TOKEN</code></td>
+<td>none</td>
+<td>A token to clone private GitHub repositories.</td>
+<td><code dir="auto">src/scripted_ops.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">GH_TOKEN</code></td>
+<td>none</td>
+<td>The same as <code dir="auto">GIT_TOKEN</code>. Atesor uses it when <code dir="auto">GIT_TOKEN</code> is empty.</td>
+<td><code dir="auto">src/scripted_ops.py</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Only the key of the selected provider is necessary.</li>
+<li>The placeholder value <code dir="auto">your_key_here</code> counts as a missing key.</li>
+<li>Atesor checks the key only for a port, after the recipe cache check. A missing key, or a provider name that Atesor does not know, gives exit code 1.</li>
+<li>The <code dir="auto">anthropic</code> provider also needs the Python package <code dir="auto">langchain-anthropic</code>. Without it, the key check fails with exit code 1. <code dir="auto">requirements.txt</code> lists the package.</li>
+<li>Atesor sends the git token only to <code dir="auto">https://github.com/</code> URLs. It adds the header <code dir="auto">Authorization: bearer &lt;token&gt;</code> to each clone through <code dir="auto">GIT_CONFIG_COUNT</code>, <code dir="auto">GIT_CONFIG_KEY_0</code> and <code dir="auto">GIT_CONFIG_VALUE_0</code>. It does not write the token to the git configuration of the sandbox.</li>
+</ul>
+<p>Refer to <a href="/atesor/docs/getting-started/configure-llm/">Configure the LLM</a>.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="models-and-llm-calls">Models and LLM calls</h2><a class="sl-anchor-link" href="#models-and-llm-calls"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Models and LLM calls”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>What it controls</th>
+<th>Read in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">OPENROUTER_FALLBACK_MODELS</code></td>
+<td>six free models, listed below</td>
+<td>The fallback model IDs for <code dir="auto">openrouter</code>, separated by commas, in order.</td>
+<td><code dir="auto">src/models.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_MAX_OUTPUT_TOKENS</code></td>
+<td><code dir="auto">8192</code></td>
+<td>The output-token limit of each LLM call. For <code dir="auto">anthropic</code>, the limit also covers the thinking tokens of the reply.</td>
+<td><code dir="auto">src/models.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_LLM_TIMEOUT</code></td>
+<td><code dir="auto">120</code></td>
+<td>The HTTP timeout of each LLM request, in seconds.</td>
+<td><code dir="auto">src/models.py</code></td>
+</tr>
+</tbody>
+</table>
+<p>The default fallback list is:</p>
+<div class="expressive-code"><link rel="stylesheet" href="/atesor/_astro/ec.w36nc.css"><script type="module" src="/atesor/_astro/ec.0vx5m.js"></script><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="text"><code><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">qwen/qwen3-coder:free</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">openai/gpt-oss-120b:free</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">openai/gpt-oss-20b:free</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">meta-llama/llama-3.3-70b-instruct:free</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">qwen/qwen3-next-80b-a3b-instruct:free</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">nvidia/nemotron-3-super-120b-a12b:free</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="qwen/qwen3-coder:freeopenai/gpt-oss-120b:freeopenai/gpt-oss-20b:freemeta-llama/llama-3.3-70b-instruct:freeqwen/qwen3-next-80b-a3b-instruct:freenvidia/nemotron-3-super-120b-a12b:free"><div></div></button></div></figure></div>
+<ul>
+<li>Atesor always adds <code dir="auto">openrouter/free</code> at the end of the fallback list.</li>
+<li>Each OpenRouter request also sends a <code dir="auto">models</code> array: the first two fallbacks that are not the primary model, then <code dir="auto">openrouter/free</code>.</li>
+<li><code dir="auto">src/graph.py</code> and <code dir="auto">src/llm_helpers.py</code> stop the wait for one LLM call after <code dir="auto">ATESOR_LLM_TIMEOUT</code> plus 15 seconds.</li>
+<li>Exception: when the optimizer agent of <code dir="auto">--optimize</code> writes code, the wait is 240 seconds. <code dir="auto">ATESOR_LLM_TIMEOUT</code> does not change this value.</li>
+<li><code dir="auto">ATESOR_MAX_OUTPUT_TOKENS</code> and <code dir="auto">ATESOR_LLM_TIMEOUT</code> must be integers. <code dir="auto">src/models.py</code> reads them at import time, so another value stops Atesor at start-up with a Python error.</li>
+</ul>
+<p>No environment variable selects the model of an agent role. The models, temperatures and, for <code dir="auto">anthropic</code>, the effort levels come from <code dir="auto">MODEL_CONFIG</code> in <code dir="auto">src/models.py</code>. Refer to <a href="/atesor/docs/architecture/llm-layer/">LLM layer</a>.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="cost">Cost</h2><a class="sl-anchor-link" href="#cost"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Cost”</span></a></div>
+<p>No environment variable sets the cost limit. <code dir="auto">should_escalate()</code> in <code dir="auto">src/state.py</code> escalates a run when its LLM cost is more than 1.0 USD. Atesor calculates the cost of each call from its token usage. Free models cost 0. Refer to <a href="/atesor/docs/guides/cost-control/">Cost control</a>.</p>
+<p>Only the supervisor checks this limit, during the port. The limit does not stop the LLM calls of the optimize step. The cost of those calls still goes into the run total of the report.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="target-and-native-machine">Target and native machine</h2><a class="sl-anchor-link" href="#target-and-native-machine"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Target and native machine”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>What it controls</th>
+<th>Read in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">ATESOR_TARGET</code></td>
+<td><code dir="auto">qemu</code></td>
+<td>Where the builds run: <code dir="auto">qemu</code> or <code dir="auto">native</code>. <code dir="auto">--target</code> sets it.</td>
+<td><code dir="auto">src/target.py</code>, <code dir="auto">src/config.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_PLATFORM</code></td>
+<td>none (detection)</td>
+<td>The sandbox distribution: <code dir="auto">alpine</code>, <code dir="auto">debian</code> or <code dir="auto">ubuntu</code>. <code dir="auto">--platform</code> sets it.</td>
+<td><code dir="auto">src/platforms.py</code>, <code dir="auto">src/target.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_CONTAINER</code></td>
+<td>the container name of the profile</td>
+<td>The sandbox container name. <code dir="auto">--container</code> sets it.</td>
+<td><code dir="auto">src/platforms.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">REBUILD_IMAGE</code></td>
+<td>none</td>
+<td>The value <code dir="auto">true</code> forces a rebuild of the sandbox image. <code dir="auto">--rebuild</code> sets it.</td>
+<td><code dir="auto">main.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_SSH_HOST</code></td>
+<td>none</td>
+<td>Alias mode: the ssh destination, as you type it after <code dir="auto">ssh</code>.</td>
+<td><code dir="auto">src/target.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_SSH_HOSTNAME</code></td>
+<td>none</td>
+<td>Field mode: the address of the machine.</td>
+<td><code dir="auto">src/target.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_SSH_PORT</code></td>
+<td><code dir="auto">22</code></td>
+<td>Field mode: the SSH port, from 1 to 65535.</td>
+<td><code dir="auto">src/target.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_SSH_USER</code></td>
+<td>the ssh default</td>
+<td>Field mode: the login user.</td>
+<td><code dir="auto">src/target.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_SSH_IDENTITY_FILE</code></td>
+<td>none</td>
+<td>Field mode: the path to the private key file.</td>
+<td><code dir="auto">src/target.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_REMOTE_WORKDIR</code></td>
+<td><code dir="auto">~/atesor-ai</code></td>
+<td>The work directory on the machine.</td>
+<td><code dir="auto">src/target.py</code></td>
+</tr>
+</tbody>
+</table>
+<p>Rules for these variables:</p>
+<ul>
+<li>A value of <code dir="auto">ATESOR_TARGET</code> other than <code dir="auto">qemu</code> or <code dir="auto">native</code> makes preflight rung 1 fail. An empty value means <code dir="auto">qemu</code>.</li>
+<li>On <code dir="auto">qemu</code>, Atesor ignores an unknown <code dir="auto">ATESOR_PLATFORM</code> value and writes a warning to the log.</li>
+<li>On <code dir="auto">native</code>, <code dir="auto">ATESOR_PLATFORM</code> is necessary. Rung 1 fails without it.</li>
+<li>Atesor reads the <code dir="auto">ATESOR_SSH_*</code> keys and <code dir="auto">ATESOR_REMOTE_WORKDIR</code> only on the <code dir="auto">native</code> target.</li>
+<li>Set alias mode (<code dir="auto">ATESOR_SSH_HOST</code>) or field mode (<code dir="auto">ATESOR_SSH_HOSTNAME</code> and the other field keys), not both.</li>
+<li>Field mode needs <code dir="auto">ATESOR_SSH_HOSTNAME</code>.</li>
+<li>Any other <code dir="auto">ATESOR_SSH_*</code> key with a value makes rung 1 fail. Atesor supports key login only.</li>
+<li><code dir="auto">ATESOR_SSH_HOST</code> must be one destination with no spaces and no leading <code dir="auto">-</code>.</li>
+<li><code dir="auto">ATESOR_SSH_IDENTITY_FILE</code> must have no spaces, no quotes and no <code dir="auto">%</code>.</li>
+<li><code dir="auto">ATESOR_REMOTE_WORKDIR</code> can use only letters, digits and the characters <code dir="auto">.</code>, <code dir="auto">_</code>, <code dir="auto">/</code>, <code dir="auto">~</code> and <code dir="auto">-</code>.</li>
+</ul>
+<p>In field mode, Atesor writes the SSH settings to <code dir="auto">ssh_config</code> in the cache directory, with mode <code dir="auto">0600</code>. Refer to <a href="/atesor/docs/guides/native-riscv/">Native RISC-V machine</a>.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="paths">Paths</h2><a class="sl-anchor-link" href="#paths"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Paths”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>What it controls</th>
+<th>Read in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">ATESOR_HOME</code></td>
+<td>none</td>
+<td>The state home: the base directory for all runtime state. It also adds <code dir="auto">$ATESOR_HOME/.env</code> to the <code dir="auto">.env</code> search.</td>
+<td><code dir="auto">src/config.py</code>, <code dir="auto">main.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">XDG_DATA_HOME</code></td>
+<td><code dir="auto">~/.local/share</code></td>
+<td>The parent of the default state home <code dir="auto">atesor-ai/</code>, and of one <code dir="auto">.env</code> location.</td>
+<td><code dir="auto">src/config.py</code>, <code dir="auto">main.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">XDG_CONFIG_HOME</code></td>
+<td><code dir="auto">~/.config</code></td>
+<td>The parent of the <code dir="auto">atesor-ai/.env</code> location.</td>
+<td><code dir="auto">main.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">XDG_CACHE_HOME</code></td>
+<td><code dir="auto">~/.cache</code></td>
+<td>The parent of <code dir="auto">atesor-ai/</code>, which holds the native <code dir="auto">ssh_config</code>.</td>
+<td><code dir="auto">src/target.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">XDG_RUNTIME_DIR</code></td>
+<td>none</td>
+<td>When this directory exists, <code dir="auto">atesor-ai/</code> in it holds the ssh control sockets. Else the cache directory holds them.</td>
+<td><code dir="auto">src/target.py</code></td>
+</tr>
+</tbody>
+</table>
+<p><code dir="auto">src/config.py</code> selects the state home in this order:</p>
+<ol>
+<li><code dir="auto">$ATESOR_HOME</code>, when it has a value.</li>
+<li><code dir="auto">/workspace</code>, when Atesor itself runs in a container.</li>
+<li>The source checkout root, when it has <code dir="auto">.git</code> or <code dir="auto">tests/</code> and you can write to it.</li>
+<li><code dir="auto">$XDG_DATA_HOME/atesor-ai</code>. The default is <code dir="auto">~/.local/share/atesor-ai</code>.</li>
+</ol>
+<p>Refer to <a href="/atesor/docs/reference/output-files/">Output files</a> for the directories under the state home.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="package-tests-and-run-time">Package tests and run time</h2><a class="sl-anchor-link" href="#package-tests-and-run-time"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Package tests and run time”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>What it controls</th>
+<th>Read in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">ATESOR_PACKAGE_TEST_TIMEOUT</code></td>
+<td><code dir="auto">600</code></td>
+<td>The time limit of the package tests, in seconds.</td>
+<td><code dir="auto">src/graph.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_RUN_DEADLINE</code></td>
+<td>none</td>
+<td>The kill time of the run, in epoch seconds.</td>
+<td><code dir="auto">src/graph.py</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>A limit under 60 seconds skips the package tests. Thus <code dir="auto">ATESOR_PACKAGE_TEST_TIMEOUT=0</code> turns them off.</li>
+<li>A value of <code dir="auto">ATESOR_PACKAGE_TEST_TIMEOUT</code> that is not an integer gives 600.</li>
+<li>With <code dir="auto">ATESOR_RUN_DEADLINE</code>, the tests must end 420 seconds before that time. <code dir="auto">batch_test.py</code> sets it for each child run.</li>
+<li>When the port ran a test command, performance mode runs the same command in each tune tree, with the same time limit.</li>
+</ul>
+<div class="sl-heading-wrapper level-h2"><h2 id="performance-mode">Performance mode</h2><a class="sl-anchor-link" href="#performance-mode"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Performance mode”</span></a></div>
+<p><code dir="auto">ATESOR_OPTIMIZE_BUDGET</code> applies to <code dir="auto">--optimize</code>. <code dir="auto">ATESOR_QEMU_CPU</code> applies to <code dir="auto">--optimize</code> and <code dir="auto">--probe</code>. Refer to <a href="/atesor/docs/guides/optimize/">Performance mode</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>What it controls</th>
+<th>Read in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">ATESOR_OPTIMIZE_BUDGET</code></td>
+<td><code dir="auto">3600</code></td>
+<td>The time limit of the optimize step, in seconds.</td>
+<td><code dir="auto">src/optimize.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_QEMU_CPU</code></td>
+<td>none</td>
+<td>The <code dir="auto">QEMU_CPU</code> model for <code dir="auto">--optimize</code> and <code dir="auto">--probe</code> on the <code dir="auto">qemu</code> target. <code dir="auto">--emulate-cpu</code> wins over it.</td>
+<td><code dir="auto">main.py</code></td>
+</tr>
+</tbody>
+</table>
+<p>Rules for <code dir="auto">ATESOR_OPTIMIZE_BUDGET</code>:</p>
+<ul>
+<li>The time counts from the start of the optimize step, not from the start of the port.</li>
+<li>Atesor checks the remaining time before each step. Each tune build gets the remaining time, with a minimum of 60 seconds and a maximum of 1800 seconds.</li>
+<li>A value that is not a number gives 3600.</li>
+<li>One step needs at least 300 seconds. With less time left, Atesor skips the step. A budget under 300 seconds stops before the baseline build, with the status <code dir="auto">not measured</code>.</li>
+<li>When the budget ends before the second check of a faster tune, the result is <code dir="auto">not confirmed</code>. The report then advises a larger <code dir="auto">ATESOR_OPTIMIZE_BUDGET</code>.</li>
+</ul>
+<p>Rules for <code dir="auto">ATESOR_QEMU_CPU</code>:</p>
+<ul>
+<li>Atesor reads it only with <code dir="auto">--optimize</code> or <code dir="auto">--probe</code>, and only on the <code dir="auto">qemu</code> target. On <code dir="auto">native</code>, Atesor ignores it.</li>
+<li>The value follows the rules of <code dir="auto">--emulate-cpu</code>. Another value gives exit code 1.</li>
+<li>The value <code dir="auto">max</code>, or no value, gives QEMU’s <code dir="auto">max</code> CPU. Atesor then builds no ISA tune.</li>
+</ul>
+<div class="sl-heading-wrapper level-h2"><h2 id="logging-and-tracing">Logging and tracing</h2><a class="sl-anchor-link" href="#logging-and-tracing"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Logging and tracing”</span></a></div>
+<p>No Atesor variable sets the log level. Use <code dir="auto">--verbose</code> for the console. The log file always records level <code dir="auto">DEBUG</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>What it controls</th>
+<th>Read in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">LANGCHAIN_TRACING_V2</code></td>
+<td>none</td>
+<td>LangSmith tracing.</td>
+<td>LangChain SDK, not Atesor code</td>
+</tr>
+<tr>
+<td><code dir="auto">LANGCHAIN_API_KEY</code></td>
+<td>none</td>
+<td>The LangSmith API key.</td>
+<td>LangChain SDK, not Atesor code</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h2"><h2 id="ci-only">CI only</h2><a class="sl-anchor-link" href="#ci-only"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “CI only”</span></a></div>
+<p>These rows describe how the scripts in <code dir="auto">.github/scripts/</code> read a variable. The <code dir="auto">ATESOR_PLATFORM</code> row gives the default of <code dir="auto">batch_test.py</code> only. <code dir="auto">main.py</code> reads that variable as the <a href="/atesor/docs/reference/environment-variables/#target-and-native-machine">Target and native machine</a> table says.</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>What it controls</th>
+<th>Read in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">ATESOR_PLATFORM</code></td>
+<td><code dir="auto">debian</code></td>
+<td>The default platform of a batch run.</td>
+<td><code dir="auto">.github/scripts/batch_test.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_SETUP_STREAM</code></td>
+<td>off</td>
+<td><code dir="auto">1</code>, <code dir="auto">true</code>, <code dir="auto">yes</code> or <code dir="auto">on</code> shows the live output of each worker sandbox setup.</td>
+<td><code dir="auto">.github/scripts/batch_test.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">NO_COLOR</code></td>
+<td>none</td>
+<td>When it is set, the batch output has no color.</td>
+<td><code dir="auto">.github/scripts/batch_test.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_HEALTHCHECK_TIMEOUT</code></td>
+<td><code dir="auto">30</code></td>
+<td>The HTTP timeout of each provider probe, in seconds.</td>
+<td><code dir="auto">.github/scripts/check_llm_providers.py</code></td>
+</tr>
+<tr>
+<td><code dir="auto">GITHUB_STEP_SUMMARY</code></td>
+<td>set by GitHub Actions</td>
+<td>The file that receives the regression test summary.</td>
+<td><code dir="auto">.github/scripts/report_regression.py</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code dir="auto">check_llm_providers.py</code> also reads <code dir="auto">OPENROUTER_API_KEY</code>, <code dir="auto">OPENAI_API_KEY</code>, <code dir="auto">GOOGLE_API_KEY</code>, <code dir="auto">ANTHROPIC_API_KEY</code> and <code dir="auto">OPENROUTER_FALLBACK_MODELS</code>. By default, it probes all four providers.</li>
+<li><code dir="auto">batch_test.py</code> writes <code dir="auto">ATESOR_PLATFORM</code>, <code dir="auto">ATESOR_TARGET</code> (from its <code dir="auto">--target</code> flag) and <code dir="auto">ATESOR_RUN_DEADLINE</code> into the environment of each <code dir="auto">main.py</code> child process.</li>
+<li><code dir="auto">batch_test.py</code> never passes <code dir="auto">--optimize</code>, so the performance mode variables have no effect on a batch run.</li>
+<li><code dir="auto">release-sandbox.sh</code> passes <code dir="auto">VARIANT</code>, <code dir="auto">EXPLICIT_VERSION</code>, <code dir="auto">BUMP_MAJOR</code> and <code dir="auto">TAGS</code> to its own embedded Python step. Its command-line flags set them. They are not user settings.</li>
+</ul>
+<p>Refer to <a href="/atesor/docs/guides/batch-runs/">Batch runs</a>.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="variables-that-the-launcher-sets">Variables that the launcher sets</h2><a class="sl-anchor-link" href="#variables-that-the-launcher-sets"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Variables that the launcher sets”</span></a></div>
+<p>The <code dir="auto">atesor-ai</code> launcher of the <code dir="auto">.deb</code> package sets two variables before it starts <code dir="auto">main.py</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Value</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">PYTHONDONTWRITEBYTECODE</code></td>
+<td><code dir="auto">1</code></td>
+<td>Python writes no bytecode files into <code dir="auto">/opt</code>.</td>
+</tr>
+<tr>
+<td><code dir="auto">PYTHONPATH</code></td>
+<td><code dir="auto">/opt/atesor-ai/app</code>, then the old value</td>
+<td>Python finds the <code dir="auto">src</code> package.</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h2"><h2 id="variables-in-the-sandbox-images">Variables in the sandbox images</h2><a class="sl-anchor-link" href="#variables-in-the-sandbox-images"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Variables in the sandbox images”</span></a></div>
+<p>The Dockerfiles set these variables in the sandbox. The build commands in the sandbox see them. Atesor code on the host does not read them.</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Value</th>
+<th>Images</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">GOFLAGS</code></td>
+<td><code dir="auto">-buildvcs=false</code></td>
+<td>all three</td>
+</tr>
+<tr>
+<td><code dir="auto">GOTOOLCHAIN</code></td>
+<td><code dir="auto">local</code></td>
+<td>all three</td>
+</tr>
+<tr>
+<td><code dir="auto">GOPROXY</code></td>
+<td><code dir="auto">https://proxy.golang.org,direct</code></td>
+<td>all three</td>
+</tr>
+<tr>
+<td><code dir="auto">GONOSUMCHECK</code></td>
+<td><code dir="auto">*</code></td>
+<td>all three</td>
+</tr>
+<tr>
+<td><code dir="auto">GOPATH</code></td>
+<td><code dir="auto">/root/go</code></td>
+<td>all three</td>
+</tr>
+<tr>
+<td><code dir="auto">CARGO_HOME</code></td>
+<td><code dir="auto">/root/.cargo</code></td>
+<td>all three</td>
+</tr>
+<tr>
+<td><code dir="auto">RUSTUP_HOME</code></td>
+<td><code dir="auto">/root/.rustup</code></td>
+<td>all three</td>
+</tr>
+<tr>
+<td><code dir="auto">CC</code></td>
+<td><code dir="auto">gcc</code></td>
+<td>all three</td>
+</tr>
+<tr>
+<td><code dir="auto">CXX</code></td>
+<td><code dir="auto">g++</code></td>
+<td>all three</td>
+</tr>
+<tr>
+<td><code dir="auto">CCACHE_DIR</code></td>
+<td><code dir="auto">/workspace/.ccache</code></td>
+<td><code dir="auto">Dockerfile.debian</code>, <code dir="auto">Dockerfile.native</code></td>
+</tr>
+<tr>
+<td><code dir="auto">DEBIAN_FRONTEND</code></td>
+<td><code dir="auto">noninteractive</code></td>
+<td><code dir="auto">Dockerfile.debian</code>, <code dir="auto">Dockerfile.native</code></td>
+</tr>
+<tr>
+<td><code dir="auto">PIP_BREAK_SYSTEM_PACKAGES</code></td>
+<td><code dir="auto">1</code></td>
+<td><code dir="auto">Dockerfile.native</code></td>
+</tr>
+<tr>
+<td><code dir="auto">PATH</code></td>
+<td><code dir="auto">/root/.cargo/bin:/root/go/bin:/usr/local/go/bin</code>, then the base <code dir="auto">PATH</code></td>
+<td><code dir="auto">Dockerfile</code></td>
+</tr>
+<tr>
+<td><code dir="auto">PATH</code></td>
+<td><code dir="auto">/root/.cargo/bin:/root/go/bin:/usr/local/go/bin:/usr/lib/ccache</code>, then the base <code dir="auto">PATH</code></td>
+<td><code dir="auto">Dockerfile.debian</code>, <code dir="auto">Dockerfile.native</code></td>
+</tr>
+</tbody>
+</table>
+<p>The three images are <code dir="auto">Dockerfile</code> (Alpine), <code dir="auto">Dockerfile.debian</code> (Ubuntu jammy) and <code dir="auto">Dockerfile.native</code> (Debian trixie). Refer to <a href="/atesor/docs/guides/sandboxes/">Sandboxes</a>.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="variables-that-performance-mode-sets-in-the-sandbox">Variables that performance mode sets in the sandbox</h2><a class="sl-anchor-link" href="#variables-that-performance-mode-sets-in-the-sandbox"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Variables that performance mode sets in the sandbox”</span></a></div>
+<p>Performance mode sets these variables for its own commands in the sandbox. They are not user settings. Do not set them yourself.</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Value</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">QEMU_CPU</code></td>
+<td>the <code dir="auto">--emulate-cpu</code> or <code dir="auto">ATESOR_QEMU_CPU</code> model</td>
+<td>On <code dir="auto">qemu</code>, the probe, the tune checks and the workload runs use this CPU model.</td>
+</tr>
+<tr>
+<td><code dir="auto">CC</code>, <code dir="auto">CXX</code></td>
+<td>the wrapper scripts <code dir="auto">cc</code> and <code dir="auto">cxx</code> in <code dir="auto">&lt;tree&gt;/.atesor/</code></td>
+<td>A C or C++ tune builds through the wrappers.</td>
+</tr>
+<tr>
+<td><code dir="auto">MAKEFLAGS</code></td>
+<td><code dir="auto">CC=&lt;tree&gt;/.atesor/cc CXX=&lt;tree&gt;/.atesor/cxx</code></td>
+<td>A <code dir="auto">CC = gcc</code> line in a Makefile cannot replace the wrappers.</td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_REAL_CC</code>, <code dir="auto">ATESOR_REAL_CXX</code></td>
+<td>the compiler of the tune, for example <code dir="auto">gcc</code> and <code dir="auto">g++</code></td>
+<td>The wrappers run this compiler.</td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_CC_FLAGS</code></td>
+<td>the flags of the tune</td>
+<td>The wrappers add these flags after the flags of the project.</td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_CC_LOG</code></td>
+<td><code dir="auto">&lt;tree&gt;/.atesor/cc.log</code></td>
+<td>The wrappers log each compiler call.</td>
+</tr>
+<tr>
+<td><code dir="auto">GORISCV64</code></td>
+<td>the Go ISA level from the probe</td>
+<td>The Go ISA tune.</td>
+</tr>
+<tr>
+<td><code dir="auto">GOFLAGS</code></td>
+<td><code dir="auto">-buildvcs=false -pgo=&lt;profile&gt;</code></td>
+<td>The Go profile-guided optimization (PGO) tune.</td>
+</tr>
+<tr>
+<td><code dir="auto">RUSTFLAGS</code></td>
+<td>a target CPU or target features from the probe</td>
+<td>The Rust ISA or target CPU tune.</td>
+</tr>
+<tr>
+<td><code dir="auto">CARGO_PROFILE_RELEASE_LTO</code>, <code dir="auto">CARGO_PROFILE_RELEASE_CODEGEN_UNITS</code></td>
+<td><code dir="auto">fat</code>, <code dir="auto">1</code></td>
+<td>The Rust link-time optimization (LTO) tune.</td>
+</tr>
+<tr>
+<td><code dir="auto">CCACHE_DISABLE</code></td>
+<td><code dir="auto">1</code></td>
+<td>The C and C++ PGO builds do not use ccache.</td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_PAD</code></td>
+<td>0 to 4096 <code dir="auto">x</code> characters, random for each run</td>
+<td>Each timed run gets another stack layout.</td>
+</tr>
+<tr>
+<td><code dir="auto">ATESOR_INPUT</code></td>
+<td>the input file, or <code dir="auto">/dev/null</code></td>
+<td>A Go benchmark that the optimizer agent writes reads its input from this file.</td>
+</tr>
+</tbody>
+</table>
+<p><code dir="auto">&lt;tree&gt;</code> is the copy of the repository that one tune builds in, for example <code dir="auto">/workspace/repos/zlib.opt/tune2</code>. Refer to <a href="/atesor/docs/reference/output-files/">Output files</a>.</p>
+</div><footer class="sl-flex astro-ddtxxk7k"><div class="meta sl-flex astro-ddtxxk7k"><a href="https://github.com/eclipse-atesor/project-website/edit/main/site/src/content/docs/docs/reference/environment-variables.md" class="sl-flex print:hidden astro-qlekgd3o"><svg aria-hidden="true" class="astro-qlekgd3o astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.2em;"><path d="M22 7.24a1 1 0 0 0-.29-.71l-4.24-4.24a1 1 0 0 0-1.1-.22 1 1 0 0 0-.32.22l-2.83 2.83L2.29 16.05a1 1 0 0 0-.29.71V21a1 1 0 0 0 1 1h4.24a1 1 0 0 0 .76-.29l10.87-10.93L21.71 8c.1-.1.17-.2.22-.33a1 1 0 0 0 0-.24v-.14l.07-.05ZM6.83 20H4v-2.83l9.93-9.93 2.83 2.83L6.83 20ZM18.17 8.66l-2.83-2.83 1.42-1.41 2.82 2.82-1.41 1.42Z"/></svg>Edit this page on GitHub</a></div><div class="pagination-links print:hidden astro-b5raizh3" dir="ltr"><a href="/atesor/docs/reference/cli/" rel="prev" class="astro-b5raizh3"><svg aria-hidden="true" class="astro-b5raizh3 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg><span class="astro-b5raizh3">Previous<br class="astro-b5raizh3"><span class="link-title astro-b5raizh3">Command-line options</span></span></a><a href="/atesor/docs/reference/exit-codes/" rel="next" class="astro-b5raizh3"><svg aria-hidden="true" class="astro-b5raizh3 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg><span class="astro-b5raizh3">Next<br class="astro-b5raizh3"><span class="link-title astro-b5raizh3">Exit codes</span></span></a></div></footer><footer class="ef-footer astro-pnsvry7h" aria-label="Eclipse Foundation"><div class="ef-top astro-pnsvry7h"><a class="ef-logo astro-pnsvry7h" href="https://www.eclipse.org" rel="noopener"><svg role="img" aria-label="Eclipse Foundation" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 281.5 90.7">
+  <path fill="#f06c02" d="M265.7,84l-8.7-11h-2.7v17.7h3.3v-12l9.3,12h2.1v-17.7h-3.3v11ZM233.3,75.7c4.2,0,5.8,3.3,5.8,6.3s-1.6,6-5.8,6-5.7-3.1-5.8-6,1.7-6.3,5.8-6.3ZM233.3,72.7c-6.1,0-9.1,4.7-9.1,9.3s2.9,9.1,9.1,9.1,9-4.6,9.1-9.2-3-9.3-9.1-9.3ZM212.1,90.7v-17.7h-3.3v17.7h3.3ZM188.5,90.7h3.3v-14.7h5.6v-3h-14.6v3h5.6v14.7ZM169.6,84.2h-6.6l3.3-7.6,3.3,7.6ZM172.4,90.7h3.6l-7.9-17.7h-3.6l-8,17.7h3.6l1.5-3.3h9.3l1.5,3.3ZM134.4,76.1h3.6c3.9,0,5.5,2.8,5.5,5.5,0,2.8-1.5,5.8-5.5,5.8h-3.6v-11.4ZM138.1,73h-6.9v17.7h6.9c6.2,0,8.9-4.5,8.9-9s-2.8-8.7-8.9-8.7h0ZM115.7,84l-8.7-11h-2.7v17.7h3.3v-12l9.3,12h2.1v-17.7h-3.3v11ZM88.2,73v10.2c0,3-1.6,4.9-4.3,4.9s-4.6-1.7-4.6-4.9v-10.1h-3.3v10.1c0,5.3,3.6,7.9,7.9,7.9s7.7-2.7,7.7-7.9v-10.1h-3.3ZM55.2,75.7c4.2,0,5.8,3.3,5.8,6.3,0,3-1.6,6-5.8,6s-5.7-3.1-5.8-6,1.7-6.3,5.8-6.3h0ZM55.2,72.7c-6.1,0-9.1,4.7-9.1,9.3s2.9,9.1,9.1,9.1,9-4.6,9.1-9.2-3-9.3-9.1-9.3h0ZM25.5,90.7v-6.5h8.9v-3.1h-8.9v-4.8h9.4v-3.2h-12.7v17.6h3.3Z"/>
+  <path fill="currentColor" d="M269.4,54.4h-22.2v-8.9h21.4v-6.9h-21.4v-9.1h22.2v-7.2h-29.6v39.5h29.6v-7.3ZM229.4,28.8c-3-6.1-9.4-7.8-15.5-7.8s-15.3,3.4-15.3,11.5,7.4,11,15.5,12c5.2.6,9.1,2.1,9.1,5.8s-4.4,5.9-9.1,5.9-9.4-1.9-11.1-6.3l-6.2,3.2c2.9,7.2,9.1,9.7,17.2,9.7s16.6-3.8,16.6-12.6-7.7-11.6-15.9-12.6c-4.7-.6-8.8-1.5-8.8-5s2.6-5.2,8.2-5.2,8,2.2,9.4,4.4l5.9-3ZM176,22.2c-6.2,0-12.4,0-18.6,0v39.5h7.4v-11.6h11.2c19.4,0,19.3-27.9,0-27.9h0ZM164.9,29.3h11.2c9.5,0,9.5,14,0,14h-11.2v-14ZM146.9,61.8V22.2h-7.4v39.5h7.4ZM102.9,22.2v39.5h27.8v-6.9h-20.3V22.2h-7.5ZM90.7,51.7c-2.7,2.5-6.2,4-9.9,4-9.8,0-13.5-6.8-13.6-13.4s4.1-13.7,13.6-13.7c3.5,0,7,1.3,9.5,3.7l5-4.8c-3.8-3.9-9.1-6-14.5-6-14.3,0-21,10.5-20.9,20.8,0,10.3,6.3,20.3,20.9,20.3,5.6.1,11-2,15-5.9l-5.1-5.1ZM51.7,54.4h-22.2v-8.9h21.4v-6.9h-21.4v-9.1h22.2v-7.2h-29.5v39.5h29.6v-7.3Z"/>
+  <path fill="#f06c02" d="M9.8,18.2C18.8,4.1,37-.8,52.1,5.9l-1-.7C35.6-4.6,15.1-.2,5.3,15.3-4.6,30.7-.2,51.2,15.3,61.1l1.1.6C3.8,50.8.8,32.3,9.8,18.2Z"/>
+  <path fill="currentColor" d="M272.2,26.1h0c0-2.5,2.1-4.6,4.6-4.6s4.6,2.1,4.6,4.6h0c0,2.5-2.1,4.6-4.6,4.6s-4.6-2.1-4.6-4.6ZM280.8,26.1h0c0-2.2-1.8-4.1-4-4.1s-4.1,1.8-4.1,4.1h0c0,2.2,1.7,4,3.9,4.1,0,0,0,0,.1,0,2.2,0,4.1-1.8,4.1-4,0,0,0,0,0,0h0ZM274.8,23.6h2.3c1.1,0,1.9.5,1.9,1.6,0,.7-.4,1.3-1.1,1.5l1.2,1.7h-1.4l-1-1.5h-.7v1.5h-1.1v-4.7ZM277,25.9c.5,0,.8-.3.8-.7s-.3-.7-.8-.7h-1v1.3h1Z"/>
+</svg></a><a class="ef-incubation astro-pnsvry7h" href="https://www.eclipse.org/projects/handbook/#incubation" rel="noopener"><span class="egg astro-pnsvry7h"><img src="/atesor/assets/incubation.png" alt="Eclipse Foundation incubation phase" width="22" height="29" loading="lazy" class="astro-pnsvry7h"></span><span class="ef-incubation-text astro-pnsvry7h"><strong class="astro-pnsvry7h">Incubating</strong><span class="astro-pnsvry7h">Eclipse Development Process</span></span></a></div><p class="astro-pnsvry7h">Eclipse Atesor™ is an open source project of the <a href="https://projects.eclipse.org/projects/openhw" rel="noopener" class="astro-pnsvry7h">OpenHW Group</a>, hosted by the Eclipse Foundation. Copyright © Eclipse Foundation AISBL. All Rights Reserved.</p><p class="astro-pnsvry7h">Eclipse Atesor, Atesor, Eclipse, and the Eclipse logo are trademarks of Eclipse Foundation AISBL. Eclipse Atesor source code is licensed under the <a href="https://github.com/eclipse-atesor/atesor/blob/main/LICENSE" rel="noopener" class="astro-pnsvry7h">MIT License</a>.</p><ul class="ef-links astro-pnsvry7h"><li class="astro-pnsvry7h"><a href="https://www.eclipse.org" rel="noopener" class="astro-pnsvry7h">Eclipse Foundation</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/privacy/" rel="noopener" class="astro-pnsvry7h">Privacy policy</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/terms-of-use/" rel="noopener" class="astro-pnsvry7h">Terms of use</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/compliance/" rel="noopener" class="astro-pnsvry7h">Compliance</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/legal/" rel="noopener" class="astro-pnsvry7h">Legal resources</a></li><li class="astro-pnsvry7h"><a href="https://www.eclipse.org/security/" rel="noopener" class="astro-pnsvry7h">Report a vulnerability</a></li></ul></footer></div></div></main></div></div></div></div></body></html>

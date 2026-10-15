@@ -4,14 +4,12 @@ import Icon from './Icon.astro';
 import { project } from '../data/content';
 import { url } from '../lib/url';
 
-/** In-page anchors only work from the landing page, so prefix them with '/'
- *  rather than '#' — from /downloads they must navigate home first. */
+/** Two destinations and the source. The landing page is one short read, so
+ *  it needs no in-page anchors and no mobile menu: the links fit at 320 px. */
+const path = Astro.url.pathname.replace(/\/$/, '');
 const nav = [
-  { label: 'How it works', href: url('/#pipeline') },
-  { label: 'Features', href: url('/#features') },
-  { label: 'Get started', href: url('/#quickstart') },
-  { label: 'Downloads', href: url('/downloads') },
-  { label: 'Community', href: url('/#community') },
+  { label: 'Docs', href: url('/docs/') },
+  { label: 'Packages', href: url('/downloads'), current: path.endsWith('/downloads') },
 ];
 ---
 
@@ -24,111 +22,50 @@ const nav = [
       </span>
     </a>
 
-    <nav class="nav-desktop" aria-label="Primary">
-      {nav.map((i) => <a href={i.href}>{i.label}</a>)}
-    </nav>
-
-    <div class="header-actions">
-      <a
-        href={project.urls.repo}
-        class="btn btn-secondary btn-sm"
-        rel="noopener"
-        target="_blank"
-      >
+    <nav class="nav" aria-label="Primary">
+      {
+        nav.map((i) => (
+          <a href={i.href} aria-current={i.current ? 'page' : undefined}>
+            {i.label}
+          </a>
+        ))
+      }
+      <a href={project.urls.repo} class="gh" rel="noopener" target="_blank">
         <Icon name="github" size={16} />
         <span class="gh-label">GitHub</span>
+        <span class="sr-only gh-sr">GitHub</span>
       </a>
-      <button
-        class="nav-toggle"
-        aria-label="Toggle navigation"
-        aria-expanded="false"
-        aria-controls="mobile-nav"
-      >
-        <span></span><span></span><span></span>
-      </button>
-    </div>
+    </nav>
   </div>
-
-  <nav id="mobile-nav" class="nav-mobile" aria-label="Primary mobile" hidden>
-    {nav.map((i) => <a href={i.href}>{i.label}</a>)}
-  </nav>
 </header>
-
-<script>
-  const btn = document.querySelector<HTMLButtonElement>('.nav-toggle');
-  const panel = document.querySelector<HTMLElement>('#mobile-nav');
-  const header = document.querySelector<HTMLElement>('.site-header');
-
-  // UX-10: opening the menu must move focus into it, and Escape must close it
-  // and hand focus back to the toggle, or keyboard users are stranded.
-  const setOpen = (open: boolean) => {
-    btn?.setAttribute('aria-expanded', String(open));
-    if (panel) panel.hidden = !open;
-    btn?.classList.toggle('is-open', open);
-  };
-
-  btn?.addEventListener('click', () => {
-    const open = btn.getAttribute('aria-expanded') === 'true';
-    setOpen(!open);
-    if (!open) panel?.querySelector<HTMLAnchorElement>('a')?.focus();
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape') return;
-    if (btn?.getAttribute('aria-expanded') !== 'true') return;
-    setOpen(false);
-    btn.focus();
-  });
-
-  // Close the mobile panel after following an in-page anchor.
-  panel?.addEventListener('click', (e) => {
-    if ((e.target as HTMLElement).tagName !== 'A') return;
-    btn?.setAttribute('aria-expanded', 'false');
-    btn?.classList.remove('is-open');
-    panel.hidden = true;
-  });
-
-  // Solidify the header background once the hero has scrolled away.
-  const onScroll = () => header?.classList.toggle('is-stuck', window.scrollY > 12);
-  onScroll();
-  window.addEventListener('scroll', onScroll, { passive: true });
-</script>
 
 <style>
   .site-header {
     position: sticky;
     top: 0;
     z-index: 50;
-    border-bottom: 1px solid transparent;
-    transition:
-      background-color 0.25s ease,
-      border-color 0.25s ease,
-      backdrop-filter 0.25s ease;
-  }
-
-  .site-header.is-stuck {
-    background: color-mix(in srgb, var(--color-bg) 82%, transparent);
-    backdrop-filter: blur(12px) saturate(140%);
-    border-bottom-color: var(--color-border);
+    background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+    backdrop-filter: blur(10px) saturate(140%);
+    border-bottom: 1px solid var(--color-border);
   }
 
   .header-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1.5rem;
-    height: 4.25rem;
+    gap: 1rem;
+    height: 3.75rem;
   }
 
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.55rem;
     flex-shrink: 0;
   }
 
   .brand-text {
-    font-size: 1.0625rem;
+    font-size: 1rem;
     letter-spacing: -0.015em;
     white-space: nowrap;
   }
@@ -144,98 +81,55 @@ const nav = [
     margin-left: 0.28em;
   }
 
-  .nav-desktop {
-    display: none;
-    gap: 1.9rem;
-    font-size: 0.9rem;
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.9rem, 3vw, 1.75rem);
+    font-size: 0.9375rem;
   }
 
-  .nav-desktop a {
+  .nav a {
     color: var(--color-text-dim);
+    text-underline-offset: 6px;
     transition: color 0.15s ease;
   }
 
-  .nav-desktop a:hover {
+  .nav a:hover,
+  .nav a[aria-current='page'] {
     color: var(--color-text);
   }
 
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+  .nav a[aria-current='page'] {
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    text-decoration-thickness: 2px;
   }
 
-  .btn-sm {
-    padding: 0.5rem 0.9rem;
-    font-size: 0.85rem;
+  .gh {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
   }
 
   .gh-label {
     display: none;
   }
 
-  /* Hamburger */
-  .nav-toggle {
-    display: inline-flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 4px;
-    width: 40px;
-    height: 40px;
-    padding: 0 9px;
-    border: 1px solid var(--color-border-bright);
-    border-radius: 8px;
-    background: transparent;
-    cursor: pointer;
-  }
-
-  .nav-toggle span {
-    display: block;
-    height: 1.5px;
-    background: var(--color-text);
-    transition: transform 0.2s ease, opacity 0.2s ease;
-  }
-
-  .nav-toggle.is-open span:nth-child(1) {
-    transform: translateY(5.5px) rotate(45deg);
-  }
-  .nav-toggle.is-open span:nth-child(2) {
-    opacity: 0;
-  }
-  .nav-toggle.is-open span:nth-child(3) {
-    transform: translateY(-5.5px) rotate(-45deg);
-  }
-
-  .nav-mobile {
-    display: flex;
-    flex-direction: column;
-    padding: 0.5rem clamp(1.25rem, 4vw, 2.5rem) 1.25rem;
-    background: color-mix(in srgb, var(--color-bg) 96%, transparent);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .nav-mobile a {
-    padding: 0.75rem 0;
-    color: var(--color-text-dim);
-    border-bottom: 1px solid var(--color-border);
-    font-size: 0.95rem;
-  }
-
-  .nav-mobile a:last-child {
-    border-bottom: 0;
-  }
-
-  @media (min-width: 900px) {
-    .nav-desktop {
-      display: flex;
-    }
-    .nav-toggle {
-      display: none;
-    }
+  @media (min-width: 560px) {
     .gh-label {
       display: inline;
     }
+    .gh-sr {
+      display: none;
+    }
   }
 
+  @media (max-width: 360px) {
+    .brand-eclipse {
+      display: none;
+    }
+    .brand-name {
+      margin-left: 0;
+    }
+  }
 </style>

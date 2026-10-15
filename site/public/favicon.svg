@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <style>
+    .l { stroke: #1B1E22; } .p { fill: #2142B0; }
+    @media (prefers-color-scheme: dark) { .l { stroke: #ECEEEF; } .p { fill: #8CA3FF; } }
+  </style>
+  <g class="l" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M150 62H450V450H62V150Z" stroke-width="48"/>
+    <path d="M362 176H184L156 204V228L184 256H328L356 284V308L328 336H180" stroke-width="44"/>
+  </g>
+  <circle class="p" cx="180" cy="336" r="36"/>
+</svg>

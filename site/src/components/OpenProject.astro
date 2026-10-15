@@ -1,0 +1,130 @@
+---
+import Icon from './Icon.astro';
+import { project } from '../data/content';
+import { url } from '../lib/url';
+
+const links = [
+  { label: 'Read the docs', note: 'From the first port to the internals.', href: url('/docs/') },
+  {
+    label: 'Ask on atesor-dev',
+    note: 'The project mailing list at the Eclipse Foundation.',
+    href: project.urls.mailingList,
+  },
+  {
+    label: 'Report a package that fails',
+    note: 'GitHub issues, with the repository URL and the log.',
+    href: `${project.urls.repo}/issues`,
+  },
+  {
+    label: 'Contribute',
+    note: 'Development setup, tests, platforms and recovery rules.',
+    href: url('/docs/contributing/development-setup/'),
+  },
+  {
+    label: 'Project page',
+    note: 'Committers, governance and releases at the Eclipse Foundation.',
+    href: project.urls.pmi,
+  },
+];
+---
+
+<section class="op" aria-labelledby="op-title">
+  <div class="container-x op-grid">
+    <div class="op-copy">
+      <h2 id="op-title" class="h2">Built in the open</h2>
+      <p class="lede">
+        Eclipse Atesor™ is an Eclipse Foundation project in incubation, under the OpenHW Group. The
+        code is MIT licensed, and the plans, releases and decisions are public.
+      </p>
+    </div>
+
+    <ul class="op-links">
+      {
+        links.map((l) => {
+          const external = l.href.startsWith('http');
+          return (
+            <li>
+              <a href={l.href} rel={external ? 'noopener' : undefined} target={external ? '_blank' : undefined}>
+                <span class="op-label">
+                  {l.label}
+                  <Icon name="arrowRight" size={15} />
+                </span>
+                <span class="op-note">{l.note}</span>
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .op {
+    padding-block: clamp(4rem, 8vw, 6.5rem);
+  }
+
+  .op-grid {
+    display: grid;
+    gap: 2.25rem;
+    align-items: start;
+  }
+
+  @media (min-width: 960px) {
+    .op-grid {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 4rem;
+    }
+  }
+
+  .op-copy .h2 {
+    margin: 0;
+  }
+
+  .op-copy .lede {
+    margin: 1rem 0 0;
+  }
+
+  .op-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .op-links li {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .op-links a {
+    display: grid;
+    gap: 0.2rem;
+    padding: 0.95rem 0.25rem;
+  }
+
+  .op-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 650;
+    color: var(--color-text);
+  }
+
+  .op-label :global(svg) {
+    color: var(--color-accent);
+    transition: transform 0.15s var(--ease-out-expo);
+  }
+
+  .op-note {
+    font-size: 0.9rem;
+    color: var(--color-text-dim);
+  }
+
+  .op-links a:hover .op-label {
+    color: var(--color-accent);
+  }
+
+  .op-links a:hover .op-label :global(svg) {
+    transform: translateX(3px);
+  }
+</style>

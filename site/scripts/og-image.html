@@ -1,0 +1,56 @@
+<!doctype html>
+<!--
+  Source of public/brand/og-image.png (1200x630) and
+  public/brand/github-social-preview.png (1280x640).
+
+  Render with any Chromium (not a project dependency):
+    google-chrome --headless=new --hide-scrollbars --window-size=1200,630 \
+      --screenshot=public/brand/og-image.png "file://$PWD/scripts/og-image.html"
+    google-chrome --headless=new --hide-scrollbars --window-size=1280,640 \
+      --screenshot=public/brand/github-social-preview.png "file://$PWD/scripts/og-image.html"
+-->
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; }
+  /* Fixed heights: headless Chrome's viewport can be shorter than the window. */
+  body { height: 630px; }
+  @media (min-width: 1250px) { body { height: 640px; } }
+  body {
+    background: #111316;
+    color: #eceeef;
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    display: grid;
+    place-items: center;
+  }
+  .card { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 64px; padding: 0 80px; }
+  .mark { width: 280px; height: 280px; }
+  .text { display: grid; gap: 22px; }
+  .word { width: 470px; height: auto; color: #eceeef; }
+  .tag { font-size: 40px; font-weight: 600; letter-spacing: -0.01em; margin: 0; white-space: nowrap; }
+  .meta { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; font-size: 22px; color: #8d959e; letter-spacing: 0.04em; margin: 0; }
+  .meta b { color: #8ca3ff; font-weight: 400; }
+</style>
+<div class="card">
+  <svg class="mark" viewBox="0 0 512 512" aria-hidden="true">
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke="#ECEEEF">
+      <path d="M160 72H440V440H72V160Z" stroke-width="26"/>
+      <circle cx="352" cy="180" r="16" stroke-width="10"/>
+      <path d="M336 180H174L150 204V232L174 256H338L362 280V308L338 332H164" stroke-width="26"/>
+    </g>
+    <circle cx="164" cy="332" r="24" fill="#8CA3FF"/>
+  </svg>
+  <div class="text">
+    <svg class="word" viewBox="-4 -34 621 138" role="img" aria-label="atesor">
+      <g fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="50" cy="50" r="43.5"/><path d="M93.5 6.5V93.5"/>
+        <path transform="translate(118 0)" d="M22 -22V77L38.5 93.5H54M6.5 6.5H50"/>
+        <path transform="translate(196.5 0)" d="M6.5 50H93.5A43.5 43.5 0 1 0 79.1 82.3"/>
+        <path transform="translate(314.5 0)" d="M82 6.5H20.5L6.5 20.5V36L20.5 50H75.5L89.5 64V79.5L75.5 93.5H13.5"/>
+        <circle transform="translate(428.5 0)" cx="50" cy="50" r="43.5"/>
+        <path transform="translate(544.5 0)" d="M6.5 93.5V28.5L28.5 6.5H62"/>
+      </g>
+    </svg>
+    <p class="tag">From source to verified riscv64.</p>
+    <p class="meta">Eclipse Atesor™ · <b>eclipse.dev/atesor</b></p>
+  </div>
+</div>

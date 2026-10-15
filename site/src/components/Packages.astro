@@ -1,0 +1,111 @@
+---
+import Icon from './Icon.astro';
+import { url } from '../lib/url';
+import manifest from '../../public/assets/packages.json';
+
+/**
+ * Proof: what is already ported. Every number and every name comes from the
+ * package index manifest at build time (scripts/build-manifest.mjs), the same
+ * file the /downloads page reads. A name shows only if the index has it.
+ */
+const { unique, bothLibc, withRecipe } = manifest;
+const fmt = (n: number) => n.toLocaleString('en-US');
+
+const wellKnown = [
+  'zlib', 'curl', 'openssl', 'sqlite', 'git', 'vim', 'tmux', 'htop', 'jq', 'yq',
+  'lua', 'zstd', 'lz4', 'xz', 'brotli', 'libpng', 'libjpeg-turbo', 'libwebp',
+  'freetype', 'libxml2', 'libyaml', 'pcre2', 'libuv', 'libevent', 'libsodium',
+  'mbedtls', 'libssh2', 'nghttp2', 'c-ares', 'libarchive', 'snappy', 'leveldb',
+  'opus', 'flac', 'dav1d', 'fftw3', 'ripgrep', 'fd', 'fzf', 'hugo', 'lazygit',
+  'restic', 'rclone', 'age', 'glow', 'gum', 'k9s', 'cjson', 'jansson', 'tinyxml2',
+];
+const stems = new Set(manifest.packages.map((p: { n: string }) => p.n));
+const names = wellKnown.filter((w) => [...stems].some((s) => s === w || s.endsWith(`-${w}`)));
+---
+
+<section class="pk" aria-labelledby="pk-title">
+  <div class="container-x">
+    <h2 id="pk-title" class="h2">Already ported</h2>
+
+    <p class="pk-claim">
+      <strong>{fmt(unique)}</strong> packages have riscv64 builds in the monthly releases.{' '}
+      <strong>{fmt(bothLibc)}</strong> of them build on both musl and glibc, and{' '}
+      <strong>{fmt(withRecipe)}</strong> ship with a cached recipe.
+    </p>
+
+    <ul class="pk-names" aria-label="Some of the ported packages">
+      {names.map((n) => <li>{n}</li>)}
+      <li class="pk-more">and {fmt(unique - names.length)} more</li>
+    </ul>
+
+    <div class="pk-actions">
+      <a href={url('/downloads')} class="btn btn-primary">
+        Browse the package index
+        <Icon name="arrowRight" size={16} />
+      </a>
+      <a href={url('/docs/project/releases/')} class="pk-link">How the releases work</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .pk {
+    padding-block: clamp(4rem, 8vw, 6.5rem);
+  }
+
+  .pk .h2 {
+    margin: 0;
+  }
+
+  .pk-claim {
+    margin: 1.25rem 0 0;
+    max-width: 34ch;
+    font-size: clamp(1.35rem, 2.6vw, 2rem);
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+    color: var(--color-text-dim);
+  }
+
+  .pk-claim strong {
+    font-weight: 700;
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pk-names {
+    list-style: none;
+    margin: 2.25rem 0 0;
+    padding: 1.4rem 0 0;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 1.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--color-text);
+  }
+
+  .pk-more {
+    color: var(--color-text-muted);
+    font-family: var(--font-sans);
+  }
+
+  .pk-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin-top: 2.25rem;
+  }
+
+  .pk-link {
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+
+  .pk-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+</style>
