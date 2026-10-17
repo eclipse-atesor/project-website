@@ -85,29 +85,13 @@ You start a port with a command such as `python3 main.py --repo https://github.c
 
 ## How does the graph go from source code to recipe?
 
-The graph is in `src/graph.py`. The arrows show the usual path.
+The graph is in `src/graph.py`. The picture shows the usual path of a run, from the command to the output files. A blue LLM tag marks the nodes that can call an LLM.
 
-```text
-init_node             clone + scripted analysis                (no LLM)
-   |
-   +--> cached_recipe_node   cached build plan, --optimize only    (no LLM)
-   |                         then to supervisor_node
-   |
-analyst_node          read the build files, write an analysis  (LLM)
-   |
-heuristic_plan_node   default build plan                       (no LLM)
-   |        \
-   |         scout_node   LLM build plan, only when needed
-   |        /
-supervisor_node       route by rules                           (no LLM)
-   |
-   +--> build_fix_subgraph:  build_node -> verify_node -> fix_node -> build_node
-   +--> scout_node           new plan after some failures
-   +--> finish_node          package tests, recipe, learning
-   |       |
-   |       +--> optimize_node   performance mode, --optimize only
-   +--> escalate_node        report for a person
-```
+<figure class="diagram">
+  <a class="diagram-light" href="https://eclipse.dev/atesor/docs/diagrams/architecture-light.svg"><img src="https://eclipse.dev/atesor/docs/diagrams/architecture-light.svg" width="780" height="1153" alt="Atesor architecture. main.py checks the URL, the recipe cache, the API key and the riscv64 sandbox. A cache hit writes the recipe and stops. Otherwise the LangGraph state graph runs init_node, analyst_node, heuristic_plan_node or scout_node, and supervisor_node. The supervisor routes to the build_fix_subgraph (build_node, verify_node, fix_node), to finish_node and optimize_node, or to escalate_node. A verified port goes into the recipe cache and the few-shot examples." /></a>
+  <a class="diagram-dark" href="https://eclipse.dev/atesor/docs/diagrams/architecture-dark.svg"><img src="https://eclipse.dev/atesor/docs/diagrams/architecture-dark.svg" width="780" height="1153" alt="Atesor architecture. main.py checks the URL, the recipe cache, the API key and the riscv64 sandbox. A cache hit writes the recipe and stops. Otherwise the LangGraph state graph runs init_node, analyst_node, heuristic_plan_node or scout_node, and supervisor_node. The supervisor routes to the build_fix_subgraph (build_node, verify_node, fix_node), to finish_node and optimize_node, or to escalate_node. A verified port goes into the recipe cache and the few-shot examples." /></a>
+  <figcaption>Open the picture to see it at full size.</figcaption>
+</figure>
 
 1. `init_node` clones the repository inside the sandbox. It then runs a scripted analysis: build system detection, dependency extraction, and a scan for architecture-specific code.
    - With `--optimize`, if the recipe cache has a verified recipe of the package, `init_node` sends the run to `cached_recipe_node`. This node makes the cached build plan the plan of the run and applies the cached patches. The analyst and the scout make no LLM call. If the cached recipe has no command, the run goes to `analyst_node`. `--force` makes Atesor plan again.
@@ -2389,6 +2373,14 @@ These counts come from `create_workflow()` and `create_build_fix_subgraph()` on 
 `finish_node` can make two LLM calls: one for the recipe and one for the artifact curator. Both use the summarizer role. `optimize_node` calls a model only when the workload of performance mode comes from the optimizer agent. `cached_recipe_node` runs under the `planner` role label, but it makes no LLM call. The model for each role is on the [LLM layer](https://eclipse.dev/atesor/docs/architecture/llm-layer/) page.
 
 ## What does the flow look like?
+
+The picture shows the parent graph, the subgraph, and the steps before and after the graph. The text diagrams after it give each routing condition.
+
+<figure class="diagram">
+  <a class="diagram-light" href="https://eclipse.dev/atesor/docs/diagrams/architecture-light.svg"><img src="https://eclipse.dev/atesor/docs/diagrams/architecture-light.svg" width="780" height="1153" alt="Atesor architecture. main.py checks the URL, the recipe cache, the API key and the riscv64 sandbox. A cache hit writes the recipe and stops. Otherwise the LangGraph state graph runs init_node, analyst_node, heuristic_plan_node or scout_node, and supervisor_node. The supervisor routes to the build_fix_subgraph (build_node, verify_node, fix_node), to finish_node and optimize_node, or to escalate_node. A verified port goes into the recipe cache and the few-shot examples." /></a>
+  <a class="diagram-dark" href="https://eclipse.dev/atesor/docs/diagrams/architecture-dark.svg"><img src="https://eclipse.dev/atesor/docs/diagrams/architecture-dark.svg" width="780" height="1153" alt="Atesor architecture. main.py checks the URL, the recipe cache, the API key and the riscv64 sandbox. A cache hit writes the recipe and stops. Otherwise the LangGraph state graph runs init_node, analyst_node, heuristic_plan_node or scout_node, and supervisor_node. The supervisor routes to the build_fix_subgraph (build_node, verify_node, fix_node), to finish_node and optimize_node, or to escalate_node. A verified port goes into the recipe cache and the few-shot examples." /></a>
+  <figcaption>Open the picture to see it at full size.</figcaption>
+</figure>
 
 The parent graph:
 

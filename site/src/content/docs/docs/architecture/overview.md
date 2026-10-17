@@ -46,6 +46,14 @@ These counts come from `create_workflow()` and `create_build_fix_subgraph()` on 
 
 ## What does the flow look like?
 
+The picture shows the parent graph, the subgraph, and the steps before and after the graph. The text diagrams after it give each routing condition.
+
+<figure class="diagram">
+  <a class="diagram-light" href="/atesor/docs/diagrams/architecture-light.svg"><img src="/atesor/docs/diagrams/architecture-light.svg" width="780" height="1153" alt="Atesor architecture. main.py checks the URL, the recipe cache, the API key and the riscv64 sandbox. A cache hit writes the recipe and stops. Otherwise the LangGraph state graph runs init_node, analyst_node, heuristic_plan_node or scout_node, and supervisor_node. The supervisor routes to the build_fix_subgraph (build_node, verify_node, fix_node), to finish_node and optimize_node, or to escalate_node. A verified port goes into the recipe cache and the few-shot examples." /></a>
+  <a class="diagram-dark" href="/atesor/docs/diagrams/architecture-dark.svg"><img src="/atesor/docs/diagrams/architecture-dark.svg" width="780" height="1153" alt="Atesor architecture. main.py checks the URL, the recipe cache, the API key and the riscv64 sandbox. A cache hit writes the recipe and stops. Otherwise the LangGraph state graph runs init_node, analyst_node, heuristic_plan_node or scout_node, and supervisor_node. The supervisor routes to the build_fix_subgraph (build_node, verify_node, fix_node), to finish_node and optimize_node, or to escalate_node. A verified port goes into the recipe cache and the few-shot examples." /></a>
+  <figcaption>Open the picture to see it at full size.</figcaption>
+</figure>
+
 The parent graph:
 
 ```text

@@ -119,3 +119,33 @@
   color: var(--sl-color-gray-3);
   font-size: var(--sl-text-xs);
 }
+
+/* Diagrams (public/docs/diagrams/, from scripts/render-diagrams.py). Each
+   diagram has one SVG for each theme; show the one that fits the theme. */
+.sl-markdown-content .diagram {
+  margin-block: 1.5rem;
+}
+
+.sl-markdown-content .diagram a {
+  display: block;
+}
+
+.sl-markdown-content .diagram figcaption {
+  margin-top: 0.5rem;
+  text-align: center;
+  color: var(--sl-color-gray-3);
+  font-size: var(--sl-text-sm);
+}
+
+.sl-markdown-content .diagram img {
+  display: block;
+  width: 100%;
+  max-width: 780px;
+  height: auto;
+  margin-inline: auto;
+}
+
+:root[data-theme='light'] .diagram .diagram-dark,
+:root:not([data-theme='light']) .diagram .diagram-light {
+  display: none;
+}

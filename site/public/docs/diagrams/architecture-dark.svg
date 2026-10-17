@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 1153" width="780" height="1153" role="img" aria-labelledby="title desc">
+<title id="title">Eclipse Atesor architecture</title>
+<desc id="desc">main.py checks the URL, the recipe cache and the API key, and starts the riscv64 sandbox. A cache hit writes the recipe and stops. Otherwise the LangGraph state graph runs init_node, analyst_node (LLM) and heuristic_plan_node, or scout_node (LLM) when there is no default plan. supervisor_node routes by rules: to the build_fix_subgraph (build_node, verify_node, fix_node with an LLM) and back, to finish_node (LLM) on success, or to escalate_node at a limit. With --optimize, cached_recipe_node reuses a verified plan and optimize_node (LLM) tries faster tunes. A verified port goes into the memory, and the recipe cache uses it on the next run.</desc>
+<defs><marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#7D858F"/></marker></defs>
+<path d="M34 185 H752 V929 H16 V203 Z" fill="#1B1E22" stroke="#3A4047" stroke-width="1.25"/>
+<rect x="276" y="16" width="216" height="34" rx="17" fill="#23272C" stroke="#616973" stroke-width="1.25"/>
+<text x="384" y="38" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="13.5" font-weight="600" fill="#ECEEEF" text-anchor="middle">atesor-ai --repo &lt;url&gt;</text>
+<path d="M384 50 L384 70" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#head)"/>
+<rect x="276" y="72" width="216" height="85" rx="10" fill="#23272C" stroke="#616973" stroke-width="1.25"/>
+<text x="290" y="94" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="600" fill="#ECEEEF" text-anchor="start">main.py</text>
+<text x="290" y="112" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">checks the URL, the recipe</text>
+<text x="290" y="129" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">cache and the API key, then</text>
+<text x="290" y="146" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">starts the riscv64 sandbox</text>
+<rect x="520" y="72" width="216" height="85" rx="10" fill="#23272C" stroke="#616973" stroke-width="1.25"/>
+<text x="534" y="94" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600" fill="#ECEEEF" text-anchor="start">Recipe cache hit</text>
+<text x="534" y="112" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">no --force, no --optimize:</text>
+<text x="534" y="129" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">write the recipe, exit 0</text>
+<text x="534" y="146" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">or 3, build nothing</text>
+<path d="M492 102 L518 102" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#head)"/>
+<text x="506" y="95" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="middle">hit</text>
+<rect x="32" y="72" width="216" height="85" rx="10" fill="#23272C" stroke="#616973" stroke-width="1.25"/>
+<text x="46" y="94" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600" fill="#ECEEEF" text-anchor="start">riscv64 sandbox</text>
+<text x="46" y="112" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">Alpine or Debian container,</text>
+<text x="46" y="129" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">under QEMU or on a native</text>
+<text x="46" y="146" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">riscv64 machine</text>
+<path d="M276 102 L250 102" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#head)"/>
+<text x="392" y="178" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="start">miss</text>
+<text x="402" y="209" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#ECEEEF" text-anchor="start">LangGraph state graph</text>
+<text x="582" y="209" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">src/graph.py</text>
+<path d="M384 157 L384 223" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#head)"/>
+<rect x="276" y="225" width="216" height="68" rx="10" fill="#23272C" stroke="#616973" stroke-width="1.25"/>
+<text x="290" y="247" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="600" fill="#ECEEEF" text-anchor="start">init_node</text>
+<text x="290" y="265" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">clone in the sandbox, then</text>
+<text x="290" y="282" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">a scripted analysis</text>
+<rect x="520" y="225" width="216" height="85" rx="10" fill="#23272C" stroke="#616973" stroke-width="1.25" stroke-dasharray="5 4"/>
+<text x="534" y="247" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="600" fill="#ECEEEF" text-anchor="start">cached_recipe_node</text>
+<text x="534" y="265" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">with --optimize: reuse a</text>
+<text x="534" y="282" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">verified cached plan, then</text>
+<text x="534" y="299" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">go to supervisor_node</text>
+<path d="M492 255 L518 255" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#head)"/>
+<path d="M276 273 L212 273 Q204 273 204 265 L204 159" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="2 3" stroke-linecap="round" marker-end="url(#head)"/>
+<text x="196" y="251" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="end">clone, scan</text>
+<path d="M384 293 L384 323" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#head)"/>
+<rect x="276" y="325" width="216" height="68" rx="10" fill="#23272C" stroke="#616973" stroke-width="1.25"/>
+<text x="290" y="347" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="600" fill="#ECEEEF" text-anchor="start">analyst_node</text>
+<text x="290" y="365" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">read the build files and</text>
+<text x="290" y="382" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">docs, write the analysis</text>
+<rect x="444" y="334" width="36" height="18" rx="9" fill="#8CA3FF" stroke="#8CA3FF" stroke-width="0"/>
+<text x="462" y="347" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="10.5" font-weight="700" fill="#111316" text-anchor="middle">LLM</text>
+<path d="M384 393 L384 423" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#head)"/>
+<rect x="276" y="425" width="216" height="68" rx="10" fill="#23272C" stroke="#616973" stroke-width="1.25"/>
+<text x="290" y="447" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="600" fill="#ECEEEF" text-anchor="start">heuristic_plan_node</text>
+<text x="290" y="465" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">default plan for Make,</text>
+<text x="290" y="482" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">CMake, autotools and Go</text>
+<rect x="520" y="425" width="216" height="68" rx="10" fill="#23272C" stroke="#616973" stroke-width="1.25"/>
+<text x="534" y="447" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="600" fill="#ECEEEF" text-anchor="start">scout_node</text>
+<text x="534" y="465" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">when there is no default</text>
+<text x="534" y="482" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">plan: write a build plan</text>
+<rect x="688" y="434" width="36" height="18" rx="9" fill="#8CA3FF" stroke="#8CA3FF" stroke-width="0"/>
+<text x="706" y="447" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="10.5" font-weight="700" fill="#111316" text-anchor="middle">LLM</text>
+<path d="M492 455 L518 455" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#head)"/>
+<path d="M384 493 L384 531" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#head)"/>
+<rect x="276" y="533" width="216" height="51" rx="10" fill="#23272C" stroke="#616973" stroke-width="1.25"/>
+<text x="290" y="555" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="600" fill="#ECEEEF" text-anchor="start">supervisor_node</text>
+<text x="290" y="573" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">route by rules</text>
+<path d="M274 558 L148 558 Q140 558 140 566 L140 622" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" marker-start="url(#head)" marker-end="url(#head)"/>
+<text x="150" y="550" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="start">build, then back</text>
+<path d="M494 558 L672 558 Q680 558 680 550 L680 495" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" marker-start="url(#head)" marker-end="url(#head)"/>
+<text x="502" y="550" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="start">plan, or a new plan</text>
+<path d="M384 584 L384 622" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#head)"/>
+<path d="M384 603 L620 603 Q628 603 628 611 L628 622" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#head)"/>
+<text x="376" y="617" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="end">limit reached</text>
+<text x="618" y="597" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="end">SUCCESS</text>
+<rect x="32" y="624" width="216" height="285" rx="12" fill="#16191C" stroke="#3A4047" stroke-width="1.25"/>
+<text x="72" y="648" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="13" font-weight="700" fill="#ECEEEF" text-anchor="start">build_fix_subgraph</text>
+<path d="M54 624 L54 159" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="2 3" stroke-linecap="round" marker-end="url(#head)"/>
+<text x="62" y="450" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="start">build, verify</text>
+<text x="62" y="467" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="start">and fix commands</text>
+<rect x="64" y="678" width="152" height="51" rx="10" fill="#23272C" stroke="#616973" stroke-width="1.25"/>
+<text x="78" y="700" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="600" fill="#ECEEEF" text-anchor="start">build_node</text>
+<text x="78" y="718" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">plan + 23 rules</text>
+<rect x="64" y="759" width="152" height="51" rx="10" fill="#23272C" stroke="#3FBF88" stroke-width="1.75"/>
+<text x="78" y="781" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="600" fill="#ECEEEF" text-anchor="start">verify_node</text>
+<text x="78" y="799" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">ELF check</text>
+<rect x="64" y="840" width="152" height="51" rx="10" fill="#23272C" stroke="#616973" stroke-width="1.25"/>
+<text x="78" y="862" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="600" fill="#ECEEEF" text-anchor="start">fix_node</text>
+<text x="78" y="880" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">apply a fix</text>
+<rect x="168" y="849" width="36" height="18" rx="9" fill="#8CA3FF" stroke="#8CA3FF" stroke-width="0"/>
+<text x="186" y="862" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="10.5" font-weight="700" fill="#111316" text-anchor="middle">LLM</text>
+<path d="M140 729 L140 757" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#head)"/>
+<text x="148" y="748" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="start">pass</text>
+<path d="M140 810 L140 838" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#head)"/>
+<text x="148" y="829" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="start">fail</text>
+<path d="M64 703 L58.0 703.0 Q52 703 52.0 709.0 L52.0 860.0 Q52 865 57.0 865.0 L62 865" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#head)"/>
+<text x="46" y="784" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="middle" transform="rotate(-90 46 784)">fail</text>
+<path d="M216 865 L222.0 865.0 Q228 865 228.0 859.0 L228.0 708.0 Q228 703 223.0 703.0 L218 703" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#head)"/>
+<text x="242" y="784" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="middle" transform="rotate(-90 242 784)">retry</text>
+<rect x="276" y="624" width="216" height="68" rx="10" fill="#23272C" stroke="#616973" stroke-width="1.25"/>
+<text x="290" y="646" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="600" fill="#ECEEEF" text-anchor="start">escalate_node</text>
+<text x="290" y="664" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">write a report for</text>
+<text x="290" y="681" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">a person</text>
+<rect x="520" y="624" width="216" height="68" rx="10" fill="#23272C" stroke="#616973" stroke-width="1.25"/>
+<text x="534" y="646" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="600" fill="#ECEEEF" text-anchor="start">finish_node</text>
+<text x="534" y="664" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">package tests, recipe,</text>
+<text x="534" y="681" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">learning</text>
+<rect x="688" y="633" width="36" height="18" rx="9" fill="#8CA3FF" stroke="#8CA3FF" stroke-width="0"/>
+<text x="706" y="646" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="10.5" font-weight="700" fill="#111316" text-anchor="middle">LLM</text>
+<rect x="276" y="742" width="216" height="68" rx="10" fill="#23272C" stroke="#616973" stroke-width="1.25" stroke-dasharray="5 4"/>
+<text x="290" y="764" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="600" fill="#ECEEEF" text-anchor="start">optimize_node</text>
+<text x="290" y="782" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">faster tunes, timed on</text>
+<text x="290" y="799" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">native hardware</text>
+<rect x="444" y="751" width="36" height="18" rx="9" fill="#8CA3FF" stroke="#8CA3FF" stroke-width="0"/>
+<text x="462" y="764" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="10.5" font-weight="700" fill="#111316" text-anchor="middle">LLM</text>
+<path d="M560 692 L560 768 Q560 776 552 776 L494 776" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#head)"/>
+<text x="568" y="718" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="start">--optimize</text>
+<path d="M262 929 L262 957" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#head)"/>
+<text x="270" y="949" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="start">END: main.py writes the files</text>
+<rect x="32" y="959" width="460" height="68" rx="10" fill="#23272C" stroke="#616973" stroke-width="1.25"/>
+<text x="46" y="981" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600" fill="#ECEEEF" text-anchor="start">Outputs</text>
+<text x="46" y="999" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">&lt;repo&gt;_recipe.md, the report, state.json,</text>
+<text x="46" y="1016" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">patches, logs, a zip with --package</text>
+<rect x="520" y="959" width="216" height="68" rx="10" fill="#23272C" stroke="#616973" stroke-width="1.25"/>
+<text x="534" y="981" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600" fill="#ECEEEF" text-anchor="start">Memory</text>
+<text x="534" y="999" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">recipe cache and</text>
+<text x="534" y="1016" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9BA3AD" text-anchor="start">few-shot examples</text>
+<path d="M680 692 L680 957" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#head)"/>
+<text x="672" y="947" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="end">verified port</text>
+<path d="M736 993 L754 993 Q762 993 762 985 L762 110 Q762 102 754 102 L738 102" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#head)"/>
+<text x="776" y="530" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="middle" transform="rotate(-90 776 530)">reused on the next run</text>
+<rect x="32" y="1050" width="36" height="18" rx="9" fill="#8CA3FF" stroke="#8CA3FF" stroke-width="0"/>
+<text x="50" y="1063" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="10.5" font-weight="700" fill="#111316" text-anchor="middle">LLM</text>
+<text x="76" y="1063" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="start">can call an LLM</text>
+<rect x="192" y="1050" width="30" height="18" rx="5" fill="#23272C" stroke="#616973" stroke-width="1.25"/>
+<text x="230" y="1063" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="start">scripts and rules only</text>
+<rect x="392" y="1050" width="30" height="18" rx="5" fill="#23272C" stroke="#616973" stroke-width="1.25" stroke-dasharray="5 4"/>
+<text x="430" y="1063" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="start">--optimize only</text>
+<rect x="552" y="1050" width="30" height="18" rx="5" fill="#23272C" stroke="#3FBF88" stroke-width="1.75"/>
+<text x="590" y="1063" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="start">proves riscv64</text>
+<path d="M32 1087 L66 1087" fill="none" stroke="#7D858F" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="2 3" stroke-linecap="round" marker-end="url(#head)"/>
+<text x="76" y="1091" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="start">runs commands in the sandbox</text>
+<text x="32" y="1119" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="start">cached_recipe_node, analyst_node, scout_node, finish_node and optimize_node also use the sandbox.</text>
+<text x="32" y="1137" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="400" fill="#9BA3AD" text-anchor="start">One AgentState carries the data of a run. Architecture overview gives each routing condition.</text>
+</svg>
