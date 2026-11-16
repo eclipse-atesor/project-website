@@ -182,6 +182,8 @@ const { artifacts, unique, bothLibc, withRecipe, months, distros, langs } = mani
     // both filters and sorts on it, so it belongs in the type (STY-05/UX-04).
     m: string;
     e?: string; c?: number; u?: string; l?: string; r?: number;
+    // Recipe key when it differs from `n` (owner-prefixed zip stems).
+    k?: string;
   };
 
   const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -258,7 +260,7 @@ const { artifacts, unique, bothLibc, withRecipe, months, distros, langs } = mani
         <td class="mono dim">${p.c ?? 0}</td>
         <td class="mono dim">${esc(p.m)}</td>
         <td class="mono dim">${fmtDate(p.v)}</td>
-        <td>${p.r ? `<button class="recipe-btn" data-recipe="${esc(p.n)}">view</button>` : '<span class="dim">·</span>'}</td>
+        <td>${p.r ? `<button class="recipe-btn" data-recipe="${esc(p.k ?? p.n)}">view</button>` : '<span class="dim">·</span>'}</td>
         <td class="dl-cell"><a class="dl" href="${esc(href(p))}" rel="noopener">Download</a></td>
       </tr>`
           )
