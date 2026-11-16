@@ -340,6 +340,25 @@ if (dropped) console.log(`\ndeduplicated ${dropped} artifacts republished by ret
 // Newest build first.
 packages.sort((a, b) => (a.v < b.v ? 1 : a.v > b.v ? -1 : a.n.localeCompare(b.n)));
 
+/*
+ * The release keeps one build per repository and libc each month, but an
+ * older build can stay behind: the publisher lists assets with
+ * `gh release view`, which shows only part of a full release (944 of 1000),
+ * so it never sees some superseded zips (32 in November 2026). Keep the
+ * newest build per package, libc and month. A package counts as one by its
+ * source URL, so its legacy and `<owner>-<repo>` names also collapse.
+ */
+const newest = new Set();
+const beforeNewest = packages.length;
+packages = packages.filter((p) => {
+  const key = `${p.u ?? p.n}\0${p.d}\0${p.m}`;
+  if (newest.has(key)) return false;
+  newest.add(key);
+  return true;
+});
+const superseded = beforeNewest - packages.length;
+if (superseded) console.log(`dropped ${superseded} superseded builds (an older build of the same package, libc and month)`);
+
 // One package can ship under two zip stems (legacy and `<owner>-<repo>`),
 // so count packages by their source URL, and by stem only without one.
 const pkgId = (p) => p.u ?? p.n;
