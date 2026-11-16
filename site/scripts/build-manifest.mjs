@@ -120,7 +120,38 @@ async function raw(path) {
   return res.json();
 }
 
-/** Artifact stems are the URL basename, which is how they map back. */
+/*
+ * Zip stems map back to a catalog entry in one of three forms, because the
+ * atesor packager changed its naming (src/packager.py):
+ *   - `package_stem`: lower-case `<owner>-<repo>` (`madler-zlib`), the form
+ *     of the October and November builds;
+ *   - `legacy_package_stem`: the URL basename, with the owner prefixed for a
+ *     generic basename (`hetznercloud-cli`); older builds use it, and it is
+ *     also the key of data/recipe_cache.json;
+ *   - the bare URL basename, kept as the last fallback.
+ * Before this join knew the first form, 1271 of 1288 November builds had no
+ * recipe flag, so the default "With recipe" view showed 8 of 639 packages.
+ */
+const sanitize = (s) => s.replace(/[^A-Za-z0-9._-]/g, '-').replace(/^\.+/, '');
+const urlParts = (u) => {
+  let s = u.trim().replace(/\/+$/, '').replace(/\.git$/, '');
+  if (s.includes('://')) {
+    const rest = s.slice(s.indexOf('://') + 3);
+    s = rest.includes('/') ? rest.slice(rest.indexOf('/') + 1) : '';
+  }
+  return s.split('/').filter(Boolean);
+};
+const ownerRepoStem = (u) => sanitize(urlParts(u).slice(-2).join('-')).toLowerCase() || 'repo';
+const AMBIGUOUS = new Set(['cli', 'core', 'src', 'app', 'main', 'client', 'server', 'lib']);
+const legacyStem = (u) => {
+  const segs = u.trim().replace(/\/+$/, '').split('/').filter(Boolean);
+  let base = (segs.at(-1) ?? '').replace(/\.git$/, '');
+  if (AMBIGUOUS.has(base.toLowerCase()) && segs.length >= 2) {
+    const owner = segs.at(-2).replace(/\.git$/, '');
+    if (owner && !owner.includes(':') && !owner.includes('.')) base = `${owner}-${base}`;
+  }
+  return sanitize(base) || 'repo';
+};
 const stem = (u) => u.replace(/\.git$/, '').replace(/\/+$/, '').split('/').pop();
 
 let catalog = new Map();
@@ -128,15 +159,24 @@ try {
   const full = await raw('.github/packages/full.json');
   const list = Array.isArray(full) ? full : (full.packages ?? []);
   let rejected = 0;
+  const entries = [];
   for (const p of list) {
     if (!p?.url) continue;
     // SEC-01: only http(s) URLs are carried into the published manifest. A
     // `javascript:` value here would land in an href in the browser.
     if (!/^https?:\/\//i.test(p.url)) { rejected++; continue; }
-    catalog.set(stem(p.url), { url: p.url, lang: p.lang });
+    entries.push({ url: p.url, lang: p.lang, key: legacyStem(p.url) });
+  }
+  // The exact forms first, so a bare basename shared by several repos
+  // (five are named `cli`) never hides an exact match.
+  for (const form of [ownerRepoStem, legacyStem, stem]) {
+    for (const e of entries) {
+      const s = form(e.url);
+      if (!catalog.has(s)) catalog.set(s, e);
+    }
   }
   if (rejected) console.warn(`  rejected ${rejected} non-http(s) source URL(s)`);
-  console.log(`catalog: ${catalog.size} source URLs`);
+  console.log(`catalog: ${entries.length} source URLs, ${catalog.size} zip stems`);
 } catch (e) {
   // BLD-05: previously this only warned, so a failed fetch silently published
   // a manifest with every source link missing and still exited 0.
@@ -246,6 +286,9 @@ for (const rel of releases) {
     if (!m) continue;
     const [, name, date, time, distro, ext] = m;
     const cat = catalog.get(name);
+    // The recipe cache uses the legacy stem; the page looks a recipe up
+    // by `k` when it differs from the zip stem `n`.
+    const key = cat?.key ?? name;
     packages.push({
       n: name,
       v: `${date}-${time}`,
@@ -259,7 +302,8 @@ for (const rel of releases) {
       c: a.download_count || undefined,
       u: cat?.url,
       l: cat?.lang,
-      r: recipes[name] ? 1 : undefined,
+      r: recipes[key] ? 1 : undefined,
+      k: recipes[key] && key !== name ? key : undefined,
     });
     kept++;
   }
@@ -296,15 +340,18 @@ if (dropped) console.log(`\ndeduplicated ${dropped} artifacts republished by ret
 // Newest build first.
 packages.sort((a, b) => (a.v < b.v ? 1 : a.v > b.v ? -1 : a.n.localeCompare(b.n)));
 
-const uniqueNames = new Set(packages.map((p) => p.n));
-const bothLibc = [...uniqueNames].filter((n) => {
-  const ds = new Set(packages.filter((p) => p.n === n).map((p) => p.d));
+// One package can ship under two zip stems (legacy and `<owner>-<repo>`),
+// so count packages by their source URL, and by stem only without one.
+const pkgId = (p) => p.u ?? p.n;
+const uniqueNames = new Set(packages.map(pkgId));
+const bothLibc = [...uniqueNames].filter((id) => {
+  const ds = new Set(packages.filter((p) => pkgId(p) === id).map((p) => p.d));
   return ds.has('alpine') && (ds.has('debian') || ds.has('ubuntu'));
 });
 
 // Only keep recipes for packages that actually have a published artifact,
 // so the lazily-fetched blob carries nothing the table cannot reach.
-const shipped = new Set(packages.filter((p) => p.r).map((p) => p.n));
+const shipped = new Set(packages.filter((p) => p.r).map((p) => p.k ?? p.n));
 recipes = Object.fromEntries(Object.entries(recipes).filter(([k]) => shipped.has(k)));
 
 const manifest = {
